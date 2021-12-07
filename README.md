@@ -2,27 +2,7 @@
 
 [Learnings from A Cloud Guru](https://learn.acloud.guru/course/using-terraform-to-manage-applications-and-infrastructure/dashboard)
 
-## Terraform Cli
-
-Init - Initialise a working directory be that new code or cloned code from version control e.g. Github.
-
-Plan **Dry run, what is Terrform code going to create, delete, or modifiy**
-
-Plan -out output a deployment plan
-
-Plan -destroy dry run of destroy
-
-Apply **run for real**
-
-Apply {Plan Name}
-
-Apply -target={Resource Name}
-
-Apply -var variable={variable}
-
-Destroy - remove the resources created by Terraform. 
-
-Providers - shows all providers being used witin the configuration.
+## [Fundamentals](./Fundamentals/readme.md)
 
 [Terraform Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs)
 
