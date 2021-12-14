@@ -26,9 +26,9 @@ provider "azurecaf" {
       
 }
 
-
 resource "random_id" "resourceGroup" {
     keepers = {
+        environment = "${ var.environment }"
         location = trimspace("${ var.location }")
         subscription = "${ var.subscriptionId }"
     }
@@ -39,12 +39,13 @@ resource "azurecaf_name" "resourceGroup" {
     name = lower(random_id.resourceGroup.id)
     resource_type = "azurerm_resource_group"
     suffixes = ["appname"]
-    random_length = 5
+    random_length = 0
     clean_input = true
 }
 
 resource "azurerm_resource_group" "resourceGroup" {
     name = azurecaf_name.resourceGroup.result
     location = var.location
+    tags = "${var.tags}"
 }
 

@@ -6,3 +6,15 @@ variable "subscriptionId" {
     description = "Subscription Id"
     default = ""  
 }
+variable "environment" {
+    description = "Environment: Dev, Test, Prod..."
+    default = "Dev"
+}
+variable "tags" {
+    description = "Tags required for the resource group"
+    default = {
+        Environment = "Dev"
+        applicationName = "AppName"
+        Location = "North Europe"
+    }
+}
