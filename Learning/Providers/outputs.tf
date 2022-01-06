@@ -1,3 +1,3 @@
-output "Random" {
-    value = lower(random_id.resourceGroup.id)
+output "resourceGroupName" {
+  value = "${azurerm_resource_group.resourceGroup}"
 }

@@ -1,4 +1,5 @@
 terraform {
+    required_version = ">= 1.0.0"
     required_providers {
         azurerm = {
             source = "hashicorp/azurerm"
@@ -22,8 +23,7 @@ provider "azurerm" {
 provider "random" {
 }
 
-provider "azurecaf" {
-      
+provider "azurecaf" {     
 }
 
 resource "random_id" "resourceGroup" {
@@ -38,7 +38,7 @@ resource "random_id" "resourceGroup" {
 resource "azurecaf_name" "resourceGroup" {
     name = lower(random_id.resourceGroup.id)
     resource_type = "azurerm_resource_group"
-    suffixes = ["appname"]
+    suffixes = ["${ var.usage }"]
     random_length = 0
     clean_input = true
 }
@@ -48,4 +48,3 @@ resource "azurerm_resource_group" "resourceGroup" {
     location = var.location
     tags = "${var.tags}"
 }
-

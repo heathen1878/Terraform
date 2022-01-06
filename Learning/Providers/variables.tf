@@ -10,11 +10,15 @@ variable "environment" {
     description = "Environment: Dev, Test, Prod..."
     default = "Dev"
 }
+variable "usage" {
+    description = "The resource group usage - application or infrastructure"
+    default = "usage"
+}
 variable "tags" {
     description = "Tags required for the resource group"
     default = {
-        Environment = "Dev"
-        applicationName = "AppName"
-        Location = "North Europe"
+        environment = ""
+        applicationName = ""
+        location = ""
     }
 }
