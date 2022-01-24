@@ -1,4 +1,3 @@
-/* Network watcher resource for VM network troubleshooting */
 resource "azurerm_network_watcher" "networkWatcher" {
     name = azurecaf_name.networkWatcher.result
     location = var.location
