@@ -45,12 +45,12 @@ variable "virtualMachines" {
     type = map
     default = {
         VM1 = {
-           name = "vm1"
-           subnet = "OpenVpn"
-           ipaddress = "192.168.1.10"
+            computerName = "openvpn1"
+            subnet = "OpenVpn"
+            ipaddress = "192.168.1.10"
         }
         VM2 = {
-            name = "vm2"
+            computerName = "openvpn2"
             subnet = "OpenVpn"
             ipaddress = "192.168.1.11"
         }
