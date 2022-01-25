@@ -12,7 +12,8 @@ resource "azurerm_virtual_network" "hubvNet" {
     address_space = var.hubvirtualNetwork.hub.addressSpace
     dns_servers = var.hubvirtualNetwork.hub.dnsServers !=null ? var.hubvirtualNetwork.hub.dnsServers : []
     depends_on = [
-        azurerm_resource_group.resourceGroup
+        azurerm_resource_group.resourceGroup,
+        azurerm_network_watcher.networkWatcher
     ]
     tags = var.tags
 }
