@@ -26,7 +26,7 @@ provider "azurerm" {
             prevent_deletion_if_contains_resources = true
         }
     }
-    alias = "prevent_rg_deletion_if_not_empty"
+    alias = "prevent-rg-deletion-if-not-empty"
 }
 
 provider "random" {
