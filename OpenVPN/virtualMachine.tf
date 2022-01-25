@@ -8,15 +8,15 @@ resource "azurerm_availability_set" "availabilitySet" {
 }
 
 resource "azurerm_network_interface" "networkAdapter" {
-  foreach = var.virtualMachines
-  name = format("%s%s", azurecaf_name.networkAdapter.result, index(var.virtualMachines, each.value) + 1)
+  for_each = var.virtualMachines
+  name = format("%s-%s", azurecaf_name.networkAdapter.result, each.value.computerName)
   resource_group_name = azurerm_resource_group.resourceGroup.name
   location = var.location
   ip_configuration {
-    name = format("%s%s%s", azurecaf_name.networkAdapter.result, index(var.virtualMachines, each.value) + 1, "-nic-ipconfig")
-    subnet_id = data.terraform_remote_state.mgt-net.outputs.vnet_subnets["om-net-snet-vpn"].subnet_id
+    name = format("%s-%s%s", azurecaf_name.networkAdapter.result, each.value.computerName, "-nic-ipconfig")
+    subnet_id = azurerm_subnet.hubvNet_subnets[each.value.subnet].id
     private_ip_address_allocation = "static"
-    private_ip_address = "${each.value.ipaddress}"
+    private_ip_address = each.value.ipaddress
   }
-  tags = var.tags
+  tags = merge(var.tags, {computerName = each.value.computerName})
 }
