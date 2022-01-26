@@ -18,6 +18,7 @@ resource "random_id" "subscriptionAndLocationUnique" {
 resource "random_id" "resourceGroupUnique" {
     keepers = {
         resourceGroup = azurerm_resource_group.resourceGroup.name
+        environment = var.environment
         usage = var.usage
     }
     byte_length = 16

@@ -4,6 +4,11 @@ resource "azurecaf_name" "resourceGroup" {
     suffixes = [ var.usage ]
 }
 
+resource "azurecaf_name" "nwResourceGroup" {
+    name = lower(random_id.subscriptionAndLocationUnique.id)
+    resource_type = "azurerm_resource_group"
+}
+
 resource "azurecaf_name" "networkWatcher" {
     name = lower(random_id.subscriptionAndLocationUnique.id)
     resource_type = "azurerm_network_watcher"
