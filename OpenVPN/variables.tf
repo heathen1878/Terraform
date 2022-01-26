@@ -19,9 +19,10 @@ variable "usage" {
     type = string
 }
 variable "tags" {
-    description = "Tags required for the resource group"
+    description = "Tags required for the resource groups and resources"
     default = {
-        environment = "Dev"
+        IaC = "Terraform"
+        environment = "Learning"
         applicationName = "Open VPN"
         location = "North Europe"
     }
@@ -47,12 +48,17 @@ variable "virtualMachines" {
         VM1 = {
             computerName = "openvpn1"
             subnet = "OpenVpn"
-            ipaddress = "192.168.1.10"
+            ipaddress = "192.168.1.101"
         }
         VM2 = {
             computerName = "openvpn2"
             subnet = "OpenVpn"
-            ipaddress = "192.168.1.11"
+            ipaddress = "192.168.1.102"
+        }
+        VM22 = {
+            computerName = "openvpn22"
+            subnet = "OpenVpn"
+            ipaddress = "192.168.1.122"
         }
     }
 }
