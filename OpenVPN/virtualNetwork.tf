@@ -1,7 +1,11 @@
+/* 
+Known issue with this code - you cannot deploy these resources into the same subscription and location for 
+multiple environments. This is because you can only have one Network Watcher per subscription per location. 
+ */
 resource "azurerm_network_watcher" "networkWatcher" {
     name = azurecaf_name.networkWatcher.result
     location = var.location
-    resource_group_name = azurerm_resource_group.resourceGroup.name
+    resource_group_name = azurerm_resource_group.nwResourceGroup.name
     tags = var.tags
 }
 
