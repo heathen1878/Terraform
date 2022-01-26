@@ -9,11 +9,11 @@ resource "azurerm_availability_set" "availabilitySet" {
 
 resource "azurerm_network_interface" "networkAdapter" {
   for_each = var.virtualMachines
-  name = format("%s-%s", azurecaf_name.networkAdapter.result, each.value.computerName)
+  name = format("%s-%s", azurecaf_name.networkAdapter.result, substr(each.key, 2, -1))
   resource_group_name = azurerm_resource_group.resourceGroup.name
   location = var.location
   ip_configuration {
-    name = format("%s-%s%s", azurecaf_name.networkAdapter.result, each.value.computerName, "-nic-ipconfig")
+    name = format("%s-%s%s", azurecaf_name.networkAdapter.result, substr(each.key, 2, -1), "-nic-ipconfig")
     subnet_id = azurerm_subnet.hubvNet_subnets[each.value.subnet].id
     private_ip_address_allocation = "static"
     private_ip_address = each.value.ipaddress
