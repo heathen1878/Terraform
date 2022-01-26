@@ -23,3 +23,13 @@ resource "random_id" "resourceGroupUnique" {
     }
     byte_length = 16
 }
+
+/* temporary measure whilst I look at SSH Keys */
+resource "random_string" "linuxAdminPassword" {
+    for_each = var.virtualMachines
+    keepers = {
+        name = each.value.username
+    }
+    length = 16
+
+}

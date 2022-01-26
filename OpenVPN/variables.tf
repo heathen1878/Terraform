@@ -27,6 +27,23 @@ variable "tags" {
         location = "North Europe"
     }
 }
+variable "keyVaultSku" {
+    description = "Standard or Premium"
+    type = string
+    default = "standard"
+}
+variable "keyVaultAdmin" {
+    description = "Group or User assigned Key Vault Administrator"
+    type = string
+}
+variable "keyVaultSecretsOfficer" {
+    description = "Group or User assigned Key Vault Secrets Officer"
+    type = string
+}
+variable "keyVaultCertificatesOfficer" {
+    description = "Group or User assigned Key Vault Certificates Officer"
+    type = string
+}
 variable "hubvirtualNetwork" {
     description = "The hub vNet and its associated subnets"
     type = map
@@ -46,19 +63,11 @@ variable "virtualMachines" {
     type = map
     default = {
         VM1 = {
-            computerName = "openvpn1"
-            subnet = "OpenVpn"
-            ipaddress = "192.168.1.101"
-        }
-        VM2 = {
-            computerName = "openvpn2"
-            subnet = "OpenVpn"
-            ipaddress = "192.168.1.102"
-        }
-        VM22 = {
-            computerName = "openvpn22"
-            subnet = "OpenVpn"
-            ipaddress = "192.168.1.122"
+            computerName = ""
+            subnet = ""
+            ipaddress = ""
+            sku = ""
+            username = ""
         }
     }
 }
