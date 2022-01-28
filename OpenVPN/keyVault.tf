@@ -6,3 +6,11 @@ resource "azurerm_key_vault" "keyVault" {
     enable_rbac_authorization = true
     sku_name = var.keyVaultSku
 }
+
+resource "azurerm_key_vault_secret" "sshKeys" {
+    for_each = var.virtualMachines
+    name = each.value.computerName
+    key_vault_id = azurerm_key_vault.keyVault.id
+    value = base64encode(file(format("%s/Artifacts/%s.pem", path.root, each.value.computerName)))
+    content_type = "SSH Key"
+}
