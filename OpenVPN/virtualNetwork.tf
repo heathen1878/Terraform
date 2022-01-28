@@ -16,8 +16,7 @@ resource "azurerm_virtual_network" "hubvNet" {
     address_space = var.hubvirtualNetwork.hub.addressSpace
     dns_servers = var.hubvirtualNetwork.hub.dnsServers !=null ? var.hubvirtualNetwork.hub.dnsServers : []
     depends_on = [
-        azurerm_resource_group.resourceGroup,
-        azurerm_network_watcher.networkWatcher
+        azurerm_network_watcher.networkWatcher // created dependency to force network watcher to be created prior to the vNet being deployed.
     ]
     tags = var.tags
 }
@@ -28,7 +27,4 @@ resource "azurerm_subnet" "hubvNet_subnets" {
     resource_group_name = azurerm_resource_group.resourceGroup.name
     virtual_network_name = azurerm_virtual_network.hubvNet.name
     address_prefixes = each.value
-    depends_on = [
-        azurerm_virtual_network.hubvNet
-    ]
 }
