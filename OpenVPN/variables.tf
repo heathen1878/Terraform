@@ -58,6 +58,36 @@ variable "hubvirtualNetwork" {
         }
     }
 }
+variable "nsgRules" {
+    description = "A map of rules"
+    type = map
+    default = {
+        OpenVpn = {
+            Rule1 = {
+                name = ""
+                priority = 1000
+                direction = ""
+                access = ""
+                protocol = ""
+                source_port_range = ""
+                destination_port_range = ""
+                source_address_prefix = ""
+                destination_address_prefix = ""
+            }
+            Rule2 = {
+                name = ""
+                priority = 1001
+                direction = ""
+                access = ""
+                protocol = ""
+                source_port_range = ""
+                destination_port_range = ""
+                source_address_prefix = ""
+                destination_address_prefix = ""
+            }
+        }
+    }
+}
 variable "virtualMachines" {
     description = "Virtual Machines and their associated configurations"
     type = map

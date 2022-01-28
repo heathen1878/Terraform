@@ -26,6 +26,12 @@ resource "azurecaf_name" "virtualNetwork" {
     suffixes = ["hub"]
 }
 
+resource "azurecaf_name" "networkSecurityGroup" {
+    name = lower(random_id.resourceGroupUnique.id)
+    resource_type = "azurerm_network_security_group"
+    suffixes = [ var.usage ]
+}
+
 resource "azurecaf_name" "availabilitySet" {
     name = lower(random_id.resourceGroupUnique.id)
     resource_type = "azurerm_availability_set"
@@ -59,5 +65,9 @@ resource "azurecaf_name" "virtualMachineWin" {
     resource_type = "azurerm_windows_virtual_machine"
 }
 
+resource "azurecaf_name" "publicIPAddress" {
+    name = lower(random_id.resourceGroupUnique.id)
+    resource_type = "azurerm_public_ip"  
+}
 
 
