@@ -19,17 +19,7 @@ resource "random_id" "resourceGroupUnique" {
     keepers = {
         resourceGroup = azurerm_resource_group.resourceGroup.name
         environment = var.environment
-        usage = var.usage
+        location = trimspace( var.location )
     }
     byte_length = 16
-}
-
-/* temporary measure whilst I look at SSH Keys */
-resource "random_string" "linuxAdminPassword" {
-    for_each = var.virtualMachines
-    keepers = {
-        name = each.value.username
-    }
-    length = 16
-
 }
