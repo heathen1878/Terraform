@@ -5,7 +5,7 @@ multiple environments. This is because you can only have one Network Watcher per
 resource "azurerm_network_watcher" "networkWatcher" {
     name = azurecaf_name.networkWatcher.result
     location = var.location
-    resource_group_name = azurerm_resource_group.nwResourceGroup.name
+    resource_group_name = azurerm_resource_group.resourceGroup.name
     tags = var.tags
 }
 

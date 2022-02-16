@@ -49,44 +49,38 @@ variable "hubvirtualNetwork" {
     type = map
     default = {
         hub = {
-            addressSpace = ["192.168.0.0/16"]
+            addressSpace = ["10.0.0.0/16"]
             dnsServers = []
             subnets = {
-                GatewaySubnet = ["192.168.0.0/24"]
-                OpenVpn = ["192.168.1.0/24"]
+                subnet = ["10.0.0.0/24"]
             }
         }
     }
 }
 variable "nsgRules" {
     description = "A map of rules"
-    type = map
-    default = {
-        OpenVpn = {
-            Rule1 = {
-                name = ""
-                priority = 1000
-                direction = ""
-                access = ""
-                protocol = ""
-                source_port_range = ""
-                destination_port_range = ""
-                source_address_prefix = ""
-                destination_address_prefix = ""
-            }
-            Rule2 = {
-                name = ""
-                priority = 1001
-                direction = ""
-                access = ""
-                protocol = ""
-                source_port_range = ""
-                destination_port_range = ""
-                source_address_prefix = ""
-                destination_address_prefix = ""
-            }
-        }
-    }
+    type = map(
+        map(
+            object(
+                {
+                    name = string
+                    priority = number
+                    protocol = string
+                    direction = string
+                    access = string
+                    description = string
+                    source_port_range = string
+                    source_port_ranges = list(string)
+                    destination_port_range = string
+                    destination_port_ranges = list(string)
+                    source_address_prefix = string
+                    source_address_prefixes = list(string)
+                    destination_address_prefix = string
+                    destination_address_prefixes = list(string)
+                }
+            )
+        )
+    )
 }
 variable "linuxVirtualMachines" {
     description = "Linux Virtual Machines and their associated configurations"

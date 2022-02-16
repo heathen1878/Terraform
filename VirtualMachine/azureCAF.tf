@@ -41,7 +41,6 @@ resource "azurecaf_name" "virtualNetwork" {
 resource "azurecaf_name" "networkSecurityGroup" {
     name = local.resourceGroupUnique
     resource_type = "azurerm_network_security_group"
-    suffixes = [ local.usage ]
 }
 
 resource "azurecaf_name" "availabilitySet" {
