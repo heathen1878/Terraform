@@ -26,7 +26,7 @@ resource "random_id" "subscriptionAndLocationUnique" {
 
 resource "random_id" "resourceGroupUnique" {
     keepers = {
-        resourceGroup = azurerm_resource_group.resourceGroup.name
+        resourceGroup = azurecaf_name.resourceGroup.result
         environment = var.environment
         location = trimspace( var.location )
     }
