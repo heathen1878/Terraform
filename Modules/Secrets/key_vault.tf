@@ -1,5 +1,7 @@
-resource "azurerm_key_vault" "keyVault" {
-    name = azurecaf_name.keyVault.result
+resource "azurerm_key_vault" "key_vault" {
+    for_each = data.terraform_remote_state.config.outputs.key_vaults
+    
+    name = each.value.kv_name
     resource_group_name = azurerm_resource_group.resourceGroup.name
     location = var.location
     tenant_id = data.azurerm_client_config.current.tenant_id
@@ -8,19 +10,25 @@ resource "azurerm_key_vault" "keyVault" {
 }
 
 resource "azurerm_role_assignment" "keyVaultAdmin" {
-  scope = azurerm_key_vault.keyVault.id
+  for_each = azurerm_key_vault.key_vault
+
+  scope = each.value.id
   role_definition_name = "Key Vault Administrator"
   principal_id = var.keyVaultAdmin
 }
 
 resource "azurerm_role_assignment" "keyVaultSecretsOfficer" {
-  scope = azurerm_key_vault.keyVault.id
+  for_each = azurerm_key_vault.key_vault
+
+  scope = each.value.id
   role_definition_name = "Key Vault Secrets Officer"
   principal_id = var.keyVaultSecretsOfficer
 }
 
 resource "azurerm_role_assignment" "keyVaultCertificatesOfficer" {
-  scope = azurerm_key_vault.keyVault.id
+  for_each = azurerm_key_vault.key_vault
+
+  scope = each.value.id
   role_definition_name = "Key Vault Certificates Officer"
   principal_id = var.keyVaultCertificatesOfficer
 }

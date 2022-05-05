@@ -15,5 +15,14 @@ terraform {
       source = "aztfmod/azurecaf"
       version = "1.2.10"
     }
+    template = {
+      source = "hashicorp/template"
+    }
+    null = {
+      source = "hashicorp/null"
+    }
+    local = {
+      source = "hashicorp/local"
+    }
   }
 }
