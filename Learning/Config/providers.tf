@@ -1,5 +1,0 @@
-provider "random" {
-}
-
-provider "azurecaf" {     
-}
