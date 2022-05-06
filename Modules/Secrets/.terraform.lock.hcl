@@ -9,6 +9,13 @@ provider "registry.terraform.io/aztfmod/azurecaf" {
   ]
 }
 
+provider "registry.terraform.io/hashicorp/azuread" {
+  version = "2.22.0"
+  hashes = [
+    "h1:BLBnXLc5mCzSZ0PX5lGn5zgtnrkP7LMRwTA5pBwr2fk=",
+  ]
+}
+
 provider "registry.terraform.io/hashicorp/azurerm" {
   version     = "2.92.0"
   constraints = "2.92.0"

@@ -68,8 +68,9 @@ locals {
             for aad_kv_location_key, aad_kv_location_value in aad_user_value.kv : {
                 key                             = aad_user_key
                 kv                              = aad_kv_location_value
-                user_principal_name             = aad_user_value.user_principal_name
+                user_principal_name             = aad_user_value.formatted_user_principal_name
                 password                        = aad_user_value.password
+                expiration_date                 = aad_user_value.password_expiration
             }
         ]
     ])
@@ -82,15 +83,16 @@ locals {
 
     aad_users_generate_ssh_keys = flatten([
         for aad_user_key, aad_user_value in data.terraform_remote_state.aad.outputs.aad_users : [
-            {
-                user = aad_user_value.user_principal_name
+            for aad_kv_location_key, aad_kv_location_value in aad_user_value.kv : {
+                user     = aad_user_value.formatted_user_principal_name
                 filename = aad_user_key
+                kv       = aad_kv_location_value
             }
         ]
     ])
 
     aad_users_generate_ssh_keys_map = {
-        for aad_key, aad_value in local.aad_users_generate_ssh_keys : format("%s_ssh", aad_value.filename) => aad_value
+        for aad_key, aad_value in local.aad_users_generate_ssh_keys : format("%s_ssh_%s", aad_value.filename, aad_value.kv) => aad_value
     }
 
 }
