@@ -27,7 +27,7 @@ locals {
       job_title     = "Automation Account"
       user_secrets_kv = [
         # a list of key vaults where the service principal secret should be stored. 
-        "secrets_accesspolicy" # mgt-secrets-kv
+        "management"
       ]
       expire_password_after              = 5
       rotate_password_days_before_expiry = 3
