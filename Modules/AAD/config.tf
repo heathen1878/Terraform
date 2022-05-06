@@ -76,12 +76,12 @@ locals {
 
   aad_users_output = {
     for aad_user_key, aad_user_value in azuread_user.mgt_aad_user : aad_user_key => {
-      user_principal_name = aad_user_value.user_principal_name
-      object_id           = aad_user_value.object_id
-      kv                  = local.aad_users[aad_user_key].user_secrets_kv
-      generate_ssh_keys   = try(local.aad_users[aad_user_key].generate_ssh_keys, false)
-      password            = random_password.aad_user[aad_user_key].result
-      password_expiration = time_offset.password_expiry[aad_user_key].rfc3339
+      formatted_user_principal_name = replace(aad_user_value.user_principal_name, "/@|\\./", "-")
+      object_id                     = aad_user_value.object_id
+      kv                            = local.aad_users[aad_user_key].user_secrets_kv
+      generate_ssh_keys             = try(local.aad_users[aad_user_key].generate_ssh_keys, false)
+      password                      = random_password.aad_user[aad_user_key].result
+      password_expiration           = time_offset.password_expiry[aad_user_key].rfc3339
     }
   }
 
