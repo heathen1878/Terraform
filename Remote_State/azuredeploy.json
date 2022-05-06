@@ -1,0 +1,351 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environment": {
+            "type": "string",
+            "defaultValue": "Demo",
+            "metadata": {
+                "description": "Prod, Dev, Test, PoC, and Demo"
+            }
+        },
+        "usage":{
+            "type": "string",
+            "defaultValue": "ResourceGroupUsage",
+            "metadata": {
+                "description": "Used to build the resource group name e.g. identity resources would live in a resource group which contains the word identity, an application might use APP1"
+            }
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "The location of the resource group"
+            }
+        },
+        "Locations": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "list of valid locations"
+            }
+        },
+        "resourceTags": {
+            "type": "object",
+            "defaultValue": {
+                "key": "value"
+            },
+            "metadata": {
+                "description": "Tags value pairs which get associated with the resource group"
+            }
+        },
+        "RBAC": {
+            "type": "array",
+            "metadata": {
+                "description": "An object of resource group RBAC assignments"
+            }
+        },
+        "DedicatedSubscription":{
+            "type": "string",
+            "defaultValue": "Yes",
+            "allowedValues":[   
+                "Yes",
+                "No"
+            ],
+            "metadata":{
+                "description": "Dedicated subscriptions get Azure Policies deployed, If the connectivity and management resource groups exist within the same subscription only one should be set to Yes."
+            }
+        }
+    },
+    "variables": {
+        "resourceGroupPrefix": "[concat('rg-', uniquestring(toLower(parameters('environment')), toLower(parameters('location')), toLower(subscription().id)))]",
+        "resourceGroupName": "[concat(variables('resourceGroupPrefix'), '-', toLower(parameters('usage')))]",
+        "AllowedLocations": "[if(empty(parameters('Locations')), createArray(parameters('location')), parameters('Locations'))]",
+        "rgLocationPolicyId": "/providers/Microsoft.Authorization/policyDefinitions/e765b5de-1225-4ba3-bd56-1ac6695af988",
+        "resLocationPolicyId": "/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c",
+        "environmentTag":{
+            "environment": "[parameters('environment')]"
+        },
+        "defaultTags": "[union(variables('environmentTag'), parameters('resourceTags'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2021-04-01",
+            "name": "[variables('resourceGroupName')]",
+            "location": "[parameters('location')]",
+            "tags": "[variables('defaultTags')]"
+        },
+        {
+            "condition": "[equals(parameters('DedicatedSubscription'), 'Yes')]",
+            "type": "Microsoft.Authorization/policyAssignments",
+            "apiVersion": "2019-09-01",
+            "name": "[guid(variables('rgLocationPolicyId'), parameters('Location'))]",
+            "dependsOn":[
+                "[resourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
+            ],
+            "properties":{
+                "displayName": "[concat('Allowed Locations for Resource Groups: ', replace(replace(replace(string(variables('AllowedLocations')), '[\"', ''), '\"]', ''), '\",\"' , '-'))]",
+                "policyDefinitionId": "[variables('rgLocationPolicyId')]",
+                "parameters":{
+                "listOfAllowedLocations": {
+                        "value": "[variables('allowedLocations')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "[guid(parameters('RBAC')[copyIndex('RBAC')].principalId, parameters('RBAC')[copyIndex('RBAC')].roleId, resourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName')))]",
+            "copy": {
+                "name": "RBAC",
+                "count": "[length(parameters('RBAC'))]"
+            },
+            "dependsOn":[
+                "[resourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
+            ],
+            "resourceGroup": "[variables('resourceGroupName')]",            
+            "properties": {
+                "mode": "incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Authorization/roleAssignments",
+                            "apiVersion": "2017-09-01",
+                            "name": "[guid(parameters('RBAC')[copyIndex('RBAC')].principalId, parameters('RBAC')[copyIndex('RBAC')].roleId, resourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName')))]",                
+                            "properties": {
+                                "roleDefinitionId": "[ResourceId('Microsoft.Authorization/roleDefinitions', parameters('RBAC')[copyIndex('RBAC')].roleId)]",
+                                "principalId": "[parameters('RBAC')[copyIndex('RBAC')].principalId]"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "AllowedLocationsForResources",
+            "dependsOn":[
+                "[resourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
+            ],
+            "resourceGroup": "[variables('resourceGroupName')]",            
+            "properties": {
+                "mode": "incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Authorization/policyAssignments",
+                            "apiVersion": "2019-09-01",
+                            "name": "[guid(variables('resLocationPolicyId'), parameters('Location'))]",
+                            "properties":{
+                                "displayName": "[concat('Allowed Locations for Azure Resources: ', replace(replace(replace(string(variables('AllowedLocations')), '[\"', ''), '\"]', ''), '\",\"' , '-'))]",
+                                "policyDefinitionId": "[variables('resLocationPolicyId')]",
+                                "parameters":{
+                                    "listOfAllowedLocations": {
+                                        "value": "[variables('allowedLocations')]"
+                                    } 
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "createStorage",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
+            ],
+            "resourceGroup": "[variables('resourceGroupName')]",
+            "properties": {
+                "mode": "Incremental",
+                "expressionEvaluationOptions": {
+                    "scope": "Inner"
+                },
+                "parameters": {
+                    "environment": {
+                        "value": "[parameters('environment')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "usage": {
+                        "value": "[parameters('usage')]"
+                    },
+                    "deployContainer": {
+                        "value": "No"
+                    },
+                    "resourceTags":{
+                        "value": "[parameters('resourceTags')]"
+                    }
+                },
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "environment" :{
+                            "type": "string",
+                            "defaultValue": "Demo",
+                            "metadata": {
+                                "description": "Prod, Dev, Test, PoC, and Demo"
+                            }
+                        },
+                        "location": {
+                            "type": "string",
+                            "metadata": {
+                                "description": "Location for all resources."
+                            }
+                        },
+                        "usage":{
+                            "type": "string",
+                            "defaultValue": "storage",
+                            "metadata":{
+                                "description": "used to generate a random string"
+                            }
+                        },
+                        "allowBlobPublicAccess": {
+                            "type": "bool",
+                            "defaultValue": true,
+                            "allowedValues": [
+                                true,
+                                false
+                            ],
+                            "metadata": {   
+                                "desciption": "Should the storage account be public - no by default but maybe useful for demoing stuff"
+                            }
+                        },
+                        "deployContainer": {
+                            "type": "string",
+                            "defaultValue": "No",
+                            "allowedValues": [
+                                "Yes",
+                                "No"
+                            ],
+                            "metadata": {
+                                "description": "Determine whether a container or containers should be deployed"
+                            }
+                        },
+                        "containerName": {
+                            "type": "array",
+                            "defaultValue": [
+                                "Container1",
+                                "Container2"
+                            ]
+                        },
+                        "containerPublicAccess": {
+                            "type": "string",
+                            "defaultValue": "none",
+                            "allowedValues": [
+                                "none",
+                                "Blob",
+                                "Container"
+                            ],
+                            "metadata": {
+                                "desciption": "Used in conjunction with allowBlobPublicAccess"
+                            }
+                        },
+                        "accountSasProperties": {
+                            "type": "object",
+                            "defaultValue": {
+                                "signedServices": "b",
+                                "signedPermission": "r",
+                                "signedResourceTypes": "co",
+                                "signedStart": "[dateTimeAdd(utcNow('u'), '-PT1H')]",
+                                "signedExpiry": "[dateTimeAdd(utcNow('u'), 'PT2H')]"
+                            },
+                            "metadata": {
+                                "description": "used to obtain a SAS token for the storage account."
+                            }
+                        },
+                        "resourceTags":{
+                            "type": "object",
+                            "defaultValue": {
+                                "usage": "storage"
+                            },
+                            "metadata":{
+                                "description": "Mandatory requirement to denote what the storage account is used for e.g. Compute diagnostics, NSG flow logs etc."
+                            }
+                        }
+                    },
+                    "variables": {
+                        "storageAccountUniqueString": "[uniquestring(parameters('environment'), parameters('location'), subscription().id, parameters('usage'))]",
+                        "storageAccountName": "[if(greater(length(concat('st', variables('storageAccountUniqueString'))),23), tolower(substring(concat('st', toLower(variables('storageAccountUniqueString'))),0,23)), concat('st', tolower(variables('storageAccountUniqueString'))))]",
+                        "resourceSpecificTags":{
+                            "usage": "Lets Encrypt",
+                            "environment": "[parameters('environment')]"
+                        },
+                        "tags": "[union(variables('resourceSpecificTags'), parameters('resourceTags'))]"
+                    },
+                    "resources": [
+                        {
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "[variables('StorageAccountName')]",
+                            "apiVersion": "2019-04-01",
+                            "location": "[parameters('location')]",
+                            "tags": "[variables('tags')]",
+                            "kind": "StorageV2",
+                            "sku": {
+                                "name": "Standard_LRS"
+                            },
+                            "properties": {
+                                "accessTier": "Hot",
+                                "allowBlobPublicAccess": "[parameters('allowBlobPublicAccess')]"
+                            }
+                        },
+                        {
+                            "condition": "[equals(parameters('deployContainer'), 'Yes')]",
+                            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                            "apiVersion": "2019-06-01",
+                            "name": "[concat(variables('storageAccountName'), '/default/', toLower(parameters('containerName')[copyIndex('Containers')]))]",
+                            "dependsOn": [
+                                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
+                            ],
+                            "copy": {
+                                "name": "Containers",
+                                "count": "[length(parameters('containerName'))]"
+                            },
+                            "properties": {
+                                "publicAccess": "[parameters('containerPublicAccess')]"
+                            }
+                        }
+                    ],
+                    "outputs": {
+                        "storageAccount_Name":{
+                            "type": "string",
+                            "value": "[variables('StorageAccountName')]"
+                        },
+                        "storageAccount_Id":{
+                            "type":"string",
+                            "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
+                        },
+                        "artifactLocation": {
+                            "condition": "[equals(parameters('deployContainer'), 'Yes')]",
+                            "type": "array",
+                            "copy": {
+                                "count": "[length(parameters('containerName'))]",
+                                "input": "[concat('https://', variables('storageAccountName'), '.blob.core.windows.net/', toLower(parameters('containerName')[copyIndex()]))]"
+                            }
+                        },
+                        "sasToken": {
+                            "type": "string",
+                            "value": "[listAccountSas(variables('storageAccountName'), '2021-04-01', parameters('accountSasProperties')).accountSasToken]"
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "storageAccount_Id": {
+            "type": "string",
+            "value": "[reference('createStorage').outputs.storageAccount_Id.value]"
+        }
+    }
+}

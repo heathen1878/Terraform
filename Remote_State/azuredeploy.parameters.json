@@ -1,0 +1,42 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environment": {
+            "value": "Production"
+        },
+        "location": {
+            "value": "North Europe"
+        },
+        "Locations": {
+            "value": [
+                "North Europe",
+                "West Europe"
+            ]
+        },
+        "usage":{
+            "value": "tfstate"
+        },
+        "resourceTags":{
+            "value": {
+                "application": "Terraform Remote State",
+                "businessContact": "Dom Clayton",
+                "department": "DevOps",
+                "description": "Contains storage account for Terraform Remote State",
+                "technicalContact": "Dom Clayton",
+                "IaC": "ARM"
+            }
+        },
+        "RBAC": {
+            "value": [
+                {
+                    "roleId": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
+                    "principalId": "8f327540-948e-4cf9-8b13-4282e1de26cc"
+                }
+            ]
+        },
+        "DedicatedSubscription": {
+            "value": "Yes"
+        }
+    }
+}
