@@ -1,5 +1,5 @@
 resource "azuread_application" "aad_application" {
-  for_each = local.aad_applications
+  for_each = data.terraform_remote_state.config.outputs.aad_applications
 
   display_name     = each.key
   identifier_uris  = []
@@ -14,7 +14,7 @@ resource "azuread_application" "aad_application" {
       admin_consent_description  = format("Allow the application to access %s on behalf of the signed-in user.", each.key)
       admin_consent_display_name = format("Access %s", each.key)
       enabled                    = true
-      id                         = random_uuid.aad_applications[each.key].result
+      id                         = each.value.app_id
       type                       = "User"
       user_consent_description   = format("Allow the application to access %s on your behalf.", each.key)
       user_consent_display_name  = format("Access %s", each.key)
@@ -60,15 +60,13 @@ resource "azuread_application" "aad_application" {
   provisioner "local-exec" {
     command = "Start-Sleep 180"
     #command = "sleep 180"
-    interpreter = ["PowerShell", "-Command"]
+    interpreter = ["PowerShell", "-Command", "-NoProfile"]
   }
-
-  
 
 }
 
 resource "azuread_service_principal" "aad_application_principal" {
-  for_each = local.aad_applications
+  for_each = data.terraform_remote_state.config.outputs.aad_applications
 
   application_id               = azuread_application.aad_application[each.key].application_id
   app_role_assignment_required = true
