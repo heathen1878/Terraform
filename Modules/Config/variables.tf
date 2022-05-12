@@ -8,34 +8,36 @@ variable "environment" {
     default = "Dev"
     type = string
 }
-variable "usage" {
-    description = "The resource group usage - application or infrastructure"
-    default = ""
+variable "namespace" {
+    description = "The namespace for the deployment e.g. mgt, dom, "
+    default = "ns1"
+    type = string
+}
+variable "domain_suffix" {
+    description = "A valid domain within AAD"
     type = string
 }
 variable "tags" {
     description = "Tags required for the resource groups and resources"
     default = {
         IaC = "Terraform"
-        environment = "Learning"
-        applicationName = "Configurations"
-        location = "North Europe"
+        applicationName = "Configuration"
     }
     type = map
 }
-variable "hubvirtualNetwork" {
-    description = "The hub vNet and its associated subnets"
-    type = map
-    default = {
-        hub = {
-            addressSpace = ["192.168.0.0/16"]
-            dnsServers = []
-            subnets = {
-                GatewaySubnet = ["192.168.0.0/24"]
+variable "virtual_networks" {
+    description = "A virtual network for this environment"
+    type = map(
+        object(
+            {
+                address_space = list(string)
+                dns_servers = list(string)
             }
-        }
-    }
+        )
+        )
 }
+############# 
+
 variable "nsgRules" {
     description = "A map of rules"
     type = map(

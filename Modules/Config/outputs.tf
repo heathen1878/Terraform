@@ -1,11 +1,41 @@
-output "subnetsWithNsgs_map" {
-    value = local.subnetsWithNsgs_map
+output "aad_applications" {
+  value     = local.aad_applications_output
+  sensitive = true
 }
 
-output "nsgRules_map" {
-    value = local.nsgRules_map
+output "aad_users" {
+  value     = local.aad_users_output
+  sensitive = true
 }
 
-output "key_vaults" {
-    value = local.key_vault_outputs
+output "aad_groups" {
+  value     = local.aad_group_output
 }
+
+output "aad_application_group_membership" {
+  value = local.aad_applications_group_membership_map
+}
+
+output "aad_user_group_membership" {
+  value = local.aad_users_group_membership_map
+}
+
+output "virtual_network" {
+    value = local.virtual_networks_output
+}
+
+#output "subnetsWithNsgs_map" {
+#    value = local.subnetsWithNsgs_map
+#}
+#
+#output "nsgRules_map" {
+#    value = local.nsgRules_map
+#}
+#
+#output "key_vaults" {
+#    value = local.key_vault_outputs
+#}
+#
+#output "virtual_machines" {
+#    value = local.virtual_machine_output
+#}

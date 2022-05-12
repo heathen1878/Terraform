@@ -19,7 +19,7 @@ locals {
     mgt-dev-platformautomation = {
       forename      = "Platform"
       surname       = "Automation"
-      domain_suffix = "infratechy.co.uk"
+      domain_suffix = var.domain_suffix
       enabled       = true
       aad_groups    = [
         "mgt-dev-azdo-project-readers"
