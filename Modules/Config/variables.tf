@@ -34,10 +34,8 @@ variable "virtual_networks" {
                 dns_servers = list(string)
             }
         )
-        )
+    )
 }
-############# 
-
 variable "nsgRules" {
     description = "A map of rules"
     type = map(

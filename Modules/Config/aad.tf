@@ -35,9 +35,25 @@ locals {
     } 
   }
 
-  aad_groups = {
-    mgt-dev-azdo-project-readers = {
-      description = "Grants read access to Projects within Azure DevOps"
+  aad_azdo_groups = {
+    azdo = {
+      mgt-dev-azdo-project-readers = {
+        description = "Grants read access to Projects within Azure DevOps"
+      }
+    }
+  }
+
+  aad_kv_groups = {
+    kv = {
+      mgt-dev-certificate-officers = {
+        description = "Can manage certificates within a Key Vault"
+      }
+      mgt-dev-secret-officers = {
+        description = "Can manage secrets within a Key Vault"
+      }
+      mgt-dev-key-vault-admins = {
+        description = "Administrators of Key Vaults"
+      }
     }
   }
   
@@ -51,8 +67,8 @@ locals {
       description                      = aad_app_value.description
       kv                               = aad_app_value.service_principal_secret_kv
       secret_display_name              = aad_app_value.display_name
-      secret                           = random_password.aad_application[aad_app_key].result
-      secret_expiration                = time_offset.secret_expiry[aad_app_key].rfc3339
+      expire_secret_after              = aad_app_value.expire_secret_after
+      rotate_secret_days_before_expiry = aad_app_value.rotate_secret_days_before_expiry
     }
   }
 
@@ -71,12 +87,7 @@ locals {
     }
   }
 
-  aad_group_output = {
-    for aad_group_key, aad_group_value in local.aad_groups : aad_group_key => {
-      name                           = aad_group_key
-      description                    = aad_group_value.description
-    }
-  }
+  aad_group_output = merge(local.aad_azdo_groups, local.aad_kv_groups)
 
   aad_applications_group_membership = flatten([
     for aad_app_key, aad_app_value in local.aad_applications : [
