@@ -6,8 +6,8 @@ locals {
         "mgt-dev-azdo-project-readers"
       ]
       description = "Dedicated AAD application for cloning repos, zipping them and storing them in a storage account."
-      service_principal_secret_kv = [
-        # a list of key vaults where the service principal secret should be stored. 
+      kv = [
+        # a list of key vaults where the secrets should be stored. 
         "management" # mgt-secrets-kv
       ],
       expire_secret_after              = 5
@@ -25,8 +25,8 @@ locals {
         "mgt-dev-azdo-project-readers"
       ]
       job_title     = "Automation Account"
-      user_secrets_kv = [
-        # a list of key vaults where the service principal secret should be stored. 
+      kv = [
+        # a list of key vaults where the secrets should be stored. 
         "management"
       ]
       expire_password_after              = 5
@@ -65,7 +65,7 @@ locals {
     for aad_app_key, aad_app_value in local.aad_applications : aad_app_key => {
       app_id                           = random_uuid.aad_application[aad_app_key].result
       description                      = aad_app_value.description
-      kv                               = aad_app_value.service_principal_secret_kv
+      kv                               = aad_app_value.kv
       secret_display_name              = aad_app_value.display_name
       expire_secret_after              = aad_app_value.expire_secret_after
       rotate_secret_days_before_expiry = aad_app_value.rotate_secret_days_before_expiry
@@ -80,7 +80,7 @@ locals {
       job_title                     = aad_user_value.job_title
       enabled                       = aad_user_value.enabled
       formatted_user_principal_name = format("%s-%s", aad_user_key, replace(aad_user_value.domain_suffix, "/\\./", "-"))
-      kv                            = aad_user_value.user_secrets_kv
+      kv                            = aad_user_value.kv
       generate_ssh_keys             = try(aad_user_value.generate_ssh_keys, false)
       password                      = random_password.aad_user[aad_user_key].result
       password_expiration           = time_offset.password_expiry[aad_user_key].rfc3339

@@ -48,7 +48,7 @@ resource "random_id" "net_resource_group_unique" {
   byte_length = 16
 }
 
-resource "random_id" "linux_virtual_machine" {
+resource "random_id" "virtual_machine" {
   for_each = local.virtual_machine
 
   keepers = {
@@ -56,18 +56,7 @@ resource "random_id" "linux_virtual_machine" {
     environment = var.environment
     location = local.location
   }
-  byte_length = 16
-}
-
-resource "random_id" "windows_virtual_machine" {
-    for_each = local.virtual_machine
-
-    keepers = {
-        environment = var.environment
-        location = local.location
-        subscription = data.azurerm_subscription.current.subscription_id
-    }
-    byte_length = 6
+  byte_length = 6
 }
 
 resource "random_uuid" "aad_application" {
@@ -110,20 +99,15 @@ locals {
         name = replace(lower(key_vault_value.id), "/[^0-9a-zA-Z]/", "")
       }
     }
-    linux_virtual_machine                                             = {
-      for virtual_machine_key, virtual_machine_value in random_id.linux_virtual_machine : virtual_machine_key => {
-        name = replace(lower(virtual_machine_value.id), "/[^0-9a-zA-Z]/", "")
-      }
-    }
-    windows_virtual_machine                                             = {
-      for virtual_machine_key, virtual_machine_value in random_id.windows_virtual_machine : virtual_machine_key => {
+    formatted_virtual_machine                                             = {
+      for virtual_machine_key, virtual_machine_value in random_id.virtual_machine : virtual_machine_key => {
         name = replace(lower(virtual_machine_value.id), "/[^0-9a-zA-Z]/", "")
       }
     }
     subscriptionAndEnvironmentAndLocationUnique                 = replace(lower(random_id.subscriptionAndEnvironmentAndLocationUnique.id), "/[^0-9a-zA-Z]/", "")
     subscriptionAndEnvironmentAndLocationUnique_charlimitation  = replace(lower(random_id.subscriptionAndEnvironmentAndLocationUnique_charlimitation.id), "/[^0-9a-zA-Z]/", "")
     subscriptionAndLocationUnique                               = replace(lower(random_id.subscriptionAndLocationUnique.id), "/[^0-9a-zA-Z]/", "")
-    netResourceGroupUnique                                      = replace(lower(random_id.net_resource_group_unique.id), "/[^0-9a-zA-Z]/", "")
+    net_resource_group_unique                                   = replace(lower(random_id.net_resource_group_unique.id), "/[^0-9a-zA-Z]/", "")
     location                                                    = replace(lower(var.location), " ", "")
 }
 

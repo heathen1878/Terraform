@@ -28,15 +28,14 @@ output "virtual_network_subnets" {
   value = local.virtual_network_subnets_output
 }
 
+output "subnets_with_nsgs_map" {
+    value = local.subnetsWithNsgs_map
+}
 
-#output "subnetsWithNsgs_map" {
-#    value = local.subnetsWithNsgs_map
-#}
-#
-#output "nsgRules_map" {
-#    value = local.nsgRules_map
-#}
-#
+output "nsg_rules_map" {
+    value = local.nsgRules_map
+}
+
 output "key_vaults" {
     value = local.key_vault_outputs
 }

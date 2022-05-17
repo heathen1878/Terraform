@@ -38,9 +38,9 @@ variable "virtual_networks" {
 }
 variable "nsgRules" {
     description = "A map of rules"
-    type = map(
-        map(
-            object(
+    type = map( # reference to subnet
+        map( # rule 
+            object( # rule configuration
                 {
                     name = string
                     priority = number
