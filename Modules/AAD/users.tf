@@ -11,9 +11,15 @@ resource "azuread_user" "mgt_aad_user" {
   account_enabled     = each.value.enabled
 
   # sleep to allow MS Graph to update changes, it can be slow to be visible to dependent resources
+  # Windows
   provisioner "local-exec" {
     command = "Start-Sleep 180"
-    interpreter = ["PowerShell", "-Command", "-NoProfile"]
+    interpreter = ["PowerShell", "-Command"]
   }
+
+  # Linux
+  #provisioner "local-exec" {
+  #  command = "sleep 180"
+  #}
 
 }

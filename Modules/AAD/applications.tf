@@ -73,3 +73,30 @@ resource "azuread_service_principal" "aad_application_principal" {
   description                  = each.value.description
 
 }
+
+# Generate a service principal secret if time rotation has passed
+resource "azuread_application_password" "aad_application" {
+  for_each = data.terraform_remote_state.config.outputs.aad_applications
+
+  display_name          = "tf-generated"
+  application_object_id = azuread_application.aad_application[each.key].object_id
+  end_date_relative     = format("%sh", each.value.expire_secret_after * 24)
+  rotate_when_changed = {
+    rotation = time_rotating.secret_rotation[each.key].id
+  }
+
+}
+
+locals {
+
+  aad_applications_output = {
+    for aad_app_key, aad_app_value in data.terraform_remote_state.config.outputs.aad_applications : aad_app_key => {
+      object_id                        = azuread_application.aad_application[aad_app_key].object_id
+      kv                               = aad_app_value.kv
+      secret                           = azuread_application_password.aad_application[aad_app_key].value
+      secret_display_name              = aad_app_value.secret_display_name
+      secret_expiration                = time_offset.secret_expiry[aad_app_key].rfc3339
+    }
+  }
+
+}
