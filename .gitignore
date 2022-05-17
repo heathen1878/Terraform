@@ -33,3 +33,7 @@ override.tf.json
 # Exclude private and public keys
 *.pem
 *.pub
+
+# Exclude automated ssh keys and key generation scripts
+**/keys/*.ps1
+**/keys/*.sh
