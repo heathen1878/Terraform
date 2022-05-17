@@ -185,13 +185,16 @@ switch ($environment){
 
 }
 
+# Get access key from storage account
+$ACCESS_KEY = Get-AzStorageAccountKey -ResourceGroupName (Get-AzResource -Name "sthn37mgfywa7g4").ResourceGroupName -Name "sthn37mgfywa7g4" | Where-Object {$_.KeyName -eq "key1"}
+
 # Set environment variables for Terraform
 $env:TF_ENVIRONMENT=$env
 $env:TF_NAMESPACE=$namespace
 $env:TF_MODULE=$module
 $env:TF_DATA_DIR=(-Join($env:TF_ENVIRONMENT_VARS, '\.terraform'))
 $env:ARM_SUBSCRIPTION_ID=$subscriptionId
-$env:ARM_ACCESS_KEY="gixlOzZyGuZ7DoBL7mQfHyquSNA/HGidlnYlk+ShRp5j3qn+Ym9hoUFrt8f7ZUldliw6tM9BG1bx5f2xUeKMuA=="
+$env:ARM_ACCESS_KEY=($ACCESS_KEY).Value
 
 $subscriptionName = az account list --query "[? contains(id, '$env:ARM_SUBSCRIPTION_ID')].[name]" --output json | ConvertFrom-Json
 
