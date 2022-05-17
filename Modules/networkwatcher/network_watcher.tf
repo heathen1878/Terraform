@@ -9,5 +9,8 @@ resource "azurerm_network_watcher" "network_watcher" {
     name = azurecaf_name.network_watcher.result
     location = var.location
     resource_group_name = azurerm_resource_group.resource_group.name
-    tags = merge(var.tags, {location = var.location})
+    tags = merge(var.tags, {
+        location = var.location
+        }
+    )
 }
