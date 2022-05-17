@@ -12,9 +12,6 @@ provider "template" {
   features {}
 }
 
-provider "time" {
-}
-
 provider "null" {
 }
 
