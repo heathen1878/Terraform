@@ -11,8 +11,11 @@ resource "azurerm_windows_web_app" "windows_web_app" {
         application_stack {
           current_stack = "dotnet"
           dotnet_version = "v4.0"
-        }
-      
+        } 
+    }
+
+    app_settings = {
+      "demo" = "yes"
     }
 
     tags = merge(var.tags, {
@@ -21,10 +24,10 @@ resource "azurerm_windows_web_app" "windows_web_app" {
         }
     )
 
-    #lifecycle {
-    #  ignore_changes = [
-    #    site_config[0].application_stack[0].dotnet_version
-    #  ]
-    #}    
+    lifecycle {
+      ignore_changes = [
+        site_config[0].application_stack[0].dotnet_version
+      ]
+    }    
 
 }
