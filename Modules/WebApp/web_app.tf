@@ -9,8 +9,8 @@ resource "azurerm_windows_web_app" "windows_web_app" {
     site_config {
 
         application_stack {
-          current_stack = "dotnet"
-          dotnet_version = "v4.0"
+          current_stack = each.value.application_stack.current_stack
+          dotnet_version = each.value.application_stack.dotnet_version
         } 
     }
 
