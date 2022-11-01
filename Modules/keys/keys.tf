@@ -67,34 +67,6 @@ locals {
 
 }
 
-
-resource "local_file" "ssh_keys" {
-    for_each = local.generate_ssh_keys
-
-    # Linux
-    #content = templatefile("./templates/generate_ssh_keys.sh.tftpl", {
-    #    passphase = random_password.ssh_keys[each.key].result,
-    #    comment = format("%s SSH Key", each.value.user),
-    #    filename = each.value.filename
-    #    }
-    #)
-
-    # Windows
-    content = templatefile("./templates/generate_ssh_keys.ps1.tftpl", {
-        passphase = random_password.ssh_keys[each.key].result,
-        comment = format("%s SSH Key", each.value.user),
-        filename = format(".\\keys\\%s",each.value.filename)
-        }
-    )   
-
-    # Linux
-    #filename = format("./keys/%s.sh",each.value.filename)
-
-    # Windows
-    filename = format(".\\keys\\%s.ps1",each.value.filename)
-
-}
-
 resource "null_resource" "ssh_keys" {
     for_each = local.generate_ssh_keys
 
@@ -104,12 +76,15 @@ resource "null_resource" "ssh_keys" {
     }
 
     provisioner "local-exec" {
-        command = local_file.ssh_keys[each.key].filename
+        #command = format("%s/scripts/generate_ssh_keys.sh", path.root) # Linux
+        command = format("%s/scripts/generate_ssh_keys.ps1", path.root) # Windows
         interpreter = ["PowerShell", "-Command"] # comment out for Linux
-    }
 
-    depends_on = [
-        local_file.ssh_keys
-    ]
+        environment = {
+            passphase = random_password.ssh_keys[each.key].result,
+            comment = format("%s SSH Key", each.value.user),
+            filename = format(".\\keys\\%s",each.value.filename)
+        }
+    }
 
 }
