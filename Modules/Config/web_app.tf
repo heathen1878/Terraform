@@ -10,8 +10,8 @@ locals {
     windows_web_app_output = {
         for windows_web_app_key, windows_web_app_value in local.windows_web_app : windows_web_app_key => {
             application_stack = {
-                current_stack  = lookup(local.services.web_apps[web_app_name], "current_stack", "dotnet")
-                dotnet_version = lookup(local.services.web_apps[web_app_name], "dotnet_version", "v4.0")
+                current_stack  = lookup(local.windows_web_app[windows_web_app_key], "current_stack", "dotnet")
+                dotnet_version = lookup(local.windows_web_app[windows_web_app_key], "dotnet_version", "v4.0")
             }
             app_plan = lookup(local.windows_web_app[windows_web_app_key], "app_plan", "basic")
             name = azurecaf_name.windows_web_app[windows_web_app_key].result
