@@ -4,9 +4,12 @@ locals {
         demo = {
             name = "demo"
         }
-        app_one = {
-            name = "app_one"
-        }
+        #app_one = {
+        #    name = "app_one"
+        #}
+        #app_two = {
+        #    name = "app_two"
+        #}
     }
 
     resource_groups_outputs = {

@@ -7,6 +7,11 @@ resource "azurerm_windows_web_app" "windows_web_app" {
     service_plan_id = azurerm_service_plan.windows_web_app_plan[each.value.app_plan].id
 
     site_config {
+
+        application_stack {
+          current_stack = "dotnet"
+          dotnet_version = "v4.0"
+        }
       
     }
 
@@ -15,4 +20,11 @@ resource "azurerm_windows_web_app" "windows_web_app" {
         environment = var.environment
         }
     )
+
+    #lifecycle {
+    #  ignore_changes = [
+    #    site_config[0].application_stack[0].dotnet_version
+    #  ]
+    #}    
+
 }
