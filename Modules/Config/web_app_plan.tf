@@ -5,11 +5,6 @@ locals {
             name = "basic"
             resource_group = "demo"
         }
-        standard = {
-            name = "standard"
-            resource_group = "demo"
-            sku_name = "S1"
-        }
     }
 
     windows_web_app_plan_output = {

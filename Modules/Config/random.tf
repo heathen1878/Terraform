@@ -9,41 +9,41 @@ resource "random_id" "subscription_location_unique" {
 }
 
 ## Network Watcher
-resource "random_id" "network_watcher" {
-  keepers = {
-    network_watcher = azurecaf_name.global_resource_group.result
-  }
-  byte_length = 16
-}
+#resource "random_id" "network_watcher" {
+#  keepers = {
+#    network_watcher = azurecaf_name.global_resource_group.result
+#  }
+#  byte_length = 16
+#}
 
 ### Environment level resources ###
 ############################################################################
 # Unique resources globally with maximum 24 character
-resource "random_id" "key_vault" {
-  for_each = local.key_vaults
-
-  keepers = {
-    key          = each.key
-    environment  = var.environment
-    location     = local.location
-    subscription = data.azurerm_subscription.current.subscription_id
-  }
-  byte_length = 12
-
-}
-
-resource "random_id" "storage_account" {
-  for_each = local.storage
-
-  keepers = {
-    key          = each.key
-    environment  = var.environment
-    location     = local.location
-    subscription = data.azurerm_subscription.current.subscription_id
-  }
-  byte_length = 12
-
-}
+#resource "random_id" "key_vault" {
+#  for_each = local.key_vaults
+#
+#  keepers = {
+#    key          = each.key
+#    environment  = var.environment
+#    location     = local.location
+#    subscription = data.azurerm_subscription.current.subscription_id
+#  }
+#  byte_length = 12
+#
+#}
+#
+#resource "random_id" "storage_account" {
+#  for_each = local.storage
+#
+#  keepers = {
+#    key          = each.key
+#    environment  = var.environment
+#    location     = local.location
+#    subscription = data.azurerm_subscription.current.subscription_id
+#  }
+#  byte_length = 12
+#
+#}
 
 resource "random_id" "windows_web_app" {
   for_each = local.windows_web_app
@@ -96,14 +96,14 @@ resource "random_id" "resource_group_unique" {
   byte_length = 16
 }
 
-resource "random_id" "virtual_machine" {
-  for_each = local.virtual_machine
-
-  keepers = {
-    resourceGroup = azurecaf_name.resource_group[each.value.resource_group].result
-  }
-  byte_length = 6
-}
+#resource "random_id" "virtual_machine" {
+#  for_each = local.virtual_machine
+#
+#  keepers = {
+#    resourceGroup = azurecaf_name.resource_group[each.value.resource_group].result
+#  }
+#  byte_length = 6
+#}
 
 resource "random_id" "windows_web_app_plan" {
   for_each = local.windows_web_app_plan
@@ -117,53 +117,53 @@ resource "random_id" "windows_web_app_plan" {
 
 ############################################################################
 # Uniqueness within AAD maximum 64 characters
-resource "random_uuid" "aad_application" {
-  for_each = local.aad_applications
-}
+#resource "random_uuid" "aad_application" {
+#  for_each = local.aad_applications
+#}
 
 ############################################################################
 # Passwords must be a minimum of 8 character and a maximum of 256 in length
-resource "random_password" "aad_user" {
-  for_each = local.aad_users
-
-  length = 24
-  special = true
-
-  keepers = {
-    password_rotation = time_rotating.password_rotation[each.key].id
-  }
-
-}
-
-resource "random_password" "virtual_machine" {
-  for_each = local.virtual_machine
-
-  length = 24
-  special = true
-  min_lower = 1
-  min_numeric = 1
-  min_upper = 1
-
-  keepers = {
-  }
-
-}
+#resource "random_password" "aad_user" {
+#  for_each = local.aad_users
+#
+#  length = 24
+#  special = true
+#
+#  keepers = {
+#    password_rotation = time_rotating.password_rotation[each.key].id
+#  }
+#
+#}
+#
+#resource "random_password" "virtual_machine" {
+#  for_each = local.virtual_machine
+#
+#  length = 24
+#  special = true
+#  min_lower = 1
+#  min_numeric = 1
+#  min_upper = 1
+#
+#  keepers = {
+#  }
+#
+#}
 
 /*
 NOTES
 Random outputs used for storage accounts, key vaults and virtual machines are set to lowercase and have special characters removed.
 */
 locals {
-    key_vault                                                   = {
-      for key_vault_key, key_vault_value in random_id.key_vault : key_vault_key => {
-        name = replace(lower(key_vault_value.id), "/[^0-9a-zA-Z]/", "")
-      }
-    }
-    formatted_virtual_machine                                   = {
-      for virtual_machine_key, virtual_machine_value in random_id.virtual_machine : virtual_machine_key => {
-        name = replace(lower(virtual_machine_value.id), "/[^0-9a-zA-Z]/", "")
-      }
-    }
+    #key_vault                                                   = {
+    #  for key_vault_key, key_vault_value in random_id.key_vault : key_vault_key => {
+    #    name = replace(lower(key_vault_value.id), "/[^0-9a-zA-Z]/", "")
+    #  }
+    #}
+    #formatted_virtual_machine                                   = {
+    #  for virtual_machine_key, virtual_machine_value in random_id.virtual_machine : virtual_machine_key => {
+    #    name = replace(lower(virtual_machine_value.id), "/[^0-9a-zA-Z]/", "")
+    #  }
+    #}
     formatted_windows_web_app_plan                             = {
       for windows_web_app_plan_key, windows_web_app_plan_value in random_id.windows_web_app_plan : windows_web_app_plan_key => {
         name = replace(lower(windows_web_app_plan_value.id), "/[^0-9a-zA-Z]/", "")
@@ -179,14 +179,14 @@ locals {
         name = replace(lower(resource_group_value.id), "/[^0-9a-zA-Z]/", "")
       }
     }
-    storage_account                                             = {
-      for storage_account_key, storage_account_value in random_id.storage_account : storage_account_key => {
-        name = replace(lower(storage_account_value.id), "/[^0-9a-zA-Z]/", "")
-      }
-    }
+    #storage_account                                             = {
+    #  for storage_account_key, storage_account_value in random_id.storage_account : storage_account_key => {
+    #    name = replace(lower(storage_account_value.id), "/[^0-9a-zA-Z]/", "")
+    #  }
+    #}
     subscription_location_namespace_environment_unique          = replace(lower(random_id.subscription_location_namespace_environment_unique.id), "/[^0-9a-zA-Z]/", "")
     subscription_location_unique                                = replace(lower(random_id.subscription_location_unique.id), "/[^0-9a-zA-Z]/", "")
-    network_watcher                                             = replace(lower(random_id.network_watcher.id), "/[^0-9a-zA-Z]/", "")
+    #network_watcher                                             = replace(lower(random_id.network_watcher.id), "/[^0-9a-zA-Z]/", "")
     location                                                    = replace(lower(var.location), " ", "")
 }
 
