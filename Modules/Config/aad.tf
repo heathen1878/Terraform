@@ -1,57 +1,61 @@
 locals {
   aad_applications = {
-    mgt-dev-azdo-backup = {
-      display_name = "Azure-DevOps-backup"
-      aad_groups = [
-        "mgt-dev-azdo-project-readers"
-      ]
-      description = "Dedicated AAD application for cloning repos, zipping them and storing them in a storage account."
-      kv = [
-        # a list of key vaults where the secrets should be stored. 
-        "management" # mgt-secrets-kv
-      ],
-      expire_secret_after              = 5
-      rotate_secret_days_before_expiry = 3
-    }
+    #mgt-dev-azdo-backup = {
+    #  display_name = "Azure-DevOps-backup"
+    #  aad_groups = [
+    #    "mgt-dev-azdo-project-readers"
+    #  ]
+    #  description = "Dedicated AAD application for cloning repos, zipping them and storing them in a storage account."
+    #  kv = [
+    #    # a list of key vaults where the secrets should be stored - matched up with local.key_vaults
+    #    "management"
+    #  ],
+    #  expire_secret_after              = 5
+    #  rotate_secret_days_before_expiry = 3
+    #}
   }
 
   aad_users = {
-    mgt-dev-platformautomation = {
-      forename      = "Platform"
-      surname       = "Automation"
-      domain_suffix = var.domain_suffix
-      enabled       = true
-      aad_groups    = [
-        "mgt-dev-azdo-project-readers"
-      ]
-      job_title     = "Automation Account"
-      kv = [
-        # a list of key vaults where the secrets should be stored. 
-        "management"
-      ]
-      expire_password_after              = 5
-      rotate_password_days_before_expiry = 3
-      generate_ssh_keys                  = true
-    } 
+    #mgt-dev-platformautomation = {
+    #  forename      = "Platform"
+    #  surname       = "Automation"
+    #  domain_suffix = var.domain_suffix
+    #  enabled       = true
+    #  aad_groups    = [
+    #    "mgt-dev-azdo-project-readers"
+    #  ]
+    #  job_title     = "Automation Account"
+    #  kv = [
+    #    # a list of key vaults where the secrets should be stored - matched up with local.key_vaults
+    #    "management"
+    #  ]
+    #  expire_password_after              = 5
+    #  rotate_password_days_before_expiry = 3
+    #  generate_ssh_keys                  = true
+    #} 
   }
 
   aad_azdo_groups = {
-    azdo = {
-      mgt-dev-azdo-project-readers = {
-        description = "Grants read access to Projects within Azure DevOps"
-      }
-    }
+    #azdo = {
+    #  azdo-project-readers = {
+    #    name        = format("%s-%s-azdo-project-readers", var.namespace, var.environment)
+    #    description = "Grants read access to Projects within Azure DevOps"
+    #  }
+    #}
   }
 
   aad_kv_groups = {
     kv = {
-      mgt-dev-certificate-officers = {
+      certificates-officer = {
+        name        = format("%s-%s-%s-certificates-officer", var.namespace, var.environment, replace(var.location, " ", "-"))
         description = "Can manage certificates within a Key Vault"
       }
-      mgt-dev-secret-officers = {
+      secrets-officer = {
+        name        = format("%s-%s-%s-secrets-officer", var.namespace, var.environment, replace(var.location, " ", "-"))
         description = "Can manage secrets within a Key Vault"
       }
-      mgt-dev-key-vault-admins = {
+      key-vault-admin = {
+        name        = format("%s-%s-%s-key-vault-admins", var.namespace, var.environment, replace(var.location, " ", "-"))
         description = "Administrators of Key Vaults"
       }
     }

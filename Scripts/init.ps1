@@ -43,7 +43,7 @@ If ((Test-Path env:TF_ENVIRONMENT_VARS) -and (Test-Path env:TF_MODULE_CODE)){
 
 
     Write-Host ('Initialising Terraform module {0}' -f $env:TF_MODULE) -ForegroundColor Green
-    terraform -chdir="$env:TF_MODULE_CODE" init -backend-config="$env:TF_ENVIRONMENT_VARS\backend.tfvars" -reconfigure
+    terraform -chdir="$env:TF_MODULE_CODE" init -backend-config="$env:TF_ENVIRONMENT_VARS\backend.tfvars" -reconfigure -upgrade
     Write-Host ('')
     Write-Host ('')
     

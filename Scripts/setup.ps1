@@ -42,8 +42,8 @@ Param
 )
 
 # Set environment and namespace from provided environment
-$env = $environment.Split('-')[1]
 $namespace=$environment.Split('-')[0]
+$env = $environment.Split('-')[1]
 $location_no_spaces = $location.Replace(" ", "-").ToLower()
 
 # Global backend.tfvars content
