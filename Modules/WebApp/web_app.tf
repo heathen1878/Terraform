@@ -24,10 +24,10 @@ resource "azurerm_windows_web_app" "windows_web_app" {
         }
     )
 
-    lifecycle {
-      ignore_changes = [
-        site_config[0].application_stack[0].dotnet_version
-      ]
-    }    
+    #lifecycle {
+    #  ignore_changes = [
+    #    site_config[0].application_stack[0].dotnet_version
+    #  ]
+    #}    
 
 }
