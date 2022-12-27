@@ -26,6 +26,9 @@ Write-Host ('Terraform plugin cache set to {0}' -f $env:TF_PLUGIN_CACHE_DIR) -Fo
 
 If ((Test-Path env:TF_ENVIRONMENT_VARS) -and (Test-Path env:TF_MODULE_CODE)){
 
+    terraform fmt -recursive $env:TF_MODULE_CODE
+    terraform fmt -recursive $env:TF_ENVIRONMENT_VARS
+
     # Check whether the container exists in the storage account
     # read in the backend.tfvars
     [pscustomobject]$backend = Get-Content (-Join($env:TF_ENVIRONMENT_VARS, '\backend.tfvars'))
