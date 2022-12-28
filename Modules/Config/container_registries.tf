@@ -25,6 +25,13 @@ locals {
           }
         }
       }
+      trust_policy = {
+        enabled = true
+      }
+      retention_policy = {
+        days    = 7
+        enabled = true
+      }
     }
   }
 
@@ -42,8 +49,10 @@ locals {
       data_endpoint_enabled      = lookup(acr_value, "data_endpoint_enabled", false)
       georeplications            = lookup(acr_value, "georeplications", {})
       network_rule_bypass_option = lookup(acr_value, "network_rule_bypass_option", "AzureServices")
+      network_rule_set           = lookup(acr_value, "network_rule_set", {})
+      trust_policy               = lookup(acr_value, "trust_policy", {})
+      retention_policy           = lookup(acr_value, "retention_policy", {})
     }
   }
-
-
+  
 }

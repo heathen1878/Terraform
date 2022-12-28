@@ -20,6 +20,10 @@
 #  value = local.aad_users_group_membership_map
 #}
 
+output "container_registries" {
+  value = local.container_registry_output
+}
+
 output "resource_groups" {
   value = local.resource_groups_outputs
 }
@@ -37,24 +41,24 @@ output "resource_groups" {
 #}
 #
 #output "subnets_with_nsgs_map" {
-#    value = local.subnetsWithNsgs_map
+#  value = local.subnetsWithNsgs_map
 #}
-
+#
 #output "nsg_rules_map" {
-#    value = local.nsgRules_map
+#  value = local.nsgRules_map
 #}
 
-#output "key_vaults" {
-#    value = local.key_vault_output
-#}
-#
-#output "storage_accounts" {
-#  value = {
-#    accounts = local.storage_account_output
-#    containers = local.storage_containers_map
-#  }
-#}
-#
+output "key_vaults" {
+  value = local.key_vault_output
+}
+
+output "storage_accounts" {
+  value = {
+    accounts   = local.storage_account_output
+    containers = local.storage_containers_map
+  }
+}
+
 #output "virtual_machines" {
 #    value = local.virtual_machine_output
 #    sensitive = true

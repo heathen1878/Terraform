@@ -1,10 +1,10 @@
 provider "azurerm" {
-    features {
-    }
+  features {
+  }
 }
 provider "random" {
 }
-provider "azurecaf" {     
+provider "azurecaf" {
 }
 provider "time" {
 }
