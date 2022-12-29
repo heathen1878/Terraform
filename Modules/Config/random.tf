@@ -1,5 +1,5 @@
-### Subscription level resources ###
-### uses subscription Id and location to generate uniqueness
+##################### Subscription level resources ####################
+# uses subscription Id and location to generate uniqueness
 resource "random_id" "subscription_location_unique" {
   keepers = {
     location     = local.location
@@ -8,9 +8,8 @@ resource "random_id" "subscription_location_unique" {
   byte_length = 24
 }
 
-### Environment level resources ###
-############################################################################
-# Unique resources globally with maximum 24 character
+##################### Environment level resources #####################
+# Unique resources globally with maximum 24 characters
 resource "random_id" "key_vault" {
   for_each = local.key_vaults
 
@@ -54,18 +53,28 @@ resource "random_id" "windows_web_app" {
   for_each = local.windows_web_app
 
   keepers = {
-    key           = each.key
-    environment   = var.environment
-    location      = local.location
-    resourceGroup = azurecaf_name.resource_group[each.value.resource_group].result
-    subscription  = data.azurerm_subscription.current.subscription_id
+    key            = each.key
+    environment    = var.environment
+    location       = local.location
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+    subscription   = data.azurerm_subscription.current.subscription_id
   }
   byte_length = 12
 
 }
+########################################################################
 
+########################################################################
 # Unique resources within a subscription
-############################################################################
+resource "random_id" "resource_group_unique" {
+  for_each = local.resource_groups
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.key].result
+  }
+  byte_length = 16
+}
+
 resource "random_id" "subscription_location_namespace_environment_unique" {
 
   keepers = {
@@ -88,23 +97,25 @@ resource "random_id" "subscription_location_namespace_environment_unique_rg" {
   byte_length = 24
 
 }
+########################################################################
 
+########################################################################
 # Unique resources within a resource group
-############################################################################
-resource "random_id" "resource_group_unique" {
-  for_each = local.resource_groups
+resource "random_id" "acg" {
+  for_each = local.container_groups
 
   keepers = {
-    resourceGroup = azurecaf_name.resource_group[each.key].result
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
   }
-  byte_length = 16
+  byte_length = 6
+
 }
 
 resource "random_id" "virtual_machine" {
   for_each = local.virtual_machine
 
   keepers = {
-    resourceGroup = azurecaf_name.resource_group[each.value.resource_group].result
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
   }
   byte_length = 6
 }
@@ -113,19 +124,21 @@ resource "random_id" "windows_web_app_plan" {
   for_each = local.windows_web_app_plan
 
   keepers = {
-    resourceGroup = azurecaf_name.resource_group[each.value.resource_group].result
-    plan_name     = each.value.name
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+    plan_name      = each.value.name
   }
   byte_length = 16
 }
+########################################################################
 
-############################################################################
+########################################################################
 # Uniqueness within AAD maximum 64 characters
 resource "random_uuid" "aad_application" {
   for_each = local.aad_applications
 }
+########################################################################
 
-############################################################################
+########################################################################
 # Passwords must be a minimum of 8 character and a maximum of 256 in length
 resource "random_password" "aad_user" {
   for_each = local.aad_users
@@ -152,12 +165,18 @@ resource "random_password" "virtual_machine" {
   }
 
 }
+########################################################################
 
 /*
 NOTES
 Random outputs used for storage accounts, key vaults and virtual machines are set to lowercase and have special characters removed.
 */
 locals {
+  acg = {
+    for acg_key, acg_value in random_id.acg : acg_key => {
+      name = replace(lower(acg_value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
   acr = {
     for acr_key, acr_value in random_id.acr : acr_key => {
       name = replace(lower(acr_value.id), "/[^0-9a-zA-Z]/", "")
@@ -202,4 +221,3 @@ locals {
   subscription_location_unique                       = replace(lower(random_id.subscription_location_unique.id), "/[^0-9a-zA-Z]/", "")
   location                                           = replace(lower(var.location), " ", "")
 }
-

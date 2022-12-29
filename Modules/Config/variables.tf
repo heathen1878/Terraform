@@ -1,3 +1,40 @@
+variable "container_instances" {
+  description = "A map of container instances to deploy"
+  default = {
+    linux = {
+      #container_0 = {
+      #  acr                          = ""
+      #  acr_image                    = ""
+      #  name                         = ""
+      #  environment_variables        = ""
+      #  secure_environment_variables = ""
+      #}
+    }
+    windows = {
+      #container_0 = {
+      #  acr                          = ""
+      #  acr_image                    = ""
+      #  name                         = ""
+      #  environment_variables        = ""
+      #  secure_environment_variables = ""
+      #}
+    }
+  }
+  type = map(
+    map(
+      object(
+        {
+          acr                          = string
+          acr_image                    = string
+          name                         = string
+          environment_variables        = string
+          secure_environment_variables = string
+        }
+      )
+    )
+  )
+  sensitive = true
+}
 variable "location" {
   description = "Location name"
   default     = "northeurope"
@@ -45,7 +82,7 @@ variable "virtual_networks" {
     )
   )
 }
-variable "nsgRules" {
+variable "nsg_rules" {
   description = "A map of rules"
   default = {
     "default" = {

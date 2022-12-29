@@ -63,7 +63,7 @@ locals {
       image_sku          = virtual_machine_value.operating_system == "linux" ? "20_04-lts" : "2019-Datacenter"
       image_version      = "Latest"
       kv                 = virtual_machine_value.kv
-      resource_group     = lookup(local.virtual_machine[virtual_machine_key], "resource_group", "demo")
+      resource_group     = virtual_machine_value.resource_group
     }
   }
 

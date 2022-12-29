@@ -1,18 +1,29 @@
 locals {
   aad_applications = {
-    #mgt-dev-azdo-backup = {
-    #  display_name = "Azure-DevOps-backup"
-    #  aad_groups = [
-    #    "mgt-dev-azdo-project-readers"
-    #  ]
-    #  description = "Dedicated AAD application for cloning repos, zipping them and storing them in a storage account."
-    #  kv = [
-    #    # a list of key vaults where the secrets should be stored - matched up with local.key_vaults
-    #    "management"
-    #  ],
-    #  expire_secret_after              = 5
-    #  rotate_secret_days_before_expiry = 3
-    #}
+    docker_build = {
+      display_name                  = "Docker Build"
+      description                   = "Builds and pushes Docker Images to ACR"
+      expire_secret_after           = 90
+      homepage_url                  = "https://visualstudio/SPN"
+      access_token_issuance_enabled = false
+      redirect_uris = [
+        "https://VisualStudio/SPN"
+      ]
+      rotate_secret_days_before_expiry = 14
+    }
+    mgt-dev-azdo-backup = {
+      aad_groups = [
+        "azdo-project-readers"
+      ]
+      display_name        = "Azure-DevOps-backup"
+      description         = "Dedicated AAD application for cloning repos, zipping them and storing them in a storage account."
+      expire_secret_after = 90
+      kv = [
+        # a list of key vaults where the secrets should be stored - matched up with local.key_vaults
+        "management"
+      ],
+      rotate_secret_days_before_expiry = 14
+    }
   }
 
   aad_users = {
@@ -36,26 +47,26 @@ locals {
   }
 
   aad_azdo_groups = {
-    #azdo = {
-    #  azdo-project-readers = {
-    #    name        = format("%s-%s-azdo-project-readers", var.namespace, var.environment)
-    #    description = "Grants read access to Projects within Azure DevOps"
-    #  }
-    #}
+    azdo = {
+      azdo-project-readers = {
+        name        = format("%s-%s-azdo-project-readers", var.namespace, var.environment)
+        description = "Grants read access to Projects within Azure DevOps"
+      }
+    }
   }
 
   aad_kv_groups = {
     kv = {
       certificates-officer = {
-        name        = format("%s-%s-%s-certificates-officer", var.namespace, var.environment, replace(var.location, " ", "-"))
+        name        = format("%s-%s-%s-certificates-officer", var.namespace, var.environment, lower(replace(var.location, " ", "")))
         description = "Can manage certificates within a Key Vault"
       }
       secrets-officer = {
-        name        = format("%s-%s-%s-secrets-officer", var.namespace, var.environment, replace(var.location, " ", "-"))
+        name        = format("%s-%s-%s-secrets-officer", var.namespace, var.environment, lower(replace(var.location, " ", "")))
         description = "Can manage secrets within a Key Vault"
       }
       key-vault-admin = {
-        name        = format("%s-%s-%s-key-vault-admins", var.namespace, var.environment, replace(var.location, " ", "-"))
+        name        = format("%s-%s-%s-key-vault-admins", var.namespace, var.environment, lower(replace(var.location, " ", "")))
         description = "Administrators of Key Vaults"
       }
     }
@@ -67,11 +78,15 @@ locals {
 
   aad_applications_output = {
     for aad_app_key, aad_app_value in local.aad_applications : aad_app_key => {
+      access_token_issuance_enabled    = lookup(aad_app_value, "access_token_issuance_enabled", true)
       app_id                           = random_uuid.aad_application[aad_app_key].result
       description                      = aad_app_value.description
-      kv                               = aad_app_value.kv
-      secret_display_name              = aad_app_value.display_name
       expire_secret_after              = aad_app_value.expire_secret_after
+      homepage_url                     = lookup(aad_app_value, "homepage_url", null)
+      id_token_issuance_enabled        = lookup(aad_app_value, "id_token_issuance_enabled", true)
+      kv                               = lookup(aad_app_value, "kv", [])
+      secret_display_name              = aad_app_value.display_name
+      redirect_uris                    = lookup(aad_app_value, "redirect_uris", [])
       rotate_secret_days_before_expiry = aad_app_value.rotate_secret_days_before_expiry
     }
   }

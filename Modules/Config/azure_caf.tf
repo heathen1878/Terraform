@@ -12,6 +12,14 @@ resource "azurecaf_name" "key_vault" {
   resource_type = "azurerm_key_vault"
 }
 
+resource "azurecaf_name" "acg" {
+  for_each = local.acg
+
+  name          = each.value.name
+  resource_type = "azurerm_containerGroups"
+
+}
+
 resource "azurecaf_name" "acr" {
   for_each = local.acr
 
