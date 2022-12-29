@@ -1,4 +1,4 @@
 provider "azurerm" {
 }
-provider "azuread" {   
+provider "azuread" {
 }

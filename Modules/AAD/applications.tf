@@ -47,11 +47,12 @@ resource "azuread_application" "aad_application" {
   }
 
   web {
-    redirect_uris = []
+    homepage_url  = each.value.homepage_url
+    redirect_uris = each.value.redirect_uris
 
     implicit_grant {
-      access_token_issuance_enabled = true
-      id_token_issuance_enabled     = true
+      access_token_issuance_enabled = each.value.access_token_issuance_enabled
+      id_token_issuance_enabled     = each.value.id_token_issuance_enabled
     }
   }
 
@@ -60,7 +61,7 @@ resource "azuread_application" "aad_application" {
   provisioner "local-exec" {
     command = "Start-Sleep 180"
     #command = "sleep 180"
-    interpreter = ["PowerShell", "-Command", "-NoProfile"]
+    interpreter = ["PowerShell", "-NoProfile", "-Command"]
   }
 
 }
@@ -91,11 +92,11 @@ locals {
 
   aad_applications_output = {
     for aad_app_key, aad_app_value in data.terraform_remote_state.config.outputs.aad_applications : aad_app_key => {
-      object_id                        = azuread_application.aad_application[aad_app_key].object_id
-      kv                               = aad_app_value.kv
-      secret                           = azuread_application_password.aad_application[aad_app_key].value
-      secret_display_name              = aad_app_value.secret_display_name
-      secret_expiration                = time_offset.secret_expiry[aad_app_key].rfc3339
+      object_id           = azuread_application.aad_application[aad_app_key].object_id
+      kv                  = aad_app_value.kv
+      secret              = azuread_application_password.aad_application[aad_app_key].value
+      secret_display_name = aad_app_value.secret_display_name
+      secret_expiration   = time_offset.secret_expiry[aad_app_key].rfc3339
     }
   }
 

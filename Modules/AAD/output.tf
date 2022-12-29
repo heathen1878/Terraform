@@ -1,5 +1,5 @@
 output "key_vault_groups" {
-  value       = local.key_vault_group_output
+  value = local.key_vault_group_output
 }
 
 output "aad_applications" {

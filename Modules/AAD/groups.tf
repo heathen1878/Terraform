@@ -1,6 +1,6 @@
 resource "azuread_group" "mgt-azdo-group" {
   for_each                = data.terraform_remote_state.config.outputs.aad_groups.azdo
-  display_name            = each.key
+  display_name            = each.value.name
   prevent_duplicate_names = true
   security_enabled        = true
   description             = each.value.description
@@ -8,8 +8,8 @@ resource "azuread_group" "mgt-azdo-group" {
   # sleep to allow MS Graph to update changes, it can be slow to be visible to dependent resources
   # Windows
   provisioner "local-exec" {
-    command = "Start-Sleep 180"
-    interpreter = ["PowerShell", "-Command"]
+    command     = "Start-Sleep 180"
+    interpreter = ["PowerShell", "-NoProfile", "-Command"]
   }
 
   # Linux
@@ -27,15 +27,15 @@ resource "azuread_group" "mgt-azdo-group" {
 
 resource "azuread_group" "mgt-kv-group" {
   for_each                = data.terraform_remote_state.config.outputs.aad_groups.kv
-  display_name            = each.key
+  display_name            = each.value.name
   prevent_duplicate_names = true
   security_enabled        = true
   description             = each.value.description
 
   # sleep to allow MS Graph to update changes, it can be slow to be visible to dependent resources
   provisioner "local-exec" {
-    command = "Start-Sleep 180"
-    interpreter = ["PowerShell", "-Command"]
+    command     = "Start-Sleep 180"
+    interpreter = ["PowerShell", "-NoProfile", "-Command"]
   }
 
   lifecycle {
