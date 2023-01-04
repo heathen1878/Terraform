@@ -20,6 +20,10 @@ output "aad_user_group_membership" {
   value = local.aad_users_group_membership_map
 }
 
+output "azdo_projects" {
+  value = local.azdo_projects_output
+}
+
 output "container_groups" {
   value     = local.container_groups_output
   sensitive = true
@@ -76,3 +80,4 @@ output "windows_web_app_plans" {
 output "windows_web_app" {
   value = local.windows_web_app_output
 }
+

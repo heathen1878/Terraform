@@ -2,40 +2,7 @@ locals {
 
   container_registries = {
     northeuropeacr = {
-    }
-    northeuropewesteuropeacr = {
-      sku = "Premium"
-      georeplications = {
-        west_europe = {
-          location                  = "west europe"
-          regional_endpoint_enabled = true
-          zone_redundancy_enabled   = true
-          tags = {
-            enabled  = "True"
-            Location = "West Europe"
-            IaC = "Terraform"
-          }
-        }
-        uk_south = {
-          location                  = "uk south"
-          regional_endpoint_enabled = true
-          zone_redundancy_enabled   = true
-          tags = {
-            enabled  = "True"
-            Location = "UK South"
-            IaC = "Terraform"
-          }
-        }
-      }
-      public_network_access_enabled = false
-      trust_policy                  = true
-      retention_policy = {
-        seven_days = {
-          days    = 7
-          enabled = true
-        }
-      }
-      zone_redundancy_enabled = true
+      admin_enabled = true
     }
   }
 

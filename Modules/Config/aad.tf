@@ -1,9 +1,12 @@
 locals {
   aad_applications = {
     docker_build = {
-      display_name                  = "Docker Build"
-      description                   = "Builds and pushes Docker Images to ACR"
-      expire_secret_after           = 90
+      display_name        = "Docker Build"
+      description         = "Builds and pushes Docker Images to ACR"
+      expire_secret_after = 90
+      kv = [
+        "management"
+      ]
       homepage_url                  = "https://visualstudio/SPN"
       access_token_issuance_enabled = false
       redirect_uris = [
@@ -85,7 +88,7 @@ locals {
       homepage_url                     = lookup(aad_app_value, "homepage_url", null)
       id_token_issuance_enabled        = lookup(aad_app_value, "id_token_issuance_enabled", true)
       kv                               = lookup(aad_app_value, "kv", [])
-      secret_display_name              = aad_app_value.display_name
+      secret_display_name              = replace(aad_app_value.display_name, " ", "-")
       redirect_uris                    = lookup(aad_app_value, "redirect_uris", [])
       rotate_secret_days_before_expiry = aad_app_value.rotate_secret_days_before_expiry
     }

@@ -51,7 +51,7 @@ locals {
       account_replication_type        = lookup(storage_account_value, "account_replication_type", "LRS")
       allow_nested_items_to_be_public = lookup(storage_account_value, "allow_nested_items_to_be_public", false)
       custom_domain                   = lookup(storage_account_value, "custom_domain", {})
-      resource_group                  = lookup(storage_account_value, "resource_group", "demo")
+      resource_group_name             = lookup(storage_account_value, "resource_group", "demo")
     }
   }
 
