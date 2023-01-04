@@ -91,12 +91,13 @@ resource "azuread_application_password" "aad_application" {
 locals {
 
   aad_applications_output = {
-    for aad_app_key, aad_app_value in data.terraform_remote_state.config.outputs.aad_applications : aad_app_key => {
-      object_id           = azuread_application.aad_application[aad_app_key].object_id
-      kv                  = aad_app_value.kv
-      secret              = azuread_application_password.aad_application[aad_app_key].value
-      secret_display_name = aad_app_value.secret_display_name
-      secret_expiration   = time_offset.secret_expiry[aad_app_key].rfc3339
+    for aad_app_key, aad_app_value in azuread_application.aad_application : aad_app_key => {
+      object_id            = aad_app_value.object_id
+      kv                   = data.terraform_remote_state.config.outputs.aad_applications[aad_app_key].kv
+      secret               = azuread_application_password.aad_application[aad_app_key].value
+      secret_display_name  = data.terraform_remote_state.config.outputs.aad_applications[aad_app_key].secret_display_name
+      secret_expiration    = time_offset.secret_expiry[aad_app_key].rfc3339
+      service_principal_id = azuread_service_principal.aad_application_principal[aad_app_key].object_id
     }
   }
 

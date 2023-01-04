@@ -188,6 +188,18 @@ switch ($environment){
 # Get access key from storage account
 $ACCESS_KEY = Get-AzStorageAccountKey -ResourceGroupName (Get-AzResource -Name "sthn37mgfywa7g4").ResourceGroupName -Name "sthn37mgfywa7g4" | Where-Object {$_.KeyName -eq "key1"}
 
+# Get Azure DevOps service url
+if ($module -eq "azdo"){
+    $AZDO_ORG_SERVICE_URL = Get-AzKeyVaultSecret -VaultName "kv-mwt4rcwxlhxl4" -Name "azdo-service-url" -AsPlainText
+}
+
+
+# Get Azure DevOps Access Token
+if ($module -eq "azdo"){
+    # Set the AzDo environment variable AZDO_PERSONAL_ACCESS_TOKEN
+    $AZDO_PERSONAL_ACCESS_TOKEN = Get-AzKeyVaultSecret -VaultName "kv-mwt4rcwxlhxl4" -Name "azdo-pat-token-tf" -AsPlainText
+}
+
 # Set environment variables for Terraform
 $env:TF_ENVIRONMENT=$env
 $env:TF_NAMESPACE=$namespace
@@ -195,6 +207,11 @@ $env:TF_MODULE=$module
 $env:TF_DATA_DIR=(-Join($env:TF_ENVIRONMENT_VARS, '\.terraform'))
 $env:ARM_SUBSCRIPTION_ID=$subscriptionId
 $env:ARM_ACCESS_KEY=($ACCESS_KEY).Value
+
+if ($module -eq "azdo"){
+    $env:AZDO_ORG_SERVICE_URL=$AZDO_ORG_SERVICE_URL
+    $env:AZDO_PERSONAL_ACCESS_TOKEN=$AZDO_PERSONAL_ACCESS_TOKEN
+}
 
 $subscriptionName = az account list --query "[? contains(id, '$env:ARM_SUBSCRIPTION_ID')].[name]" --output json | ConvertFrom-Json
 
@@ -205,3 +222,6 @@ Write-Host ('Environment configuration path: {0}' -f $env:TF_ENVIRONMENT_VARS) -
 Write-Host ('Terraform deployment path: {0}' -f $env:TF_MODULE_CODE) -ForegroundColor Magenta
 Write-Host ('Terraform data path: {0}' -f $env:TF_DATA_DIR) -ForegroundColor Magenta
 Write-Host ('Azure Subscription Name: {0}' -f $subscriptionName) -ForegroundColor Magenta
+if ($module -eq "azdo"){
+    Write-Host ('Azure DevOps Service Url: {0}' -f $env:AZDO_ORG_SERVICE_URL) -ForegroundColor Magenta
+}
