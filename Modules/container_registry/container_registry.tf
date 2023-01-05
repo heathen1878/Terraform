@@ -100,8 +100,8 @@ locals {
           project_key           = azdo_project_key
           description           = format("Azure DevOps ACR docker hub service endpoint for %s", azurerm_container_registry.acr[azdo_dockerhub].name)
           service_endpoint_name = azurerm_container_registry.acr[azdo_dockerhub].name
-          docker_registry       = azurerm_container_registry.acr[azdo_dockerhub].login_server
-          docker_username       = data.terraform_remote_state.aad.outputs.aad_applications["docker_build"].object_id
+          docker_registry       = format("https://%s", azurerm_container_registry.acr[azdo_dockerhub].login_server)
+          docker_username       = data.terraform_remote_state.aad.outputs.aad_applications["docker_build"].service_principal_app_id
           docker_password       = data.terraform_remote_state.aad.outputs.aad_applications["docker_build"].secret
         }
       ]

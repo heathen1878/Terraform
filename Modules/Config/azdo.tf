@@ -3,19 +3,43 @@ locals {
   azdo_projects = {
     docker = {
       name        = "Docker"
-      description = ""
+      description = "Contains Docker examples"
       features = [
         "repos"
       ]
     }
     pipelines = {
       name        = "Pipelines"
-      description = "contains all pipeline code"
+      description = "Contains all pipeline code"
       dockerhub = [
         "northeuropeacr"
       ]
       features = [
+        "repos",
         "pipelines"
+      ]
+    }
+    powershell = {
+      name        = "PowerShell"
+      description = "Contains PowerShell code"
+      features = [
+        "repos"
+      ]
+    }
+    powershell_public = {
+      name        = "Public PowerShell Modules"
+      description = "Contains public PowerShell modules - like a PowerShell Gallery"
+      features = [
+        "repos",
+        "artifacts"
+      ]
+      visibility = "public"
+    }
+    shared = {
+      name        = "Shared"
+      description = "Contains all shared artifacts...pipelines...modules etc."
+      features = [
+        "repos"
       ]
     }
   }
