@@ -18,16 +18,6 @@ locals {
 
 }
 
-resource "azurerm_resource_group" "resource_group" {
-    name = data.terraform_remote_state.config.outputs.virtual_machine_resource_group
-    location = var.location
-    tags = merge(var.tags, {
-        location = var.location
-        environment = var.environment
-        }
-    )
-}
-
 resource "azurerm_availability_set" "availability_set" {
     for_each = {
         for virtual_machine_key, virtual_machine_value in data.terraform_remote_state.config.outputs.virtual_machines : virtual_machine_key => virtual_machine_value
@@ -35,7 +25,7 @@ resource "azurerm_availability_set" "availability_set" {
     }
 
     name = each.value.availability_set
-    resource_group_name = azurerm_resource_group.resource_group.name
+    resource_group_name = azurerm_resource_group.resource_group[each.value.resource_group].name
     location = var.location
     tags = merge(var.tags, {
         location = var.location
@@ -66,8 +56,9 @@ resource "azurerm_public_ip" "public_ip_address" {
 
 resource "azurerm_network_interface" "network_adapter" {
   for_each = data.terraform_remote_state.config.outputs.virtual_machines
+
   name = each.value.network_adapter
-  resource_group_name = azurerm_resource_group.resource_group.name
+  resource_group_name = azurerm_resource_group.resource_group[each.value.resource_group].name
   location = var.location
   ip_configuration {
     name = format("%s-%s%s", each.value.network_adapter, substr(each.key, 2, -1), "-nic-ipconfig")
@@ -76,12 +67,14 @@ resource "azurerm_network_interface" "network_adapter" {
     private_ip_address = each.value.private_ip_address != null ? cidrhost(data.terraform_remote_state.networking.outputs.subnets[each.value.subnet].address_prefix, each.value.private_ip_address) : null
     public_ip_address_id = each.value.public_ip_address != "" ? azurerm_public_ip.public_ip_address[each.key].id : null
   }
+
   tags = merge(var.tags, {
-        location = var.location
-        environment = var.environment
-        computerName = each.value.computer_name
-        }
-    )
+      location = var.location
+      environment = var.environment
+      computerName = each.value.computer_name
+    }
+  )
+
 }
 
 resource "azurerm_windows_virtual_machine" "virtual_machine" {

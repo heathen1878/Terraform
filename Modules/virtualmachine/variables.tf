@@ -17,7 +17,7 @@ variable "tags" {
     description = "Tags required for the resource groups and resources"
     default = {
         IaC = "Terraform"
-        applicationName = "Virtual Machines"
+        Usage = "OMCON"
     }
     type = map
 }
