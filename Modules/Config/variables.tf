@@ -1,25 +1,16 @@
-variable "container_instances" {
+variable "bootstrap" {
+  description = "The Key Vault that contains secrets for bootstrapping Terraform Configuration"
+  type = map(object(
+    {
+      name           = string
+      resource_group = string
+    }
+  ))
+}
+
+variable "container_groups" {
   description = "A map of container instances to deploy"
-  default = {
-    linux = {
-      #container_0 = {
-      #  acr                          = ""
-      #  acr_image                    = ""
-      #  name                         = ""
-      #  environment_variables        = ""
-      #  secure_environment_variables = ""
-      #}
-    }
-    windows = {
-      #container_0 = {
-      #  acr                          = ""
-      #  acr_image                    = ""
-      #  name                         = ""
-      #  environment_variables        = ""
-      #  secure_environment_variables = ""
-      #}
-    }
-  }
+  default     = {}
   type = map(
     map(
       object(
