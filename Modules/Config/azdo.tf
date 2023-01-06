@@ -42,6 +42,13 @@ locals {
         "repos"
       ]
     }
+    terraform = {
+      name = "Terraform"
+      description = "Contains Terraform code"
+      features = [
+        "repos"
+      ]
+    }
   }
 
   azdo_project_features = {
