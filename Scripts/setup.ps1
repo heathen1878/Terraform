@@ -23,7 +23,7 @@ Param
 (
     [Parameter(Mandatory=$false)]
     [string]
-    $root_modules_directory=(-join($env:USERPROFILE, '\Source\Terraform')),
+    $root_modules_directory=(Get-Location).Path,
     [Parameter(Mandatory=$false)]
     [string]
     $environment_directory=(-Join($env:USERPROFILE, "\configurations\environments")),
