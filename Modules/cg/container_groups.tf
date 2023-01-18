@@ -16,10 +16,9 @@ resource "azurerm_container_group" "acg" {
 
     content {
       name   = container.value.container_name
-      image  = container.value.acr_image != "mcr.microsoft.com/azuredocs/aci-helloworld" ? format("%s/%s", data.terraform_remote_state.acr.outputs.acr[each.value.image_registry_credential_key].acr_url, container.value.acr_image) : "mcr.microsoft.com/azuredocs/aci-helloworld"
+      image  = container.value.acr_image != "mcr.microsoft.com/azuredocs/aci-helloworld" ? format("%s/%s:%s", data.terraform_remote_state.acr.outputs.acr[each.value.image_registry_credential_key].acr_url, container.value.acr_image, container.value.acr_tag) : "mcr.microsoft.com/azuredocs/aci-helloworld"
       cpu    = container.value.cpu
       memory = container.value.memory
-      gpu {}
       ports {
         port     = 80
         protocol = "TCP"
@@ -48,10 +47,8 @@ resource "azurerm_container_group" "acg" {
 
   restart_policy = each.value.restart_policy
 
-  subnet_ids = each.value.subnet_id
+  subnet_ids = try([data.terraform_remote_state.networking.outputs.subnets[each.value.subnet_id].id], each.value.subnet_id)
 
   zones = each.value.zones
 
 }
-
-locals {}

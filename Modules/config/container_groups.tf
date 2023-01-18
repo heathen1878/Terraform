@@ -4,7 +4,8 @@ locals {
     azdo_linux_self_hosted_agent = {
       containers = merge(try(var.container_groups.linux, {}), {
         azdo_linux_agent_0 = {
-          acr_image = "azdoagent:233"
+          acr_image = "azdoagent"
+          acr_tag   = "233"
           name      = "azdolinuxagent0"
           environment_variables = {
             AZP_URL        = data.azurerm_key_vault_secret.azdo_service_url.value
@@ -15,36 +16,85 @@ locals {
             AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
           }
         }
-        }
-      )
+      })
       image_registry_credential_key = "northeuropeacr"
+      ip_address_type               = "Private"
       resource_group                = "demo"
       restart_policy                = "Always"
+      subnet                        = "Containers"
+    }
+    azdo_linux_self_hosted_agent = {
+      containers = merge(try(var.container_groups.linux, {}), {
+        azdo_linux_agent_0 = {
+          acr_image = "azdoagent"
+          acr_tag   = "233"
+          name      = "azdolinuxagent1"
+          environment_variables = {
+            AZP_URL        = data.azurerm_key_vault_secret.azdo_service_url.value
+            AZP_AGENT_NAME = "azdolinuxagent1"
+            AZP_POOL       = "Platform"
+          }
+          secure_environment_variables = {
+            AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
+          }
+        }
+      })
+      image_registry_credential_key = "northeuropeacr"
+      ip_address_type               = "Private"
+      resource_group                = "demo"
+      restart_policy                = "Always"
+      subnet                        = "Containers"
+    }
+    azdo_linux_self_hosted_agent = {
+      containers = merge(try(var.container_groups.linux, {}), {
+        azdo_linux_agent_0 = {
+          acr_image = "azdoagent"
+          acr_tag   = "233"
+          name      = "azdolinuxagent2"
+          environment_variables = {
+            AZP_URL        = data.azurerm_key_vault_secret.azdo_service_url.value
+            AZP_AGENT_NAME = "azdolinuxagent2"
+            AZP_POOL       = "Platform"
+          }
+          secure_environment_variables = {
+            AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
+          }
+        }
+      })
+      image_registry_credential_key = "northeuropeacr"
+      ip_address_type               = "Private"
+      resource_group                = "demo"
+      restart_policy                = "Always"
+      subnet                        = "Containers"
+    }
+    azdo_linux_self_hosted_agent = {
+      containers = merge(try(var.container_groups.linux, {}), {
+        azdo_linux_agent_0 = {
+          acr_image = "azdoagent"
+          acr_tag   = "233"
+          name      = "azdolinuxagent3"
+          environment_variables = {
+            AZP_URL        = data.azurerm_key_vault_secret.azdo_service_url.value
+            AZP_AGENT_NAME = "azdolinuxagent3"
+            AZP_POOL       = "Platform"
+          }
+          secure_environment_variables = {
+            AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
+          }
+        }
+      })
+      image_registry_credential_key = "northeuropeacr"
+      ip_address_type               = "Private"
+      resource_group                = "demo"
+      restart_policy                = "Always"
+      subnet                        = "Containers"
     }
     demo_container = {
       containers = merge(try(var.container_groups.demo, {}), {
         demo_container = {}
-        }
-      )
+      })
       resource_group = "demo"
     }
-    #azdo_windows_self_hosted_agent = {
-    #  containers = merge(try(var.container_groups.windows, {}), {
-    #    azdo_windows_agent = {
-    #      acr                          = ""
-    #      acr_image                    = ""
-    #      name                         = ""
-    #      environment_variables        = ""
-    #      secure_environment_variables = ""
-    #    }
-    #    }
-    #  )
-    #  os_type        = "Windows"
-    #  resource_group = "demo"
-    #  zones = [
-    #    "1", "2", "3"
-    #  ]
-    #}
   }
 
   container_instances = {
@@ -54,6 +104,7 @@ locals {
           acg_key                      = acg_key
           aci_key                      = aci_key
           acr_image                    = lookup(aci_value, "acr_image", "mcr.microsoft.com/azuredocs/aci-helloworld")
+          acr_tag                      = lookup(aci_value, "acr_tag", "latest")
           cpu                          = lookup(aci_value, "cpu", "0.5")
           memory                       = lookup(aci_value, "memory", "1.5")
           container_name               = lookup(aci_value, "name", "hello-world")
