@@ -42,8 +42,8 @@ locals {
         "repos"
       ]
     }
-    terraform = {
-      name = "Terraform"
+    terraform_project = {
+      name = "Project learning Terraform"
       description = "Contains Terraform code"
       features = [
         "repos"
