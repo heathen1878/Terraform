@@ -5,7 +5,7 @@ resource "azurerm_container_group" "acg" {
   resource_group_name = data.terraform_remote_state.resource_group.outputs.resource_group[each.value.resource_group].name
   location            = data.terraform_remote_state.resource_group.outputs.resource_group[each.value.resource_group].location
   os_type             = each.value.os_type
-  tags = merge(var.tags, {
+  tags = merge(var.tags, each.value.tags, {
     location    = var.location
     environment = var.environment
     namespace   = var.namespace

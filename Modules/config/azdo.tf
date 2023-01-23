@@ -39,7 +39,8 @@ locals {
       name        = "Shared"
       description = "Contains all shared artifacts...pipelines...modules etc."
       features = [
-        "repos"
+        "repos",
+        "artifacts"
       ]
     }
     terraform_project = {

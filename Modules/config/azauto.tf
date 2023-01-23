@@ -1,10 +1,10 @@
 locals {
 
-    automation_accounts = {
-        northeuropeaz = {
-            
-        }
+  automation_accounts = {
+    northeuropeaz = {
+
     }
+  }
 
 
 
