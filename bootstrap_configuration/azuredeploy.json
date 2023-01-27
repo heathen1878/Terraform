@@ -153,7 +153,8 @@
                             "name": "[guid(parameters('rbac')[copyIndex('rbac')].principalId, parameters('rbac')[copyIndex('rbac')].roleId, resourceId('Microsoft.Resources/resourceGroups', variables('resource_group_name')))]",
                             "properties": {
                                 "roleDefinitionId": "[ResourceId('Microsoft.Authorization/roleDefinitions', parameters('rbac')[copyIndex('rbac')].roleId)]",
-                                "principalId": "[parameters('rbac')[copyIndex('rbac')].principalId]"
+                                "principalId": "[parameters('rbac')[copyIndex('rbac')].principalId]",
+                                "principalType": "Group"
                             }
                         }
                     ]
@@ -653,7 +654,6 @@
                             "type": "Microsoft.KeyVault/vaults/providers/roleAssignments",
                             "apiVersion": "2020-04-01-preview",
                             "name": "[concat(variables('key_vault_name'), '/Microsoft.Authorization/', guid(uniqueString(concat(toUpper(parameters('kv_admin_group')), variables('key_vault_name')))))]",
-                            "location": "[parameters('location')]",
                             "dependsOn":[
                                 "[variables('key_vault_id')]"
                             ],
@@ -666,7 +666,6 @@
                             "type": "Microsoft.KeyVault/vaults/providers/roleAssignments",
                             "apiVersion": "2020-04-01-preview",
                             "name": "[concat(variables('key_vault_name'), '/Microsoft.Authorization/', guid(uniqueString(concat(toUpper(parameters('cert_officers_group')), variables('key_vault_name')))))]",
-                            "location": "[parameters('location')]",
                             "dependsOn":[
                                 "[variables('key_vault_id')]"
                             ],
@@ -679,7 +678,6 @@
                             "type": "Microsoft.KeyVault/vaults/providers/roleAssignments",
                             "apiVersion": "2020-04-01-preview",
                             "name": "[concat(variables('key_vault_name'), '/Microsoft.Authorization/', guid(uniqueString(concat(toUpper(parameters('secret_officers_group')), variables('key_vault_name')))))]",
-                            "location": "[parameters('location')]",
                             "dependsOn":[
                                 "[variables('key_vault_id')]"
                             ],
