@@ -10,11 +10,13 @@
 
 .EXAMPLE
 
-    setup.ps1 -environment [namespace-environment] -module [module] -subscriptionId [subscription guid]
-    setup.ps1 -environment dom-learning -module Config -subscription 0000000-0000-0000-0000-00000000
+    setup.ps1 -environment global -module global
 
-    setup.ps1 -environment [namespace-environment] -module [module] -location [location] -subscriptionId [subscription guid]
-    setup.ps1 -environment dom-learning -module Config -location "West Europe"  -subscription 0000000-0000-0000-0000-00000000
+    setup.ps1 -environment [namespace-environment] -module [module]
+    setup.ps1 -environment dom-learning -module config
+
+    setup.ps1 -environment [namespace-environment] -module [module] -location [location]
+    setup.ps1 -environment dom-learning -module config -location "West Europe"
 
 #>
 
@@ -35,26 +37,33 @@ Param
     $location="North Europe",
     [Parameter(Mandatory)]
     [string]
-    $module,
-    [Parameter(Mandatory)]
-    [string]
-    $subscriptionId
+    $module
 )
 
 # Set environment and namespace from provided environment
 $namespace=$environment.Split('-')[0]
 $env = $environment.Split('-')[1]
 $location_no_spaces = $location.Replace(" ", "-").ToLower()
+$tenant_id = (Get-AzTenant).Id
 
 # Global backend.tfvars content
 $global_backend = @"
 storage_account_name = "sthn37mgfywa7g4"
-container_name       = "$($subscriptionId)-$($location_no_spaces)"
+container_name       = "$($tenant_id)"
 key                  = "$($module).tfstate"
 "@
 
 $global_variables = @"
-location    = "$($location)"
+management_groups = {
+    devtest = {
+        display_name = "Development and Test subscriptions"
+        subscriptions = []
+    }
+    production = {
+        display_name = "Production subscriptions"
+        subscriptions = []
+    }
+}
 "@
 
 # Environment specific backend.tfvars content
@@ -87,11 +96,13 @@ Catch {
 
 }
 
+
+
 # Check whether the root module directory exists
-If (Test-Path (-Join($root_modules_directory, '\Modules\', $module))){
+If (Test-Path (-Join($root_modules_directory, '\root_modules\', $module))){
 
     # Set environment variable
-    $env:TF_MODULE_CODE=(-Join($root_modules_directory, '\Modules\', $module))
+    $env:TF_MODULE_CODE=(-Join($root_modules_directory, '\root_modules\', $module))
 
 } Else {
 
@@ -100,21 +111,21 @@ If (Test-Path (-Join($root_modules_directory, '\Modules\', $module))){
 
 }
 
-# Check whether the location directory and module directory exist (if applicable) 
+# global configuration or environment configuration
 switch ($environment){
 
-    'Global' {
+    'global' {
 
         # Check whether the environment configuration directory exists
-        If (Test-Path (-Join($environment_directory, '\', $subscriptionId))){
+        If (Test-Path $environment_directory){
 
-            If (-not (Test-Path (-Join($environment_directory, '\', $subscriptionId, '\', $location)))){
+            If (-not (Test-Path (-Join($environment_directory, '\', $tenant_id)))){
 
-                New-Item -Path (-Join($environment_directory, '\', $subscriptionId)) -Name "$location" -ItemType Directory | Out-Null   
+                New-Item -Path $environment_directory -Name $tenant_id -ItemType Directory | Out-Null   
     
             }
 
-            $env:TF_ENVIRONMENT_VARS=(-Join($environment_directory, '\', $subscriptionId, '\', $location))
+            $env:TF_ENVIRONMENT_VARS=(-Join($environment_directory, '\', $tenant_id))
 
             # Check for backend.tfvars and variables.tfvars, create if necessary with backend variables.
             if (-not (Test-Path (-Join($env:TF_ENVIRONMENT_VARS, '\backend.tfvars')))){
@@ -137,7 +148,7 @@ switch ($environment){
     
         } Else {
 
-            Write-Warning ('Cannot find the environment configuration directory: {0} in {1}' -f $subscriptionId, $environment_directory)
+            Write-Warning ('Cannot find the environment configuration directory: {0} in {1}' -f $tenant_id, $environment_directory)
             break
 
         }
@@ -193,6 +204,12 @@ if ($module -eq "azdo"){
     $AZDO_ORG_SERVICE_URL = Get-AzKeyVaultSecret -VaultName "kv-mwt4rcwxlhxl4" -Name "azdo-service-url" -AsPlainText
 }
 
+# Get subscription id for the environment.
+If ($environment -ne "prod"){
+    $subscription_id = Get-AzKeyVaultSecret -VaultName "kv-mwt4rcwxlhxl4" -Name "non-prod" -AsPlainText
+} Else {
+    $subscription_id = Get-AzKeyVaultSecret -VaultName "kv-mwt4rcwxlhxl4" -Name "prod" -AsPlainText
+}
 
 # Get Azure DevOps Access Token
 if ($module -eq "azdo"){
@@ -205,15 +222,19 @@ $env:TF_ENVIRONMENT=$env
 $env:TF_NAMESPACE=$namespace
 $env:TF_MODULE=$module
 $env:TF_DATA_DIR=(-Join($env:TF_ENVIRONMENT_VARS, '\.terraform'))
-$env:ARM_SUBSCRIPTION_ID=$subscriptionId
+$env:ARM_SUBSCRIPTION_ID=$subscription_id
 $env:ARM_ACCESS_KEY=($ACCESS_KEY).Value
+$env:ARM_TENANT_ID=$tenant_id
 
 if ($module -eq "azdo"){
     $env:AZDO_ORG_SERVICE_URL=$AZDO_ORG_SERVICE_URL
     $env:AZDO_PERSONAL_ACCESS_TOKEN=$AZDO_PERSONAL_ACCESS_TOKEN
 }
 
-$subscriptionName = az account list --query "[? contains(id, '$env:ARM_SUBSCRIPTION_ID')].[name]" --output json | ConvertFrom-Json
+# Terraform uses az cli in interactive mode.
+#$subscriptionName = az account list --query "[? contains(id, '$env:ARM_SUBSCRIPTION_ID')].[name]" --output json | ConvertFrom-Json
+$subscription_name = (Get-AzSubscription).Name
+
 
 Write-host ('')
 Write-Host ('Terraform Environment configuration:') -ForegroundColor Yellow
@@ -221,7 +242,14 @@ Write-Host ('--------------------------------------------------------------') -F
 Write-Host ('Environment configuration path: {0}' -f $env:TF_ENVIRONMENT_VARS) -ForegroundColor Magenta
 Write-Host ('Terraform deployment path: {0}' -f $env:TF_MODULE_CODE) -ForegroundColor Magenta
 Write-Host ('Terraform data path: {0}' -f $env:TF_DATA_DIR) -ForegroundColor Magenta
-Write-Host ('Azure Subscription Name: {0}' -f $subscriptionName) -ForegroundColor Magenta
+switch ($environment){
+    'global' {
+        Write-Host ('Azure Tenant Name: {0}' -f (Get-AzTenant).Name) -ForegroundColor Magenta
+    }
+    default {
+        Write-Host ('Azure Subscription Name: {0}' -f $subscription_name) -ForegroundColor Magenta
+    }
+} 
 if ($module -eq "azdo"){
     Write-Host ('Azure DevOps Service Url: {0}' -f $env:AZDO_ORG_SERVICE_URL) -ForegroundColor Magenta
 }

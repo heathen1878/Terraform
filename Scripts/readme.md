@@ -19,25 +19,3 @@ Set-Alias -Name tfset -Value .\scripts\setup.ps1
 Set-Alias -Name tfinit -Value .\scripts\init.ps1
 Set-Alias -Name tfplan -Value .\scripts\plan.ps1
 ```
-
-
-The first script to run is `remotestate.ps1`
-
-You can either configure the `azuredeploy.parameters.json` within the Remote_State directory or pass inline parameters e.g.
-
-
-Using the parameters.json
-```Powershell
-$remotestate = tfremstate
-```
-
-Using inline parameters
-```Powershell
-...
-```
-
-## State container per environment
-
-```Powershell
-createStateContainer.ps1 -resourceGroupName $remotestate.Outputs.storageAccount_Id.value.split('/')[4] -StorageAccount $remotestate.Outputs.storageAccount_Id.value.split('/')[8] -Container "Learning"
-```

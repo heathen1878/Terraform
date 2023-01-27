@@ -35,7 +35,7 @@ If ((Test-Path env:TF_ENVIRONMENT_VARS) -and (Test-Path env:TF_MODULE_CODE)){
 
     }
     
-    terraform -chdir="$env:TF_MODULE_CODE" plan -var-file="$tfvars" -out="$plan" -detailed-exitcode -compact-warnings
+    terraform -chdir="$env:TF_MODULE_CODE" plan -var-file="$tfvars" -var "tenant_id=$env:ARM_TENANT_ID" -out="$plan" -detailed-exitcode -compact-warnings
 
     Write-Host ('')
     Write-Host ('Saving plan as {0}' -f $plan) -ForegroundColor Magenta
