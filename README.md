@@ -8,5 +8,5 @@
 
 [Root modules](https://github.com/heathen1878/Terraform/tree/main/root_modules/readme.md)
 
-[scripts](https://github.com/heathen1878/Terraform/tree/main/scripts/readme.md)
+[scripts](https://github.com/heathen1878/Terraform/blob/main/Scripts/readme.md)
 
