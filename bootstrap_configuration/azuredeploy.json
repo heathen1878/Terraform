@@ -55,6 +55,14 @@
                 "description": "list of valid locations"
             }
         },
+        "management_group": {
+            "type": "object",
+            "defaultValue": {
+                "name": "Management",
+                "display_name": "Management Subscriptions",
+                "associated_subscriptions": []
+            }
+        },
         "resource_tags": {
             "type": "object",
             "defaultValue": {
@@ -104,6 +112,26 @@
         "default_tags": "[union(variables('environment_tag'), parameters('resource_tags'))]"
     },
     "resources": [
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('management_group').name]",
+            "scope": "/",
+            "properties": {
+                "displayName": "[parameters('management_group').display_name]"
+            }
+        },
+        {
+            "type": "Microsoft.Management/managementGroups/subscriptions",
+            "apiVersion": "2020-05-01",
+            "name": "[concat(parameters('management_group').name, '/', parameters('management_group').associated_subscriptions[copyIndex('subscriptions')])]",
+            "copy": {
+                "name": "subscriptions",
+                "count": "[length(parameters('management_group').associated_subscriptions)]"
+            },
+            "scope": "/",
+            "properties": {}
+        },
         {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2021-04-01",

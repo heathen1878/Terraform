@@ -2,13 +2,32 @@
 
 # Bootstrap configuration
 
-The Terraform bootstrapping is deployed using ARM templates, e.g. 
+The Terraform bootstrapping deploys the following:
+- Management group
+By default the management group is named Management Subscriptions and will contains subscriptions defined within azuredeploy.parameters.json e.g. 
+
+```json
+"management_group": {
+    "value": {
+        "name": "Management",
+        "display_name": "Management Subscriptions",
+        "associated_subscriptions": [
+            "subscription_guid",
+            "subscription_guid"
+        ]
+    }
+},
+```
+
+- Key Vault
+A key vault to store secrets such as PAT tokens, DevOps urls, subscriptions for environments or specific projects
+
+- Storage Account
+A storage account to hold Terraform state.
 
 Your ARM parameter file should be similar to this:
 ```json
-{
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
+...
     "parameters": {
         "cert_officers_group": {
             "value": "group object id from AAD"
@@ -36,6 +55,16 @@ Your ARM parameter file should be similar to this:
                 "One or more locations...",
                 "...to restrict deployments to"
             ]
+        },
+        "management_group": {
+            "value": {
+                "name": "Management",
+                "display_name": "Management Subscriptions",
+                "associated_subscriptions": [
+                    "subscription_guid",
+                    "subscription_guid"
+                ]
+            }
         },
         "resource_tags": {
             "value": {
@@ -68,7 +97,7 @@ Your ARM parameter file should be similar to this:
             "value": "tfconfiguration"
         }
     }
-}
+...
 ```
 
 Using PowerShell:
