@@ -22,7 +22,7 @@ By default the management group is named Management Subscriptions and will conta
 
 - Key Vault
 
-A key vault to store secrets such as PAT tokens, DevOps urls, subscriptions for environments or specific projects
+A key vault to store secrets such as PAT tokens, DevOps urls, subscriptions for environments or specific projects. These are used by [setup.ps1](https://github.com/heathen1878/Terraform/blob/main/Scripts/setup.ps1) to set environment variables for Terraform.
 
 - Storage Account
 
