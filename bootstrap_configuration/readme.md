@@ -28,7 +28,10 @@ A key vault to store secrets such as PAT tokens, DevOps urls, subscriptions for 
 
 A storage account to hold Terraform state.
 
+## azuredeploy.parameters.json
+
 Your ARM parameter file should be similar to this:
+
 ```json
 ...
     "parameters": {
@@ -103,7 +106,7 @@ Your ARM parameter file should be similar to this:
 ...
 ```
 
-Using PowerShell:
+## Using PowerShell:
 ```PowerShell
 Connect-AzAccount
 
@@ -113,7 +116,11 @@ New-AzDeployment -Name "Terraform-Bootstrap" `
 -TemplateParameterFile .\bootstrap_configuration\azuredeploy.parameters.json
 ```
 
-Using Azure DevOps:
-```yaml
+## Using Azure DevOps:
 
+To use DevOps you need at least a project and service connection setup - see this [readme](https://github.com/heathen1878/ARM-QuickStarts/blob/master/AzureDevOps/readMe.md).
+
+TODO build the yaml pipeline
+
+```yaml
 ```
