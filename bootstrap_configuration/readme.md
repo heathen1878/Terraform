@@ -4,6 +4,7 @@
 
 The Terraform bootstrapping deploys the following:
 - Management group
+
 By default the management group is named Management Subscriptions and will contains subscriptions defined within azuredeploy.parameters.json e.g. 
 
 ```json
@@ -20,9 +21,11 @@ By default the management group is named Management Subscriptions and will conta
 ```
 
 - Key Vault
+
 A key vault to store secrets such as PAT tokens, DevOps urls, subscriptions for environments or specific projects
 
 - Storage Account
+
 A storage account to hold Terraform state.
 
 Your ARM parameter file should be similar to this:
