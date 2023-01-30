@@ -25,19 +25,25 @@ Param
 (
     [Parameter(Mandatory=$false)]
     [string]
-    $root_modules_directory=(Get-Location).Path,
-    [Parameter(Mandatory=$false)]
-    [string]
     $environment_directory=(-Join($env:USERPROFILE, "\configurations\environments")),
     [Parameter(Mandatory)]
     [string]
     $environment,
     [Parameter(Mandatory=$false)]
     [string]
+    $key_vault="kv-mwt4rcwxlhxl4",
+    [Parameter(Mandatory=$false)]
+    [string]
     $location="North Europe",
     [Parameter(Mandatory)]
     [string]
-    $module
+    $module,
+    [Parameter(Mandatory=$false)]
+    [string]
+    $root_modules_directory=(Get-Location).Path,
+    [Parameter(Mandatory=$false)]
+    [string]
+    $storage_account="sthn37mgfywa7g4"
 )
 
 # Set environment and namespace from provided environment
@@ -48,7 +54,7 @@ $tenant_id = (Get-AzTenant).Id
 
 # Global backend.tfvars content
 $global_backend = @"
-storage_account_name = "sthn37mgfywa7g4"
+storage_account_name = "$($storage_account)"
 container_name       = "$($tenant_id)"
 key                  = "$($module).tfstate"
 "@
@@ -68,7 +74,7 @@ management_groups = {
 
 # Environment specific backend.tfvars content
 $environment_backend = @"
-storage_account_name = "sthn37mgfywa7g4"
+storage_account_name = "$($storage_account)"
 container_name       = "$($environment)-$($location_no_spaces)"
 key                  = "$($module).tfstate"
 "@
@@ -197,24 +203,24 @@ switch ($environment){
 }
 
 # Get access key from storage account
-$ACCESS_KEY = Get-AzStorageAccountKey -ResourceGroupName (Get-AzResource -Name "sthn37mgfywa7g4").ResourceGroupName -Name "sthn37mgfywa7g4" | Where-Object {$_.KeyName -eq "key1"}
+$ACCESS_KEY = Get-AzStorageAccountKey -ResourceGroupName (Get-AzResource -Name $storage_account).ResourceGroupName -Name $storage_account | Where-Object {$_.KeyName -eq "key1"}
 
 # Get Azure DevOps service url
 if ($module -eq "azdo"){
-    $AZDO_ORG_SERVICE_URL = Get-AzKeyVaultSecret -VaultName "kv-mwt4rcwxlhxl4" -Name "azdo-service-url" -AsPlainText
+    $AZDO_ORG_SERVICE_URL = Get-AzKeyVaultSecret -VaultName $key_vault -Name "azdo-service-url" -AsPlainText
 }
 
 # Get subscription id for the environment.
 If ($environment -ne "prod"){
-    $subscription_id = Get-AzKeyVaultSecret -VaultName "kv-mwt4rcwxlhxl4" -Name "non-prod" -AsPlainText
+    $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "non-prod" -AsPlainText
 } Else {
-    $subscription_id = Get-AzKeyVaultSecret -VaultName "kv-mwt4rcwxlhxl4" -Name "prod" -AsPlainText
+    $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "prod" -AsPlainText
 }
 
 # Get Azure DevOps Access Token
 if ($module -eq "azdo"){
     # Set the AzDo environment variable AZDO_PERSONAL_ACCESS_TOKEN
-    $AZDO_PERSONAL_ACCESS_TOKEN = Get-AzKeyVaultSecret -VaultName "kv-mwt4rcwxlhxl4" -Name "azdo-pat-token-tf" -AsPlainText
+    $AZDO_PERSONAL_ACCESS_TOKEN = Get-AzKeyVaultSecret -VaultName $key_vault -Name "azdo-pat-token-tf" -AsPlainText
 }
 
 # Set environment variables for Terraform
