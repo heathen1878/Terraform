@@ -22,4 +22,6 @@ tfset -environment dom-learning -module config
 tfinit && tfplan
 ```
 
-#TODO Create a helper script for tfapply.
+# TODO list 
+
+- [ ] Create a helper script for tfapply.
