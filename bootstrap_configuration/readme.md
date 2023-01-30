@@ -120,7 +120,9 @@ New-AzDeployment -Name "Terraform-Bootstrap" `
 
 To use DevOps you need at least a project and service connection setup - see this [readme](https://github.com/heathen1878/ARM-QuickStarts/blob/master/AzureDevOps/readMe.md).
 
-TODO build the yaml pipeline
-
 ```yaml
 ```
+
+# TODO list
+
+- [ ] Create yaml example for deploying bootstrap
