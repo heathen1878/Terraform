@@ -1,23 +1,52 @@
 [Home](https://github.com/heathen1878/Terraform/blob/main/root_modules/readme.md)
 
-The configuration root modules take input from variables, predefined locals and data resources to provide outputs which can be used by Terraform modules, for example...
+# AAD config
 
-...the aad module 
+The aad.tf is used to define aad applications, aad users, and aad groups. It also dynamically calculates any group memberships and outputs them.
 
-    #key = {
-    #  forename      = "Platform"
-    #  surname       = "Automation"
-    #  domain_suffix = var.domain_suffix
-    #  enabled       = true
-    #  aad_groups    = [
-    #    "group_key"
-    #  ]
-    #  job_title     = "Automation Account"
-    #  kv = [
-    #    # a list of key vaults where the secrets should be stored - matched up with local.key_vaults
-    #    "key_vault_key"
-    #  ]
-    #  expire_password_after              = 5
-    #  rotate_password_days_before_expiry = 3
-    #  generate_ssh_keys                  = true
-    #} 
+## Example AAD App
+
+```hcl
+key = {
+    display_name = "AAD App"
+}
+```
+
+## Example AAD User
+
+```hcl
+key = {
+    forename      = "John"
+    surname       = "Doe"
+    domain_suffix = var.domain_suffix
+    enabled       = true
+    aad_groups    = [
+        # From the groups example below
+        "group_key",
+        "group2_key"
+    ]
+    job_title     = "Administrator"
+    kv = [
+        # a list of key vaults where the password for this user should be stored*
+        "key_vault_key"
+    ]
+    expire_password_after              = 5
+    rotate_password_days_before_expiry = 3
+    generate_ssh_keys                  = true
+} 
+```
+* [key vaults]()
+
+## Example AAD group
+
+```hcl
+group_key = {
+    description = "A group"
+}
+group2_key = {
+    description "Another group"
+}
+```
+
+## Outputs
+

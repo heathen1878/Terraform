@@ -26,9 +26,9 @@ variable "container_groups" {
   )
   sensitive = true
 }
-variable "location" {
-  description = "Location name"
-  default     = "northeurope"
+variable "domain_suffix" {
+  description = "A valid domain within AAD"
+  default     = "domain.com"
   type        = string
 }
 variable "environment" {
@@ -36,46 +36,27 @@ variable "environment" {
   default     = "Dev"
   type        = string
 }
+variable "location" {
+  description = "Location name"
+  default     = "northeurope"
+  type        = string
+}
+variable "management_groups" {
+  description = "A map of management groups to manage"
+  default     = {}
+  type = map(object
+    (
+      {
+        display_name  = string
+        subscriptions = list(string)
+      }
+    )
+  )
+}
 variable "namespace" {
   description = "The namespace for the deployment e.g. mgt, dom, "
   default     = "ns1"
   type        = string
-}
-variable "domain_suffix" {
-  description = "A valid domain within AAD"
-  default     = "domain.com"
-  type        = string
-}
-variable "tags" {
-  description = "Tags required for the resource groups and resources"
-  default = {
-    IaC             = "Terraform"
-    applicationName = "Configuration"
-  }
-  type = map(any)
-}
-variable "tenant_id" {
-  description = "AAD tenant id"
-  type = string  
-}
-variable "virtual_networks" {
-  description = "A virtual network for this environment"
-  default = {
-    "ns1-dev-northeurope" = {
-      address_space = [
-        "192.168.254.0/24"
-      ]
-      dns_servers = []
-    }
-  }
-  type = map(
-    object(
-      {
-        address_space = list(string)
-        dns_servers   = list(string)
-      }
-    )
-  )
 }
 variable "nsg_rules" {
   description = "A map of rules"
@@ -119,6 +100,37 @@ variable "nsg_rules" {
           destination_address_prefixes = list(string)
         }
       )
+    )
+  )
+}
+variable "tags" {
+  description = "Tags required for the resource groups and resources"
+  default = {
+    IaC             = "Terraform"
+    applicationName = "Configuration"
+  }
+  type = map(any)
+}
+variable "tenant_id" {
+  description = "AAD tenant id"
+  type = string  
+}
+variable "virtual_networks" {
+  description = "A virtual network for this environment"
+  default = {
+    "ns1-dev-northeurope" = {
+      address_space = [
+        "192.168.254.0/24"
+      ]
+      dns_servers = []
+    }
+  }
+  type = map(
+    object(
+      {
+        address_space = list(string)
+        dns_servers   = list(string)
+      }
     )
   )
 }

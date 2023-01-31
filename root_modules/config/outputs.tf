@@ -1,10 +1,16 @@
 output "aad_applications" {
-  value     = local.aad_applications_output
+  value     = {
+    applications = local.aad_applications_output
+    group_membership = local.aad_applications_group_membership
+  }
   sensitive = true
 }
 
 output "aad_users" {
-  value     = local.aad_users_output
+  value     = {
+    users = local.aad_users_output
+    group_membership = local.aad_users_group_membership
+  }
   sensitive = true
 }
 
@@ -12,17 +18,6 @@ output "aad_groups" {
   value = local.aad_group_output
 }
 
-output "aad_application_group_membership" {
-  value = local.aad_applications_group_membership_map
-}
-
-output "aad_user_group_membership" {
-  value = local.aad_users_group_membership_map
-}
-
-output "azdo_projects" {
-  value = local.azdo_projects_output
-}
 
 output "container_groups" {
   value     = local.container_groups_output

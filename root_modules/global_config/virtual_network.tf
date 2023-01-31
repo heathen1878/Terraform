@@ -52,19 +52,19 @@ locals {
   # ---------------------------------------------------------------------------------------------------------------------
 
   network_watcher_output = {
-    format("nw_%s_%s_%s", var.namespace, var.environment, local.location) = {
-      name                = format("nw-%s-%s-%s", var.namespace, var.environment, local.location)
+    format("nw_%s_%s", var.environment, local.location) = {
+      name                = format("nw-%s-%s", var.environment, local.location)
       resource_group_name = "management"
     }
   }
 
   virtual_networks_output = {
-    format("%s_%s_%s", var.namespace, var.environment, local.location) = {
-      name                = format("vnet-%s-%s-%s", var.namespace, var.environment, local.location)
+    format("%s_%s", var.environment, local.location) = {
+      name                = format("vnet-%s-%s", var.environment, local.location)
       resource_group_name = "management"
       location            = var.location
-      address_space       = var.virtual_networks[format("%s-%s-%s", var.namespace, var.environment, local.location)].address_space
-      dns_servers         = var.virtual_networks[format("%s-%s-%s", var.namespace, var.environment, local.location)].dns_servers != null ? var.virtual_networks[format("%s-%s-%s", var.namespace, var.environment, local.location)].dns_servers : []
+      address_space       = var.virtual_networks[format("%s-%s", var.environment, local.location)].address_space
+      dns_servers         = var.virtual_networks[format("%s-%s", var.environment, local.location)].dns_servers != null ? var.virtual_networks[format("%s-%s", var.environment, local.location)].dns_servers : []
       tags = {
         IaC         = "Terraform"
         environment = var.environment

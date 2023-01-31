@@ -24,10 +24,11 @@ tfinit && tfplan
 
 ## config examples
 The configuration root modules take input from variables, predefined locals and data resources to provide outputs which can be used by Terraform modules, for example...
-[aad module](https://github.com/heathen1878/Terraform/blob/main/root_modules/aad.md)
+
+[aad config](https://github.com/heathen1878/Terraform/blob/main/root_modules/aad.md)
 
 
 
-# TODO list 
+## TODO list 
 
 - [ ] Create a helper script for tfapply.

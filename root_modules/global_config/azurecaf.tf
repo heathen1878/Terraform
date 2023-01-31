@@ -85,17 +85,3 @@ resource "azurecaf_name" "windows_virtual_machine" {
   name          = each.value.name
   resource_type = "azurerm_windows_virtual_machine"
 }
-
-resource "azurecaf_name" "windows_web_app_plan" {
-  for_each = local.formatted_windows_web_app_plan
-
-  name          = each.value.name
-  resource_type = "azurerm_app_service_plan"
-}
-
-resource "azurecaf_name" "windows_web_app" {
-  for_each = local.formatted_windows_web_app
-
-  name          = each.value.name
-  resource_type = "azurerm_app_service"
-}

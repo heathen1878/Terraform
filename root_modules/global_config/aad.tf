@@ -1,17 +1,43 @@
 locals {
-  aad_applications = {}
+
+  aad_applications = {
+    azdo_service_connection_devtest = {
+      display_name     = "Dev Ops DevTest Service Connection"
+      description      = "Connects DevOps to the DevTest Management group"
+      management_group = "devtest"
+      azdo_projects = [
+        "pipelines"
+      ]
+    }
+    azdo_service_connection_prod = {
+      display_name     = "Dev Ops Production Service Connection"
+      description      = "Connects DevOps to the Production Management group"
+      management_group = "production"
+    }
+    docker_build = {
+      display_name        = "Docker Build"
+      description         = "Builds and pushes Docker Images to ACR"
+      expire_secret_after = 90
+      kv = [
+        "management"
+      ]
+      homepage_url                  = "https://visualstudio/SPN"
+      access_token_issuance_enabled = false
+      redirect_uris = [
+        "https://VisualStudio/SPN"
+      ]
+      rotate_secret_days_before_expiry = 14
+    }
+  }
 
   aad_users = {}
 
   aad_groups = {
-    certificates-officer = {
-      description = "Can manage certificates within a Key Vault"
-    }
-    secrets-officer = {
-      description = "Can manage secrets within a Key Vault"
-    }
-    key-vault-admin = {
-      description = "Administrators of Key Vaults"
+    azdo = {
+      azdo-project-readers = {
+        name        = format("%s-%s-azdo-project-readers", var.namespace, var.environment)
+        description = "Grants read access to Projects within Azure DevOps"
+      }
     }
   }
 
@@ -23,11 +49,14 @@ locals {
     for aad_app_key, aad_app_value in local.aad_applications : aad_app_key => {
       access_token_issuance_enabled    = lookup(aad_app_value, "access_token_issuance_enabled", true)
       app_id                           = random_uuid.aad_application[aad_app_key].result
-      description                      = lookup(aad_app_value, "description", "Environment scoped AAD application registration")
+      azdo_projects                    = lookup(aad_app_value, "azdo_projects", [])
+      display_name                     = aad_app_value.display_name
+      description                      = lookup(aad_app_value, "description", "Global AAD application registration")
       expire_secret_after              = lookup(aad_app_value, "expire_secret_after", 90)
       homepage_url                     = lookup(aad_app_value, "homepage_url", null)
       id_token_issuance_enabled        = lookup(aad_app_value, "id_token_issuance_enabled", true)
       kv                               = lookup(aad_app_value, "kv", [])
+      management_group                 = lookup(aad_app_value, "management_group", "")
       secret_display_name              = replace(aad_app_value.display_name, " ", "-")
       redirect_uris                    = lookup(aad_app_value, "redirect_uris", [])
       rotate_secret_days_before_expiry = lookup(aad_app_value, "rotate_secret_days_before_expiry", 14)
@@ -51,7 +80,7 @@ locals {
 
   aad_group_output = {
     for aad_group_key, aad_group_value in local.aad_groups : aad_group_key => {
-      name = format("%s-%s-%s-%s", var.namespace, var.environment, lower(replace(var.location, " ", ""), aad_group_key))
+      name        = format("%s-%s-%s-%s", var.namespace, var.environment, lower(replace(var.location, " ", "")), aad_group_key)
       description = lookup(aad_group_value, "description", "")
     }
   }
