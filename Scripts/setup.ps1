@@ -211,10 +211,16 @@ if ($module -eq "azdo"){
 }
 
 # Get subscription id for the environment.
-If ($environment -ne "prod"){
-    $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "non-prod" -AsPlainText
-} Else {
-    $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "prod" -AsPlainText
+switch ($environment){
+    'global' {
+        $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "mgmt" -AsPlainText
+    }
+    'prod' {
+        $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "non-prod" -AsPlainText
+    }
+    'non-prord' {
+        $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "prod" -AsPlainText
+    }
 }
 
 # Get Azure DevOps Access Token
@@ -237,10 +243,9 @@ if ($module -eq "azdo"){
     $env:AZDO_PERSONAL_ACCESS_TOKEN=$AZDO_PERSONAL_ACCESS_TOKEN
 }
 
-# Terraform uses az cli in interactive mode.
-#$subscriptionName = az account list --query "[? contains(id, '$env:ARM_SUBSCRIPTION_ID')].[name]" --output json | ConvertFrom-Json
-$subscription_name = (Get-AzSubscription).Name
 
+Set-AzContext -Subscription $subscription_id
+$subscription_name = (Get-AzContext).Subscription.Name
 
 Write-host ('')
 Write-Host ('Terraform Environment configuration:') -ForegroundColor Yellow
@@ -248,14 +253,10 @@ Write-Host ('--------------------------------------------------------------') -F
 Write-Host ('Environment configuration path: {0}' -f $env:TF_ENVIRONMENT_VARS) -ForegroundColor Magenta
 Write-Host ('Terraform deployment path: {0}' -f $env:TF_MODULE_CODE) -ForegroundColor Magenta
 Write-Host ('Terraform data path: {0}' -f $env:TF_DATA_DIR) -ForegroundColor Magenta
-switch ($environment){
-    'global' {
-        Write-Host ('Azure Tenant Name: {0}' -f (Get-AzTenant).Name) -ForegroundColor Magenta
-    }
-    default {
-        Write-Host ('Azure Subscription Name: {0}' -f $subscription_name) -ForegroundColor Magenta
-    }
-} 
+if ($environment -eq "global") {
+    Write-Host ('Azure Tenant Name: {0}' -f (Get-AzTenant).Name) -ForegroundColor Magenta
+}
+Write-Host ('Azure Subscription Name: {0}' -f $subscription_name) -ForegroundColor Magenta
 if ($module -eq "azdo"){
     Write-Host ('Azure DevOps Service Url: {0}' -f $env:AZDO_ORG_SERVICE_URL) -ForegroundColor Magenta
 }
