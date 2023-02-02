@@ -33,11 +33,18 @@ locals {
   aad_users = {}
 
   aad_groups = {
-    azdo = {
-      azdo-project-readers = {
-        name        = format("%s-%s-azdo-project-readers", var.namespace, var.environment)
-        description = "Grants read access to Projects within Azure DevOps"
-      }
+    azdo-project-readers = {
+      name        = format("%s-%s-azdo-project-readers", var.namespace, var.environment)
+      description = "Grants read access to Projects within Azure DevOps"
+    }
+    certificates-officer = {
+      description = "Can manage certificates within a Key Vault"
+    }
+    secrets-officer = {
+      description = "Can manage secrets within a Key Vault"
+    }
+    key-vault-admin = {
+      description = "Administrators of Key Vaults"
     }
   }
 
@@ -80,7 +87,7 @@ locals {
 
   aad_group_output = {
     for aad_group_key, aad_group_value in local.aad_groups : aad_group_key => {
-      name        = format("%s-%s-%s-%s", var.namespace, var.environment, lower(replace(var.location, " ", "")), aad_group_key)
+      name        = format("%s-%s-%s", var.environment, lower(replace(var.location, " ", "")), aad_group_key)
       description = lookup(aad_group_value, "description", "")
     }
   }

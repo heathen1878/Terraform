@@ -22,3 +22,8 @@ output "azdo_projects" {
   value = local.azdo_projects_output
 }
 
+output "azure_service_tags" {
+  value = {
+    frontdoor_backend = local.azure_frontdoor_backend
+  }
+}

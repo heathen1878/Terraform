@@ -1,3 +1,7 @@
+variable "access_token" {
+  description = "Authentication access token used for querying APIs"
+  type        = string
+}
 variable "bootstrap" {
   description = "The Key Vault that contains secrets for bootstrapping Terraform Configuration"
   type = map(object(
