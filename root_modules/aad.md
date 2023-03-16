@@ -12,13 +12,15 @@ key = {
 }
 ```
 
+The minimum required for an azure ad application is a display name. 
+
 ## Example AAD User
 
 ```hcl
 key = {
     forename      = "John"
     surname       = "Doe"
-    domain_suffix = var.domain_suffix
+    domain_suffix = var.domain_suffix == null ? data.azuread_domains.aad_domains.domains[0].domain_name : var.domain_suffix
     enabled       = true
     aad_groups    = [
         # From the groups example below
@@ -35,7 +37,12 @@ key = {
     generate_ssh_keys                  = true
 } 
 ```
-* [key vaults]()
+
+The minimum required for a user is a domain suffix, forename, and surname.
+
+## [key vaults](kv.md)
+
+The key vault key name can be referenced in within the users configuration to denote where their passwords should be stored; note more than one key vault can be defined. 
 
 ## Example AAD group
 
