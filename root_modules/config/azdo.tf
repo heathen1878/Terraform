@@ -1,56 +1,6 @@
 locals {
 
-  azdo_projects = {
-    docker = {
-      name        = "Docker"
-      description = "Contains Docker examples"
-      features = [
-        "repos"
-      ]
-    }
-    pipelines = {
-      name        = "Pipelines"
-      description = "Contains all pipeline code"
-      dockerhub = [
-        "northeuropeacr"
-      ]
-      features = [
-        "repos",
-        "pipelines"
-      ]
-    }
-    powershell = {
-      name        = "PowerShell"
-      description = "Contains PowerShell code"
-      features = [
-        "repos"
-      ]
-    }
-    powershell_public = {
-      name        = "Public PowerShell Modules"
-      description = "Contains public PowerShell modules - like a PowerShell Gallery"
-      features = [
-        "repos",
-        "artifacts"
-      ]
-      visibility = "public"
-    }
-    shared = {
-      name        = "Shared"
-      description = "Contains all shared artifacts...pipelines...modules etc."
-      features = [
-        "repos",
-        "artifacts"
-      ]
-    }
-    terraform_project = {
-      name        = "Project learning Terraform"
-      description = "Contains Terraform code"
-      features = [
-        "repos"
-      ]
-    }
-  }
+  azdo_projects = {}
 
   azdo_project_features = {
     for project_key, project_value in local.azdo_projects : project_key => {

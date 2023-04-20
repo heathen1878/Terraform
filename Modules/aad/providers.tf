@@ -1,4 +1,0 @@
-provider "azurerm" {
-}
-provider "azuread" {
-}

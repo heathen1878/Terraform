@@ -2,6 +2,8 @@ data "azurerm_subscription" "current" {
 }
 
 data "azurerm_key_vault" "bootstrap_key_vault" {
+  provider = azurerm.mgmt
+
   name                = var.bootstrap.key_vault.name
   resource_group_name = var.bootstrap.key_vault.resource_group
 }

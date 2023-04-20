@@ -21,3 +21,7 @@ variable "tags" {
   }
   type = map(any)
 }
+variable "tenant_id" {
+  description = "AAD tenant id"
+  type = string  
+}

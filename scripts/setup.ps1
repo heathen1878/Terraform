@@ -116,7 +116,7 @@ If (Test-Path (-Join($root_modules_directory, '\root_modules\', $module))){
 }
 
 # global configuration or environment configuration
-switch ($environment){
+switch ($namespace){
 
     'global' {
 
@@ -129,7 +129,14 @@ switch ($environment){
     
             }
 
-            $env:TF_ENVIRONMENT_VARS=(-Join($environment_directory, '\', $tenant_id))
+            # Setup a module directory for the tenant.
+            If (-not (Test-Path (-Join($environment_directory, '\', $tenant_id, '\', $module)))){
+
+                New-Item -Path (-Join($environment_directory, '\', $tenant_id)) -Name $module -ItemType Directory | Out-Null
+
+            }
+
+            $env:TF_ENVIRONMENT_VARS=(-Join($environment_directory, '\', $tenant_id, '\', $module))
 
             # Check for backend.tfvars and variables.tfvars, create if necessary with backend variables.
             if (-not (Test-Path (-Join($env:TF_ENVIRONMENT_VARS, '\backend.tfvars')))){
@@ -209,23 +216,24 @@ $subscription_name = (Get-AzContext).Subscription.Name
 $ACCESS_KEY = Get-AzStorageAccountKey -ResourceGroupName (Get-AzResource -Name $storage_account).ResourceGroupName -Name $storage_account | Where-Object {$_.KeyName -eq "key1"}
 
 # Get subscription id for the environment.
-switch ($environment){
-    'global' {
-        $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "mgmt" -AsPlainText
+If ($namespace -ne 'global') {
+    switch ($env){
+        'prod' {
+            $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "prod" -AsPlainText
+        }
+        'learning' {
+            $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "non-prod" -AsPlainText
+        }
+        Default {
+            Write-Warning ('No subscription found for {0} environments' -f $env)
+            Exit 1
+        }
     }
-    'prod' {
-        $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "prod" -AsPlainText
-    }
-    'non-prod' {
-        $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "non-prod" -AsPlainText
-    }
-    Default {
-        $subscription_id = Get-AzKeyVaultSecret -VaultName $key_vault -Name "non-prod" -AsPlainText
-    }
-}
 
-Set-AzContext -Subscription $subscription_id | Out-Null
-$subscription_name = (Get-AzContext).Subscription.Name
+    Set-AzContext -Subscription $subscription_id | Out-Null
+    $subscription_name = (Get-AzContext).Subscription.Name
+
+}
 
 # Get the Microsoft Azure published address ranges json link
 If ($module -eq "global_config"){
@@ -264,7 +272,7 @@ Write-Host ('--------------------------------------------------------------') -F
 Write-Host ('Environment configuration path: {0}' -f $env:TF_ENVIRONMENT_VARS) -ForegroundColor Magenta
 Write-Host ('Terraform deployment path: {0}' -f $env:TF_MODULE_CODE) -ForegroundColor Magenta
 Write-Host ('Terraform data path: {0}' -f $env:TF_DATA_DIR) -ForegroundColor Magenta
-if ($environment -eq "global") {
+if ($namespace -eq "global") {
     Write-Host ('Azure Tenant Name: {0}' -f (Get-AzTenant).Name) -ForegroundColor Magenta
 }
 Write-Host ('Azure Subscription Name: {0}' -f $subscription_name) -ForegroundColor Magenta

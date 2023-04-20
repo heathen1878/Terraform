@@ -30,11 +30,16 @@ locals {
     }
   }
 
-  aad_users = {}
+  aad_users = {
+    naug = {
+      domain_suffix = var.domain_suffix == null ? data.azuread_domains.aad_domains.domains[0].domain_name : var.domain_suffix
+      forename      = "Northern Azure"
+      surname       = "User Group"
+    }
+  }
 
   aad_groups = {
     azdo-project-readers = {
-      name        = format("%s-%s-azdo-project-readers", var.namespace, var.environment)
       description = "Grants read access to Projects within Azure DevOps"
     }
     certificates-officer = {
@@ -75,20 +80,23 @@ locals {
       forename                      = aad_user_value.forename
       surname                       = aad_user_value.surname
       domain_suffix                 = aad_user_value.domain_suffix
-      job_title                     = aad_user_value.job_title
-      enabled                       = aad_user_value.enabled
+      given_name                    = format("%s %s", aad_user_value.forename, aad_user_value.surname)
+      job_title                     = lookup(aad_user_value, "job_title", "")
+      enabled                       = lookup(aad_user_value, "enabled", false)
       formatted_user_principal_name = format("%s-%s", aad_user_key, replace(aad_user_value.domain_suffix, "/\\./", "-"))
-      kv                            = aad_user_value.kv
-      generate_ssh_keys             = try(aad_user_value.generate_ssh_keys, false)
+      kv                            = lookup(aad_user_value, "kv", [])
+      generate_ssh_keys             = lookup(aad_user_value, "generate_ssh_keys", false)
       password                      = random_password.aad_user[aad_user_key].result
       password_expiration           = time_offset.password_expiry[aad_user_key].rfc3339
+      user_principal_name           = format("%s@%s", aad_user_key, aad_user_value.domain_suffix)
     }
   }
 
   aad_group_output = {
     for aad_group_key, aad_group_value in local.aad_groups : aad_group_key => {
-      name        = format("%s-%s-%s", var.environment, lower(replace(var.location, " ", "")), aad_group_key)
-      description = lookup(aad_group_value, "description", "")
+      name         = aad_group_key
+      display_name = format("%s", replace(aad_group_key, "-", " "))
+      description  = lookup(aad_group_value, "description", "")
     }
   }
 

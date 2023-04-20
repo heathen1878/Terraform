@@ -1,6 +1,9 @@
 data "azuread_client_config" "current" {
 }
 
+data "azuread_domains" "aad_domains" {
+}
+
 data "azurerm_subscription" "current" {
 }
 
@@ -20,11 +23,8 @@ data "azurerm_key_vault_secret" "azdo_service_url" {
 }
 
 data "http" "azure_service_tags" {
-  url = format("https://management.azure.com/subscriptions/%s/providers/Microsoft.Network/locations/%s/serviceTags?api-version=2022-07-01", data.azurerm_subscription.current.subscription_id, local.location)
-
-  request_headers = {
-    "Authorization" = format("Bearer %s", var.access_token)
-  }
+  url    = var.azure_ip_ranges_json_url
+  method = "GET"
 
 }
 

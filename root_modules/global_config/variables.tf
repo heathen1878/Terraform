@@ -2,6 +2,10 @@ variable "access_token" {
   description = "Authentication access token used for querying APIs"
   type        = string
 }
+variable "azure_ip_ranges_json_url" {
+  type        = string
+  description = "The download link for Azure IP ranges json file. Set in setup.sh"
+}
 variable "bootstrap" {
   description = "The Key Vault that contains secrets for bootstrapping Terraform Configuration"
   type = map(object(
@@ -32,7 +36,7 @@ variable "container_groups" {
 }
 variable "domain_suffix" {
   description = "A valid domain within AAD"
-  default     = "domain.com"
+  default     = null
   type        = string
 }
 variable "environment" {

@@ -1,5 +1,6 @@
 resource "azuread_group" "mgt-azdo-group" {
   for_each                = data.terraform_remote_state.config.outputs.aad_groups.azdo
+  
   display_name            = each.value.name
   prevent_duplicate_names = true
   security_enabled        = true
@@ -27,6 +28,7 @@ resource "azuread_group" "mgt-azdo-group" {
 
 resource "azuread_group" "mgt-kv-group" {
   for_each                = data.terraform_remote_state.config.outputs.aad_groups.kv
+
   display_name            = each.value.name
   prevent_duplicate_names = true
   security_enabled        = true

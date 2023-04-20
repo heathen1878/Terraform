@@ -51,7 +51,7 @@ locals {
 
   aad_group_output = {
     for aad_group_key, aad_group_value in local.aad_groups : aad_group_key => {
-      name = format("%s-%s-%s-%s", var.namespace, var.environment, lower(replace(var.location, " ", ""), aad_group_key))
+      name        = format("%s-%s-%s-%s", var.namespace, var.environment, lower(replace(var.location, " ", "")), aad_group_key)
       description = lookup(aad_group_value, "description", "")
     }
   }

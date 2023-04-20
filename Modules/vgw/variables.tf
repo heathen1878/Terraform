@@ -28,6 +28,10 @@ variable "tags" {
     }
     type = map
 }
+variable "tenant_id" {
+  description = "AAD tenant id"
+  type = string  
+}
 variable "hubvirtualNetwork" {
     description = "The hub vNet and its associated subnets"
     default = {

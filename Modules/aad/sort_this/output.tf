@@ -7,6 +7,3 @@ output "aad_applications" {
   sensitive = true
 }
 
-output "aad_users" {
-  value = "AAD_USER_ATTRIBUTES"
-}

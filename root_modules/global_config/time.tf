@@ -1,7 +1,7 @@
 resource "time_rotating" "password_rotation" {
   for_each = local.aad_users
 
-  rotation_days = each.value.expire_password_after - each.value.rotate_password_days_before_expiry
+  rotation_days = try(each.value.expire_password_after, 90) - try(each.value.rotate_password_days_before_expiry, 14)
 }
 
 resource "time_offset" "password_expiry" {
@@ -11,5 +11,5 @@ resource "time_offset" "password_expiry" {
     password_rotation = time_rotating.password_rotation[each.key].id
   }
 
-  offset_days = each.value.expire_password_after
+  offset_days = try(each.value.expire_password_after, 90)
 }

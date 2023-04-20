@@ -18,6 +18,15 @@ output "aad_users" {
   sensitive = true
 }
 
+output "container_groups" {
+  value     = local.container_groups_output
+  sensitive = true
+}
+
+output "container_registries" {
+  value = local.container_registry_output
+}
+
 output "azdo_projects" {
   value = local.azdo_projects_output
 }
@@ -26,4 +35,8 @@ output "azure_service_tags" {
   value = {
     frontdoor_backend = local.azure_frontdoor_backend
   }
+}
+
+output "key_vaults" {
+  value = local.key_vault_output
 }

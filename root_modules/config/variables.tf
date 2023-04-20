@@ -53,6 +53,10 @@ variable "management_groups" {
     )
   )
 }
+variable "management_subscription" {
+  description = "The management subscription id"
+  type        = string
+}
 variable "namespace" {
   description = "The namespace for the deployment e.g. mgt, dom, "
   default     = "ns1"
@@ -113,7 +117,7 @@ variable "tags" {
 }
 variable "tenant_id" {
   description = "AAD tenant id"
-  type = string  
+  type        = string
 }
 variable "virtual_networks" {
   description = "A virtual network for this environment"

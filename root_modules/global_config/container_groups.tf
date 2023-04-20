@@ -2,7 +2,7 @@ locals {
 
   container_groups = {
     azdo_linux_self_hosted_agent_0 = {
-      containers = merge(try(var.container_groups.linux, {}), {
+      containers = {
         azdo_linux_agent_0 = {
           acr_image = "azdoagent"
           acr_tag   = "233"
@@ -18,7 +18,7 @@ locals {
             AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
           }
         }
-      })
+      }
       image_registry_credential_key = "northeuropeacr"
       ip_address_type               = "Private"
       resource_group                = "demo"
@@ -27,7 +27,7 @@ locals {
       tags                          = { usage = "DevOpsAgent" }
     }
     azdo_linux_self_hosted_agent_1 = {
-      containers = merge(try(var.container_groups.linux, {}), {
+      containers = {
         azdo_linux_agent_1 = {
           acr_image = "azdoagent"
           acr_tag   = "233"
@@ -43,69 +43,13 @@ locals {
             AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
           }
         }
-      })
+      }
       image_registry_credential_key = "northeuropeacr"
       ip_address_type               = "Private"
       resource_group                = "demo"
       restart_policy                = "OnFailure"
       subnet                        = "Containers"
       tags                          = { usage = "DevOpsAgent" }
-    }
-    azdo_linux_self_hosted_agent_2 = {
-      containers = merge(try(var.container_groups.linux, {}), {
-        azdo_linux_agent_2 = {
-          acr_image = "azdoagent"
-          acr_tag   = "233"
-          cpu       = 2
-          memory    = 2
-          name      = "azdolinuxagent2"
-          environment_variables = {
-            AZP_URL        = data.azurerm_key_vault_secret.azdo_service_url.value
-            AZP_AGENT_NAME = "azdolinuxagent2"
-            AZP_POOL       = "Platform"
-          }
-          secure_environment_variables = {
-            AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
-          }
-        }
-      })
-      image_registry_credential_key = "northeuropeacr"
-      ip_address_type               = "Private"
-      resource_group                = "demo"
-      restart_policy                = "OnFailure"
-      subnet                        = "Containers"
-      tags                          = { usage = "DevOpsAgent" }
-    }
-    azdo_linux_self_hosted_agent_3 = {
-      containers = merge(try(var.container_groups.linux, {}), {
-        azdo_linux_agent_3 = {
-          acr_image = "azdoagent"
-          acr_tag   = "233"
-          cpu       = 2
-          memory    = 2
-          name      = "azdolinuxagent3"
-          environment_variables = {
-            AZP_URL        = data.azurerm_key_vault_secret.azdo_service_url.value
-            AZP_AGENT_NAME = "azdolinuxagent3"
-            AZP_POOL       = "Platform"
-          }
-          secure_environment_variables = {
-            AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
-          }
-        }
-      })
-      image_registry_credential_key = "northeuropeacr"
-      ip_address_type               = "Private"
-      resource_group                = "demo"
-      restart_policy                = "OnFailure"
-      subnet                        = "Containers"
-      tags                          = { usage = "DevOpsAgent" }
-    }
-    demo_container = {
-      containers = merge(try(var.container_groups.demo, {}), {
-        demo_container = {}
-      })
-      resource_group = "demo"
     }
   }
 
