@@ -5,18 +5,9 @@ locals {
       name        = "Docker"
       description = "Contains Docker examples"
       features = [
-        "repos"
-      ]
-    }
-    pipelines = {
-      name        = "Pipelines"
-      description = "Contains all pipeline code"
-      dockerhub = [
-        "northeuropeacr"
-      ]
-      features = [
         "repos",
         "pipelines"
+
       ]
     }
     powershell = {
@@ -47,7 +38,9 @@ locals {
       name        = "Project learning Terraform"
       description = "Contains Terraform code"
       features = [
-        "repos"
+        "repos",
+        "pipelines"
+
       ]
     }
   }
