@@ -20,6 +20,7 @@
 
 #>
 
+<<<<<<< HEAD
 [CmdletBinding()]
 Param
 (
@@ -51,7 +52,40 @@ $namespace=$environment.Split('-')[0]
 $env = $environment.Split('-')[1]
 $location_no_spaces = $location.Replace(" ", "-").ToLower()
 $tenant_id = (Get-AzTenant).Id
+=======
+#[CmdletBinding()]
+#Param
+#(
+#    [Parameter(Mandatory=$false)]
+#    [string]
+#    $environment_directory=(-Join($env:USERPROFILE, "\configurations\environments")),
+#    [Parameter(Mandatory)]
+#    [string]
+#    $environment,
+#    [Parameter(Mandatory=$false)]
+#    [string]
+#    $key_vault="kv-mwt4rcwxlhxl4",
+#    [Parameter(Mandatory=$false)]
+#    [string]
+#    $location="North Europe",
+#    [Parameter(Mandatory)]
+#    [string]
+#    $module,
+#    [Parameter(Mandatory=$false)]
+#    [string]
+#    $root_modules_directory=(Get-Location).Path,
+#    [Parameter(Mandatory=$false)]
+#    [string]
+#    $storage_account="sthn37mgfywa7g4"
+#)
+>>>>>>> 1c24ca8 (Code updates for script wrappers)
 
+## Set environment and namespace from provided environment
+#$namespace=$environment.Split('-')[0]
+#$env = $environment.Split('-')[1]
+#$location_no_spaces = $location.Replace(" ", "-").ToLower()
+#$tenant_id = (Get-AzTenant).Id
+#
 # Global backend.tfvars content
 $global_backend = @"
 storage_account_name = "$($storage_account)"

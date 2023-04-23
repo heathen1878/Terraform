@@ -37,3 +37,6 @@ override.tf.json
 # Exclude automated ssh keys and key generation scripts
 **/keys/*.ps1
 **/keys/*.sh
+
+# Exclude environment configuration
+./configuration/environments/*
