@@ -3,6 +3,7 @@
 # shellcheck source=./scripts/functions/usage.sh
 
 # dot source functions
+source ./scripts/functions/common.sh
 source ./scripts/functions/usage.sh
 
 # Checks
@@ -24,11 +25,20 @@ done
 
 if [ "$tenant" ]; then
     echo -e "\033[32mAuthenticating against tenant: $tenant \033[0m"
-    az login --tenant "$tenant" --query "sort_by([].{Name:name, Subscription:id, Tenant:tenantId},&Name)" --output tsv --only-show-errors
+    if az login --tenant "$tenant" --query "sort_by([].{Name:name, Subscription:id, Tenant:tenantId},&Name)" --output tsv --only-show-errors; then
+        tick
+    else
+        cross
+    fi
 
 else
     echo -e "\033[32mAuthenticating Az Cli\033[0m"
-    az login --query "sort_by([].{Name:name, Subscription:id, Tenant:tenantId},&Name)" --output tsv --only-show-errors
+    if az login --query "sort_by([].{Name:name, Subscription:id, Tenant:tenantId},&Name)" --output tsv --only-show-errors; then
+        tick
+    else
+        cross
+    fi
+
 fi
 
 ARM_TENANT_ID=$(az account show | jq -rc '.tenantId')
@@ -36,4 +46,3 @@ export ARM_TENANT_ID
 
 # Cleanup
 unset tenant
-
