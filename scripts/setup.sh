@@ -176,7 +176,8 @@ container_name       = "$STATE_CONTAINER"
 key                  = "$STATE_FILE"
 EOF
 
-# set env.tfvars values for Terraform
+# set env.tfvars values for the config module; will only run on the first run.
+if [ ! -f "$TERRAFORM_ENV/env.tfvars" ] && [ "$DEPLOYMENT_NAME" = "config" ]; then
 cat <<EOF >"$TERRAFORM_ENV/env.tfvars"
 bootstrap={
     key_vault={
@@ -189,8 +190,20 @@ location = "$LOCATION"
 management_subscription = "$MGMT_SUBSCRIPTION_ID"
 namespace = "$NAMESPACE"
 tenant_id = "$ARM_TENANT_ID"
+virtual_networks={
+    "$NAMESPACE-$ENVIRONMENT-$LOCATION" = {
+      address_space = [
+        "10.0.0.0/16"
+      ]
+      dns_servers = []
+    }
+}
 EOF
 
+echo -e "$(yellow)WARNING$(warning):$(default)"
+echo -e "$(yellow)Please check the default IP address space 10.0.0.0/16 does not $(red)overlap$(yellow) with any other networks. If it does please$(default)"
+echo -e "$(yellow)update env.tfvars in $TERRAFORM_ENV$(default)"
+fi
 
 # export variables
 export ARM_SUBSCRIPTION_ID

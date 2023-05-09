@@ -19,3 +19,9 @@ Set-Alias -Name tfset -Value .\scripts\setup.ps1
 Set-Alias -Name tfinit -Value .\scripts\init.ps1
 Set-Alias -Name tfplan -Value .\scripts\plan.ps1
 ```
+
+## Bash aliases
+
+```bash
+alias=
+```

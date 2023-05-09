@@ -24,6 +24,12 @@ function magenta() {
 
 }
 
+function yellow() {
+
+    echo -e "\033[1;33m"
+    
+}
+
 function tick() {
 
     echo -e "\033[32m✔"
