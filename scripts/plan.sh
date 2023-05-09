@@ -39,6 +39,10 @@ fi
 # flow
 terraform -chdir="$TERRAFORM_DEPLOYMENT" plan \
     -refresh=true \
+    -var="environment=$ENVIRONMENT" \
+    -var="location=$LOCATION" \
+    -var="namespace=$NAMESPACE" \
+    -var="state_storage_account=$STATE_ACCOUNT" \
     -var-file="$TERRAFORM_ENV/env.tfvars" \
     -out="$TERRAFORM_ENV/plans/$planName" \
     -detailed-exitcode

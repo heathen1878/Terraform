@@ -203,6 +203,9 @@ EOF
 echo -e "$(yellow)WARNING$(warning):$(default)"
 echo -e "$(yellow)Please check the default IP address space 10.0.0.0/16 does not $(red)overlap$(yellow) with any other networks. If it does please$(default)"
 echo -e "$(yellow)update env.tfvars in $TERRAFORM_ENV$(default)"
+else
+cat <<EOF >"$TERRAFORM_ENV/env.tfvars"
+EOF
 fi
 
 # export variables

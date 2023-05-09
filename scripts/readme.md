@@ -22,6 +22,4 @@ Set-Alias -Name tfplan -Value .\scripts\plan.ps1
 
 ## Bash aliases
 
-```bash
-alias=
-```
+[See here](https://github.com/heathen1878/bash#configure-aliases)
