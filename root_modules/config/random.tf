@@ -120,12 +120,11 @@ resource "random_id" "virtual_machine" {
   byte_length = 6
 }
 
-resource "random_id" "windows_web_app_plan" {
-  for_each = local.windows_web_app_plan
+resource "random_id" "service_plans" {
+  for_each = local.service_plans
 
   keepers = {
-    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
-    plan_name      = each.value.name
+    key = each.key
   }
   byte_length = 16
 }
@@ -197,9 +196,9 @@ locals {
       name = replace(lower(virtual_machine_value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
-  formatted_windows_web_app_plan = {
-    for windows_web_app_plan_key, windows_web_app_plan_value in random_id.windows_web_app_plan : windows_web_app_plan_key => {
-      name = replace(lower(windows_web_app_plan_value.id), "/[^0-9a-zA-Z]/", "")
+  formatted_service_plans = {
+    for key, value in random_id.service_plans : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
   formatted_windows_web_app = {

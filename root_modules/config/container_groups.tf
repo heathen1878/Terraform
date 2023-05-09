@@ -58,14 +58,14 @@ locals {
     for container in flatten([
       for acg_key, acg_value in local.container_groups : [
         for aci_key, aci_value in acg_value.containers : {
-          acg_key                      = acg_key
-          aci_key                      = aci_key
-          acr_image                    = lookup(aci_value, "acr_image", "mcr.microsoft.com/azuredocs/aci-helloworld")
-          acr_tag                      = lookup(aci_value, "acr_tag", "latest")
-          cpu                          = lookup(aci_value, "cpu", "0.5")
-          memory                       = lookup(aci_value, "memory", "1.5")
-          container_name               = lookup(aci_value, "name", "hello-world")
-          environment_variables        = lookup(aci_value, "environment_variables", {})
+          acg_key               = acg_key
+          aci_key               = aci_key
+          acr_image             = lookup(aci_value, "acr_image", "mcr.microsoft.com/azuredocs/aci-helloworld")
+          acr_tag               = lookup(aci_value, "acr_tag", "latest")
+          cpu                   = lookup(aci_value, "cpu", "0.5")
+          memory                = lookup(aci_value, "memory", "1.5")
+          container_name        = lookup(aci_value, "name", "hello-world")
+          environment_variables = lookup(aci_value, "environment_variables", {})
           secure_environment_variables = lookup(aci_value, "secure_environment_variables", {
             AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
           })

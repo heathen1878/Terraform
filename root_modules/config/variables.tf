@@ -8,6 +8,25 @@ variable "bootstrap" {
   ))
 }
 
+variable "cloudflare_dns_records" {
+  description = "Cloudflare DNS records"
+  default = {}
+  type = map(object(
+    {
+      content = string
+      type = string
+      ttl = number
+      proxy_status = bool
+    }
+  ))
+}
+
+variable "cloudflare_domain_name" {
+  description = "Cloudflare managed domain"
+  default = ""
+  type = string  
+}
+
 variable "container_groups" {
   description = "A map of container instances to deploy"
   default     = {}
@@ -15,10 +34,10 @@ variable "container_groups" {
     map(
       object(
         {
-          acr                          = string
-          acr_image                    = string
-          name                         = string
-          environment_variables        = string
+          acr                   = string
+          acr_image             = string
+          name                  = string
+          environment_variables = string
         }
       )
     )
@@ -108,10 +127,16 @@ variable "nsg_rules" {
   )
 }
 
+variable "state_storage_account" {
+  description = "storage account where Terraform state is stored; primarily used by data resources"
+  default = ""
+  type = string
+}
+
 variable "tags" {
   description = "Tags required for the resource groups and resources"
   default = {
-    IaC = "Terraform"
+    iac = "terraform"
   }
   type = map(any)
 }

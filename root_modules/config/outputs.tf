@@ -18,6 +18,12 @@ output "aad_groups" {
   value = local.aad_group_output
 }
 
+output "cloudflare" {
+  value = {
+    zones = local.zones
+    dns_records = local.env_dns_records_output
+  }
+}
 
 output "container_groups" {
   value     = local.container_groups_output
@@ -68,8 +74,8 @@ output "virtual_machines" {
   sensitive = true
 }
 
-output "windows_web_app_plans" {
-  value = local.windows_web_app_plan_output
+output "service_plans" {
+  value = local.service_plan_output
 }
 
 output "windows_web_app" {

@@ -3,22 +3,20 @@ locals {
   zones = {
 
     default = {
-      domain = "infratechy.co.uk"
+      domain = var.cloudflare_domain_name
     }
 
   }
 
   dns_records = {
     www = {
-
+      content = "demo"
     }
   }
 
   env_dns_records = merge(
     local.dns_records,
-    {
-
-    }
+    var.cloudflare_dns_records
   )
 
   env_dns_records_output = {
