@@ -66,7 +66,9 @@ locals {
           memory                       = lookup(aci_value, "memory", "1.5")
           container_name               = lookup(aci_value, "name", "hello-world")
           environment_variables        = lookup(aci_value, "environment_variables", {})
-          secure_environment_variables = lookup(aci_value, "secure_environment_variables", {})
+          secure_environment_variables = lookup(aci_value, "secure_environment_variables", {
+            AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
+          })
         }
       ]
     ]) : format("%s_%s", container.acg_key, container.aci_key) => container

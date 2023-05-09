@@ -19,49 +19,49 @@ variable "container_groups" {
           acr_image                    = string
           name                         = string
           environment_variables        = string
-          secure_environment_variables = string
         }
       )
     )
   )
-  sensitive = true
 }
+
 variable "domain_suffix" {
   description = "A valid domain within AAD"
   default     = "domain.com"
   type        = string
 }
+
 variable "environment" {
   description = "Environment: Dev, Test, Prod..."
-  default     = "Dev"
   type        = string
 }
+
 variable "location" {
   description = "Location name"
-  default     = "northeurope"
   type        = string
 }
+
 variable "management_groups" {
   description = "A map of management groups to manage"
   default     = {}
-  type = map(object
-    (
-      {
-        display_name  = string
-        subscriptions = list(string)
-      }
-    )
-  )
+  type = map(object(
+    {
+      display_name  = string
+      subscriptions = list(string)
+    }
+  ))
 }
+
 variable "management_subscription" {
   description = "The management subscription id"
   type        = string
 }
+
 variable "namespace" {
   description = "The namespace for the deployment e.g. mgt, dom, "
-  default     = "ns1"
   type        = string
 }
+
 variable "nsg_rules" {
   description = "A map of rules"
   default = {
@@ -107,18 +107,20 @@ variable "nsg_rules" {
     )
   )
 }
+
 variable "tags" {
   description = "Tags required for the resource groups and resources"
   default = {
-    IaC             = "Terraform"
-    applicationName = "Configuration"
+    IaC = "Terraform"
   }
   type = map(any)
 }
+
 variable "tenant_id" {
   description = "AAD tenant id"
   type        = string
 }
+
 variable "virtual_networks" {
   description = "A virtual network for this environment"
   default = {
