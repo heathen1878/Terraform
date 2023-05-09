@@ -25,7 +25,7 @@ done
 
 if [ "$tenant" ]; then
     echo -e "\033[32mAuthenticating against tenant: $tenant \033[0m"
-    if az login --tenant "$tenant" --query "sort_by([].{Name:name, Subscription:id, Tenant:tenantId},&Name)" --output tsv --only-show-errors; then
+    if az login --tenant "$tenant" --query "sort_by([].{Name:name, Subscription:id, Tenant:tenantId},&Name)" --output table --only-show-errors; then
         tick
     else
         cross
@@ -33,7 +33,7 @@ if [ "$tenant" ]; then
 
 else
     echo -e "\033[32mAuthenticating Az Cli\033[0m"
-    if az login --query "sort_by([].{Name:name, Subscription:id, Tenant:tenantId},&Name)" --output tsv --only-show-errors; then
+    if az login --query "sort_by([].{Name:name, Subscription:id, Tenant:tenantId},&Name)" --output table --only-show-errors; then
         tick
     else
         cross

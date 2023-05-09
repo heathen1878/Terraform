@@ -7,8 +7,9 @@ function show_usage() {
     case ${script_name##*/} in
 
     "setup.sh")
-        echo "Usage: source ./scripts/setup.sh namespace-environment root-module-name"
+        echo "Usage: source ./scripts/setup.sh namespace-environment root-module-name [location]"
         echo "Usage: source ./scripts/setup.sh dom-learning config"
+        echo "Usage: source ./scripts/setup.sh dom-learning config westeurope"
         exit 1
         ;;
     "auth.sh")
