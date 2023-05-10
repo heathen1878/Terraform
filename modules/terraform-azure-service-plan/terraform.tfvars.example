@@ -1,0 +1,44 @@
+service_plans = {
+  plan1 = {
+    name                         = "plan_name"
+    resource_group_name          = "resource_group_name"
+    location                     = "location"
+    os_type                      = "Windows"
+    sku_name                     = "B1"
+    maximum_elastic_worker_count = null
+    per_site_scaling_enabled     = false
+    tags                         = {
+      iac = "terraform"
+    }
+    worker_count                 = 1
+    zone_balancing_enabled       = false
+  }
+  plan2 = {
+    name                         = "plan_name"
+    resource_group_name          = "resource_group_name"
+    location                     = "location"
+    os_type                      = "Linux"
+    sku_name                     = "P3v2"
+    maximum_elastic_worker_count = null
+    per_site_scaling_enabled     = true
+    tags                         = {
+      iac = "terraform"
+    }
+    worker_count                 = 3
+    zone_balancing_enabled       = true
+  }
+  plan3 = {
+    name                         = "ep_plan_name"
+    resource_group_name          = "resource_group_name"
+    location                     = "location"
+    os_type                      = "Linux"
+    sku_name                     = "EP1"
+    maximum_elastic_worker_count = 2
+    per_site_scaling_enabled     = false
+    tags                         = {
+      iac = "terraform"
+    }
+    worker_count                 = null
+    zone_balancing_enabled       = false
+  }
+}
