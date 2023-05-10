@@ -20,7 +20,7 @@ output "aad_groups" {
 
 output "cloudflare" {
   value = {
-    zones = local.zones
+    zones       = local.zones
     dns_records = local.env_dns_records_output
   }
 }

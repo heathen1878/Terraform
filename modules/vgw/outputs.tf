@@ -1,3 +1,3 @@
-output vNetGateway {
-  value       = azurerm_virtual_network_gateway.vNetGateway
+output "vNetGateway" {
+  value = azurerm_virtual_network_gateway.vNetGateway
 }

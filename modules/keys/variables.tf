@@ -22,5 +22,5 @@ variable "tags" {
 }
 variable "tenant_id" {
   description = "AAD tenant id"
-  type = string  
+  type        = string
 }

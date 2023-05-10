@@ -1,15 +1,15 @@
 provider "azurerm" {
-    features {
-    }
+  features {
+  }
 }
 
 provider "azuread" {
-    
-  
+
+
 }
 
 provider "random" {
 }
 
-provider "azurecaf" {     
+provider "azurecaf" {
 }

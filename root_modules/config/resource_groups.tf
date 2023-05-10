@@ -10,8 +10,16 @@ locals {
   }
 
   resource_groups_outputs = {
-    for resource_group_key, resource_group_value in local.resource_groups : resource_group_key => {
-      name = azurecaf_name.resource_group[resource_group_key].result
+    for key, value in local.resource_groups : key => {
+      name     = azurecaf_name.resource_group[key].result
+      location = var.location
+      tags = merge(var.tags,
+        lookup(value, "tags", {
+          usage       = key
+          namespace   = var.namespace
+          environment = var.environment
+        })
+      )
     }
   }
 

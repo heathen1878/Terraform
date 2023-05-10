@@ -1,7 +1,7 @@
 resource "azuread_user" "user" {
   for_each = var.users
 
-  user_principal_name = each.value.user_principal_name 
+  user_principal_name = each.value.user_principal_name
   given_name          = each.value.forename
   surname             = each.value.surname
   display_name        = each.value.display_name
@@ -27,5 +27,5 @@ resource "azuread_user" "user" {
 locals {
 
 
-  
+
 }

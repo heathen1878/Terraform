@@ -10,12 +10,12 @@ variable "bootstrap" {
 
 variable "cloudflare_dns_records" {
   description = "Cloudflare DNS records"
-  default = {}
+  default     = {}
   type = map(object(
     {
-      content = string
-      type = string
-      ttl = number
+      content      = string
+      type         = string
+      ttl          = number
       proxy_status = bool
     }
   ))
@@ -23,8 +23,8 @@ variable "cloudflare_dns_records" {
 
 variable "cloudflare_domain_name" {
   description = "Cloudflare managed domain"
-  default = ""
-  type = string  
+  default     = ""
+  type        = string
 }
 
 variable "container_groups" {
@@ -129,8 +129,8 @@ variable "nsg_rules" {
 
 variable "state_storage_account" {
   description = "storage account where Terraform state is stored; primarily used by data resources"
-  default = ""
-  type = string
+  default     = ""
+  type        = string
 }
 
 variable "tags" {
