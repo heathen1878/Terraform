@@ -30,4 +30,12 @@ locals {
     }
   }
 
+  windows_web_apps = {
+    for key, value in data.terraform_remote_state.config.outputs.web_apps.windows : key => {
+      name = value.name
+      resource_group_name = module.resource_groups.resource_group[value.resource_group].name
+      location = value.location
+    }
+  }
+
 }
