@@ -8,6 +8,12 @@ variable "bootstrap" {
   ))
 }
 
+variable "cloudflare_account_name" {
+  description = "The name representation of the cloudflare account"
+  default     = ""
+  type        = string
+}
+
 variable "cloudflare_dns_records" {
   description = "Cloudflare DNS records"
   default     = {}
@@ -19,12 +25,6 @@ variable "cloudflare_dns_records" {
       proxy_status = bool
     }
   ))
-}
-
-variable "cloudflare_domain_name" {
-  description = "Cloudflare managed domain"
-  default     = ""
-  type        = string
 }
 
 variable "container_groups" {
@@ -42,6 +42,43 @@ variable "container_groups" {
       )
     )
   )
+}
+
+variable "dns_zones" {
+  description = "A map of dns zones"
+  default = {
+    azure_managed = {
+      name                 = "domain.com"
+      azure_managed        = true
+      cloudflare_protected = false
+      resource_group       = "rg_key"
+      tags = {
+        key = "value"
+      }
+    }
+    cloudflare_protected = {
+      name                 = "domain.com"
+      azure_managed        = false
+      cloudflare_protected = true
+      jump_start           = false
+      paused               = false
+      plan                 = "free"
+      type                 = "full"
+    }
+  }
+  type = map(object(
+    {
+      name                 = string
+      azure_managed        = bool
+      cloudflare_protected = bool
+      resource_group       = optional(string, "demo")
+      tags                 = optional(map(any))
+      jump_start           = optional(bool, false)
+      paused               = optional(bool, false)
+      plan                 = optional(string, "free")
+      type                 = optional(string, "full")
+    }
+  ))
 }
 
 variable "domain_suffix" {

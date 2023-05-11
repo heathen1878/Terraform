@@ -20,7 +20,7 @@ output "aad_groups" {
 
 output "cloudflare" {
   value = {
-    zones       = local.zones
+    zones       = local.cloudflare_protected_zones
     dns_records = local.env_dns_records_output
   }
 }
@@ -32,6 +32,12 @@ output "container_groups" {
 
 output "container_registries" {
   value = local.container_registry_output
+}
+
+output "dns" {
+  value = {
+    zones = local.azure_managed_zones
+  }
 }
 
 output "resource_groups" {
@@ -78,7 +84,9 @@ output "service_plans" {
   value = local.service_plan_output
 }
 
-output "windows_web_app" {
-  value = local.windows_web_app_output
+output "web_apps" {
+  value = {
+    windows = local.windows_web_app_output
+  }
 }
 

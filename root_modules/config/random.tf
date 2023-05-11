@@ -50,7 +50,7 @@ resource "random_id" "storage_account" {
 }
 
 resource "random_id" "windows_web_app" {
-  for_each = local.windows_web_app
+  for_each = local.windows_web_apps
 
   keepers = {
     key            = each.key

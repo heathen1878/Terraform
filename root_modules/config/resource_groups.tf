@@ -4,9 +4,6 @@ locals {
     demo = {
       name = "demo"
     }
-    management = {
-      name = "management"
-    }
   }
 
   resource_groups_outputs = {

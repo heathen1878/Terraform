@@ -12,7 +12,7 @@ locals {
       location                     = lookup(value, "location", var.location)
       os_type                      = lookup(value, "os_type", "Windows")
       sku_name                     = lookup(value, "sku_name", "B1")
-      maximum_elastic_worker_count = lookup(value, "maximum_elastic_worker_count", null)
+      maximum_elastic_worker_count = lookup(value, "maximum_elastic_worker_count", 1)
       per_site_scaling_enabled     = lookup(value, "per_site_scaling_enabled", false)
       tags = merge(
         var.tags,
@@ -21,7 +21,7 @@ locals {
           namespace   = var.namespace
         })
       )
-      worker_count           = lookup(value, "worker_count", null)
+      worker_count           = lookup(value, "worker_count", 1)
       zone_balancing_enabled = lookup(value, "zone_balancing_enabled", false)
     }
   }
