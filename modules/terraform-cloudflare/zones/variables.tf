@@ -4,6 +4,10 @@ variable "zones" {
     {
       account_id = string
       zone       = string
+      jump_start = bool
+      paused     = bool
+      plan       = string
+      type       = string
     }
   ))
 }

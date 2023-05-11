@@ -1,0 +1,15 @@
+nameservers = {
+    domain_com = {
+        name = "@"
+        zone_name = "domain.com"
+        resource_group_name = "rg"
+        tll = 3600
+        records = [
+            "ns1",
+            "ns2"
+        ]
+        tags = {
+            key = "value"
+        }
+    }
+}

@@ -1,4 +1,8 @@
-variable "account_name" {
+variable "account_names" {
   description = "A string representation of the account name"
-  type        = string
+  type        = map(object(
+    {
+      account_name = string
+    }
+  ))
 }

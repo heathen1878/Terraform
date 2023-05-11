@@ -1,3 +1,5 @@
 data "cloudflare_accounts" "account" {
-  name = var.account_name
+  for_each = var.account_names
+
+  name = each.value.account_name
 }
