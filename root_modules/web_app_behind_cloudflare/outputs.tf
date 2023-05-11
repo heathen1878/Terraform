@@ -1,7 +1,11 @@
-output "resource_groups" {
-  value = module.resource_groups.resource_group
+output "cloudflare_account" {
+  value = module.cloudflare_account.account
 }
 
-output "service_plans" {
-  value = module.service_plans.service_plan
+output "cloudflare_zone" {
+  value = module.cloudflare_zone.zone
+}
+
+output "web_app_ip_restrictions" {
+  value = module.cloudflare_ip_addresses.ip_addresses
 }
