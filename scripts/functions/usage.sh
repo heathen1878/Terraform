@@ -16,6 +16,11 @@ function show_usage() {
         echo "Usage: source ./scripts/auth.sh"
         exit 1
         ;;
+    "import.sh")
+        echo "Usage: ./scripts/import.sh terraform resource-example resource-ID example"
+        echo "Usage: ./scipts/import.sh azurerm_storage_account.example /subscriptions/0000.../resourceGroups/rg.../providers/Microsoft.Storage/storageAccounts/resource..."
+        exit 1
+    ;;
     *)
         echo "script file not detected"
         echo "${script_name##*/}"
