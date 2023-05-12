@@ -62,9 +62,13 @@ resource "azurerm_windows_web_app" "windows_web_app" {
       }
     }
 
-    cors {
-      allowed_origins     = each.value.site_config.cors.allowed_origins
-      support_credentials = each.value.site_config.cors.support_credentials
+    dynamic "cors" {
+      for_each = each.value.site_config.cors.allowed_origins != [] ? { "cors" = "enabled" } : {}
+
+      content {
+        allowed_origins     = each.value.site_config.cors.allowed_origins
+        support_credentials = each.value.site_config.cors.support_credentials
+      }
     }
 
     default_documents = each.value.site_config.default_documents
@@ -102,6 +106,12 @@ resource "azurerm_windows_web_app" "windows_web_app" {
       }
     }
 
+    virtual_application {
+      physical_path = each.value.site_config.virtual_application.physical_path
+      preload       = each.value.site_config.virtual_application.preload
+      virtual_path  = each.value.site_config.virtual_application.virtual_path
+    }
+
     use_32_bit_worker  = each.value.site_config.use_32_bit_worker
     websockets_enabled = each.value.site_config.websockets_enabled
   }
@@ -115,10 +125,10 @@ resource "azurerm_windows_web_app" "windows_web_app" {
   )
 
   dynamic "auth_settings" {
-    for_each = each.value.auth_settings
+    for_each = each.value.auth_settings.enabled == true ? { "auth_settings" = "enabled" } : {}
 
     content {
-      enabled = auth_settings.value.enabled
+      enabled = auth_settings.enabled
     }
   }
 
@@ -190,21 +200,25 @@ resource "azurerm_windows_web_app" "windows_web_app" {
       }
       detailed_error_messages = logs.value.detailed_error_messages
       failed_request_tracing  = logs.value.failed_request_tracing
-      http_logs {
-        dynamic "azure_blob_storage" {
-          for_each = logs.value.http_logs.azure_blob_storage.retention_in_days != 0 ? { "logging" = "blob" } : {}
+      dynamic "http_logs" {
+        for_each = logs.value.http_logs.azure_blob_storage.retention_in_days != 0 || logs.value.http_logs.file_system.retention_in_days != 0 ? { "http_logging" = "enabled" } : {}
 
-          content {
-            retention_in_days = azure_blob_storage.retention_in_days
-            sas_url           = azure_blob_storage.sas_url
+        content {
+          dynamic "azure_blob_storage" {
+            for_each = logs.value.http_logs.azure_blob_storage.retention_in_days != 0 ? { "logging" = "blob" } : {}
+
+            content {
+              retention_in_days = azure_blob_storage.retention_in_days
+              sas_url           = azure_blob_storage.sas_url
+            }
           }
-        }
-        dynamic "file_system" {
-          for_each = logs.value.http_logs.file_system.retention_in_days != 0 ? { "logging" = "file system" } : {}
+          dynamic "file_system" {
+            for_each = logs.value.http_logs.file_system.retention_in_days != 0 ? { "logging" = "file system" } : {}
 
-          content {
-            retention_in_days = file_system.retention_in_days
-            retention_in_mb   = file_system.retention_in_mb
+            content {
+              retention_in_days = file_system.retention_in_days
+              retention_in_mb   = file_system.retention_in_mb
+            }
           }
         }
       }

@@ -54,7 +54,7 @@ variable "windows_web_apps" {
           virtual_application = object(
             {
               physical_path     = string
-              preload           = string
+              preload           = bool
               virtual_directory = map(any)
               virtual_path      = string
             }
@@ -65,14 +65,14 @@ variable "windows_web_apps" {
         }
       )
       app_settings = map(any)
-      auth_settings = map(object(
+      auth_settings = object(
         {
           enabled = bool
         }
-      ))
-      auth_settings_v2 = map(object(
+      )
+      auth_settings_v2 = object(
         {}
-      ))
+      )
       backup = object(
         {
           enabled = bool
