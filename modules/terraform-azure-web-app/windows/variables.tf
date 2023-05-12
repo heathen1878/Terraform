@@ -39,18 +39,18 @@ variable "windows_web_apps" {
           health_check_eviction_time_in_min = number
           health_check_path                 = string
           http2_enabled                     = bool
-          ip_restriction                    = list(string)
-          load_balancing_mode               = string
-          local_mysql_enabled               = bool
-          managed_pipeline_mode             = string
-          minimum_tls_version               = string
-          remote_debugging_enabled          = bool
-          remote_debugging_version          = string
-          scm_ip_restriction                = list(string)
-          scm_minimum_tls_version           = string
-          scm_type                          = string
-          scm_use_main_ip_restriction       = bool
-          use_32_bit_worker                 = bool
+          #ip_restriction                    = list(string)
+          load_balancing_mode      = string
+          local_mysql_enabled      = bool
+          managed_pipeline_mode    = string
+          minimum_tls_version      = string
+          remote_debugging_enabled = bool
+          remote_debugging_version = string
+          #scm_ip_restriction                = list(string)
+          scm_minimum_tls_version     = string
+          scm_type                    = string
+          scm_use_main_ip_restriction = bool
+          use_32_bit_worker           = bool
           virtual_application = object(
             {
               physical_path     = string
@@ -64,53 +64,81 @@ variable "windows_web_apps" {
           worker_count           = number
         }
       )
-      app_settings     = map(any)
-      auth_settings    = map(any)
-      auth_settings_v2 = map(any)
+      app_settings = map(any)
+      auth_settings = map(object(
+        {
+          enabled = bool
+        }
+      ))
+      auth_settings_v2 = map(object(
+        {}
+      ))
       backup = object(
         {
           enabled = bool
           name    = string
           schedule = object(
             {
-              frequency_interval       = any
-              frequency_unit           = any
-              keep_at_least_one_backup = number
-              last_execution_time      = string
+              frequency_interval       = number
+              frequency_unit           = string
+              keep_at_least_one_backup = bool
               retention_period_days    = number
               start_time               = string
             }
           )
-          storage_account_url = any
+          storage_account_url = string
         }
       )
       client_affinity_enabled            = bool
       client_certificate_enabled         = bool
       client_certificate_mode            = string
       client_certificate_exclusion_paths = string
-      connection_string                  = map(any)
-      enabled                            = bool
-      https_only                         = bool
+      connection_string = object(
+        {
+          name  = string
+          type  = string
+          value = string
+        }
+      )
+      enabled    = bool
+      https_only = bool
       identity = object(
         {
           identity_ids = list(any)
           type         = string
         }
       )
+      ip_restriction                  = list(string)
       key_vault_reference_identity_id = any
-      logs = object(
+      logs = map(object(
         {
-          application_logs        = map(any)
+          application_logs = object(
+            {
+              azure_blob_storage = object(
+                {
+                  level             = string
+                  retention_in_days = number
+                  sas_url           = string
+                }
+              )
+              file_system_level = string
+            }
+          )
           detailed_error_messages = bool
           failed_request_tracing  = bool
           http_logs = object(
             {
-              azure_blob_storage = any
-              file_system        = map(any)
+              azure_blob_storage = object(
+                {
+                  retention_in_days = number
+                  sas_url           = string
+                }
+              )
+              file_system = map(any)
             }
           )
         }
-      )
+      ))
       sticky_settings           = map(any)
       storage_account           = map(any)
       tags                      = map(any)
