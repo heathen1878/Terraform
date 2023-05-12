@@ -7,6 +7,10 @@ resource "cloudflare_record" "dns_record" {
   value   = each.value.value
   type    = each.value.type
   ttl     = each.value.ttl
+
+  provisioner "local-exec" {
+    command = "sleep 180"
+  }
 }
 
 locals {
