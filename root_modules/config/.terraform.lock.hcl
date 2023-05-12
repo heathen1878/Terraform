@@ -24,7 +24,7 @@ provider "registry.terraform.io/aztfmod/azurecaf" {
 
 provider "registry.terraform.io/hashicorp/azuread" {
   version     = "2.38.0"
-  constraints = "~> 2.0"
+  constraints = "2.38.0"
   hashes = [
     "h1:QN4RAXxh7loMyTD+h+rJW2Nlt8FhMGd1HrwgErZO/uo=",
     "zh:0a26f1e5409aa93a6bb85dc1b6f2e95376fa6028e4d7dc6938674505e67c83ac",
@@ -104,7 +104,6 @@ provider "registry.terraform.io/hashicorp/time" {
   version = "0.9.1"
   hashes = [
     "h1:NUv/YtEytDQncBQ2mTxnUZEy/rmDlPYmE9h2iokR0vk=",
-    "h1:XYUT7lKAKuaHbCTp/WnjWBjz/C86JGvQUfS2s473Pjg=",
     "zh:00a1476ecf18c735cc08e27bfa835c33f8ac8fa6fa746b01cd3bcbad8ca84f7f",
     "zh:3007f8fc4a4f8614c43e8ef1d4b0c773a5de1dcac50e701d8abc9fdc8fcb6bf5",
     "zh:5f79d0730fdec8cb148b277de3f00485eff3e9cf1ff47fb715b1c969e5bbd9d4",

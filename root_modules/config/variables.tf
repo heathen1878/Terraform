@@ -14,15 +14,18 @@ variable "cloudflare_account_name" {
   type        = string
 }
 
-variable "cloudflare_dns_records" {
-  description = "Cloudflare DNS records"
+variable "dns_records" {
+  description = "A map of DNS records"
   default     = {}
   type = map(object(
     {
-      content      = string
-      type         = string
-      ttl          = number
-      proxy_status = bool
+      azure_managed        = optional(bool, false)
+      cloudflare_protected = optional(bool, false)
+      content              = string
+      type                 = optional(string, "A")
+      ttl                  = optional(number, 3600)
+      proxy_status         = optional(bool, true)
+      zone_key             = string
     }
   ))
 }

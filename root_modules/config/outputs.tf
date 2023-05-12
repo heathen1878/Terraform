@@ -21,7 +21,7 @@ output "aad_groups" {
 output "cloudflare" {
   value = {
     zones       = local.cloudflare_protected_zones
-    dns_records = local.env_dns_records_output
+    dns_records = local.cloudflare_protected_dns_records
   }
 }
 
@@ -36,7 +36,8 @@ output "container_registries" {
 
 output "dns" {
   value = {
-    zones = local.azure_managed_zones
+    zones       = local.azure_managed_zones
+    dns_records = local.azure_dns_records
   }
 }
 

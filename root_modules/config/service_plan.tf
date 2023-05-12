@@ -1,7 +1,7 @@
 locals {
 
   service_plans = {
-    default = {
+    demo = {
     }
   }
 
