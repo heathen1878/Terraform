@@ -4,3 +4,5 @@ provider "azurerm" {
 }
 
 provider "cloudflare" {}
+
+provider "ionosdeveloper" {}

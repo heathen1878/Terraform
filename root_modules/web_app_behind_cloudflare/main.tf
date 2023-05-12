@@ -2,14 +2,12 @@ module "resource_groups" {
   source = "../../modules/terraform-azure-resource-group"
 
   resource_groups = data.terraform_remote_state.config.outputs.resource_groups
-
 }
 
 module "cloudflare_account" {
   source = "../../modules/terraform-cloudflare/accounts"
 
   account_names = local.cloudflare_accounts
-
 }
 
 module "cloudflare_zone" {
@@ -22,24 +20,16 @@ module "cloudflare_ip_addresses" {
   source = "../../modules/terraform-cloudflare/ip_addresses"
 }
 
-module "dns_zone" {
-  source = "../../modules/terraform-azure-dns/zones"
-
-  zones = local.dns_zones
-}
-
 module "dns_records" {
-  source = "../../modules/terraform-azure-dns/records"
+  source = "../../modules/terraform-ionos-dns"
 
-  record = local.cloudflare_nameservers
-
+  dns_record = local.cloudflare_nameservers
 }
 
 module "service_plans" {
   source = "../../modules/terraform-azure-service-plan"
 
   service_plans = local.service_plans
-
 }
 
 module "windows_web_apps" {
@@ -48,6 +38,11 @@ module "windows_web_apps" {
   windows_web_apps = local.windows_web_apps
 }
 
+module "web_app_cloudflare_records" {
+  source = "../../modules/terraform-cloudflare/dns_records"
+
+  dns_record = local.cloudflare_cname_record
+}
 
 locals {
 
@@ -68,23 +63,18 @@ locals {
     }
   }
 
-  dns_zones = {
-    for key, value in data.terraform_remote_state.config.outputs.dns.zones : key => {
-      name                = value.name
-      resource_group_name = module.resource_groups.resource_group[value.resource_group].name
-      tags                = value.tags
-    }
-  }
-
   cloudflare_nameservers = {
-    for key, value in local.dns_zones : key => {
-      name                = "@"
-      zone_name           = module.dns_zone.dns_zone[key].name
-      resource_group_name = value.resource_group_name
-      ttl                 = 3600
-      records             = module.cloudflare_zone.zone[key].name_servers
-      tags                = value.tags
-    }
+    for nameserver in flatten([
+      for key, value in module.cloudflare_zone.zone : [
+        for ns_value in value.name_servers : {
+          zone_name = replace(key, "_", ".")
+          name      = replace(key, "_", ".")
+          type      = "NS"
+          content   = ns_value
+          ttl       = 3600
+        }
+      ]
+    ]) : format("%s_%s", nameserver.zone_name, nameserver.content) => nameserver
   }
 
   service_plans = {
@@ -121,6 +111,7 @@ locals {
       enabled                            = value.enabled
       https_only                         = value.https_only
       identity                           = value.identity
+      ip_restriction                     = value.cloudflare_protected ? module.cloudflare_ip_addresses.ip_addresses.ipv4 : []
       key_vault_reference_identity_id    = value.key_vault_reference_identity_id
       logs                               = value.logs
       sticky_settings                    = value.sticky_settings
@@ -128,6 +119,17 @@ locals {
       tags                               = value.tags
       virtual_network_subnet_id          = value.virtual_network_subnet_id
       zip_deploy_file                    = value.zip_deploy_file
+    }
+  }
+
+  cloudflare_cname_record = {
+    for key, value in data.terraform_remote_state.config.outputs.cloudflare.dns_records : key => {
+      zone_id = module.cloudflare_zone.zone[value.zone].id
+      name    = key == "apex" ? replace(value.zone, "_", ".") : key
+      proxied = value.proxied
+      value   = module.windows_web_apps.web_app[value.content].default_hostname
+      type    = value.type
+      ttl     = value.ttl
     }
   }
 
