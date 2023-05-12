@@ -165,6 +165,8 @@ case $DEPLOYMENT_NAME in
     # export cloudflare specific environment variables
     CLOUDFLARE_API_TOKEN="$(az keyvault secret show --name cloudflare-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
     export CLOUDFLARE_API_TOKEN
+    IONOS_API_KEY=$(az keyvault secret show --name ionos-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')
+    export IONOS_API_KEY
     ;;
 
 esac
