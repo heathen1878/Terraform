@@ -63,7 +63,7 @@ resource "azurerm_windows_web_app" "windows_web_app" {
     }
 
     dynamic "cors" {
-      for_each = each.value.site_config.cors.allowed_origins != [] ? { "cors" = "enabled" } : {}
+      for_each = length(each.value.site_config.cors.allowed_origins) != 0 ? { "cors" = "enabled" } : {}
 
       content {
         allowed_origins     = each.value.site_config.cors.allowed_origins
