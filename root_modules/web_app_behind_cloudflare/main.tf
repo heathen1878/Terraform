@@ -38,6 +38,23 @@ module "windows_web_apps" {
   windows_web_apps = local.windows_web_apps
 }
 
+module "cloudflare_domain_verification_record" {
+  source = "../../modules/terraform-cloudflare/dns_records"
+
+  dns_record = local.cloudflare_txt_domain_verification_record
+}
+
+# TODO: Create a custom domsin name host binding
+# TODO: Add CNAMEs with for DNS resolution only
+# TODO: Create a module which creates a managed certificate
+# TODO: Create a cert binding using the host and cert above
+# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service_managed_certificate
+# TODO: Set Cloudflare SSL to strict.
+# https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone_settings_override#ssl
+# TODO: Set Cloudflare to redirect HTTP to HTTPS
+# https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone_settings_override#always_use_https
+
+# Adds CNAMEs with proxy set - probably needs to use the existing resource 
 module "web_app_cloudflare_records" {
   source = "../../modules/terraform-cloudflare/dns_records"
 
@@ -77,11 +94,50 @@ locals {
     ]) : format("%s_%s", nameserver.zone_name, nameserver.content) => nameserver
   }
 
+  cloudflare_origin_certificate = {
+    for key, value in data.terraform_remote_state.config.outputs.cloudflare.zones : key => {
+      algorithm = "RSA"
+      dns_names = [
+        format("*.%s", value.zone),
+        value.zone
+      ]
+      subject = {
+        common_name         = value.zone
+        country             = "UK"
+        locality            = "Manchester"
+        organizational_unit = "IT"
+      }
+    }
+  }
+
+  key_vaults = {
+    for key, value in data.terraform_remote_state.config.outputs.key_vault : key => {
+      name                      = value.name
+      resource_group_name       = module.resource_groups.resource_group[value.resource_group].name
+      location                  = module.resource_groups.resource_group[value.resource_group].location
+      tenant_id                 = value.tenant_id
+      sku_name                  = value.sku_name
+      enable_rbac_authorization = value.enable_rbac_authorization
+      network_acls              = value.network_acls
+      tags                      = value.tags
+    }
+  }
+
+  cloudflare_origin_certificate_secret = {
+    for key, value in module.cloudflare_origin_certificate.origin_certificate : key => {
+      name            = format("%s-origin-certificate", replace(key, "_", "-"))
+      value           = value.certificate
+      key_vault_id    = module.key_vaults.key_vault["certificates"].id
+      content_type    = "Certificate"
+      expiration_date = value.expires_on
+    }
+  }
+
   service_plans = {
     for key, value in data.terraform_remote_state.config.outputs.service_plans : key => {
       name                         = value.name
       resource_group_name          = module.resource_groups.resource_group[value.resource_group].name
-      location                     = value.location
+      location                     = module.resource_groups.resource_group[value.resource_group].location
       os_type                      = value.os_type
       sku_name                     = value.sku_name
       maximum_elastic_worker_count = value.maximum_elastic_worker_count
@@ -122,12 +178,44 @@ locals {
     }
   }
 
+  custom_domain_certificate = {
+    for key, value in data.terraform_remote_state.config.outputs.dns.web_app_association : key => {
+      name                = key
+      resource_group_name = module.windows_web_apps.web_app[value.web_app].resource_group_name
+      location            = module.windows_web_apps.web_app[value.web_app].location
+      app_service_plan_id = module.windows_web_apps.web_app[value.web_app].id
+      #key_vault_secret_id = module.key_vault_secrets.secret[value.zone].id
+      key_vault_secret_id = "https://kv-xvmmh1motx5tojrt.vault.azure.net/secrets/infratechy-co-uk-origin-certificate/b355c7e8cecb4921ad49ffb99e92d2e0"
+    }
+  }
+
+  cloudflare_txt_domain_verification_record = {
+    for key, value in data.terraform_remote_state.config.outputs.cloudflare.dns_records : key => {
+      zone_id = module.cloudflare_zone.zone[value.zone].id
+      name    = key == "apex" ? format("asuid.%s", replace(value.zone, "_", ".")) : format("asuid.%s.%s", key, replace(value.zone, "_", "."))
+      proxied = false
+      value   = module.windows_web_apps.web_app[value.associated_web_app].custom_domain_verification_id
+      type    = "TXT"
+      ttl     = value.ttl
+    }
+  }
+
+  web_app_custom_domain = {
+    for key, value in data.terraform_remote_state.config.outputs.cloudflare.dns_records : key => {
+      hostname            = key == "apex" ? replace(value.zone, "_", ".") : format("%s.%s", key, replace(value.zone, "_", "."))
+      app_service_name    = module.windows_web_apps.web_app[value.associated_web_app].name
+      resource_group_name = module.windows_web_apps.web_app[value.associated_web_app].resource_group_name
+      ssl_state           = null
+      thumbprint          = null
+    }
+  }
+
   cloudflare_cname_record = {
     for key, value in data.terraform_remote_state.config.outputs.cloudflare.dns_records : key => {
       zone_id = module.cloudflare_zone.zone[value.zone].id
       name    = key == "apex" ? replace(value.zone, "_", ".") : key
       proxied = value.proxied
-      value   = module.windows_web_apps.web_app[value.content].default_hostname
+      value   = module.windows_web_apps.web_app[value.associated_web_app].default_hostname
       type    = value.type
       ttl     = value.ttl
     }

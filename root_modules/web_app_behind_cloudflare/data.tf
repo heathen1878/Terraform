@@ -8,3 +8,7 @@ data "terraform_remote_state" "config" {
   }
 
 }
+
+data "azuread_service_principal" "microsoft_web_app" {
+  application_id = "abfa0a7c-a6b6-4736-8310-5855508787cd"
+}
