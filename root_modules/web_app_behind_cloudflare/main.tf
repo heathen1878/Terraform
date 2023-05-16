@@ -123,15 +123,15 @@ locals {
     }
   }
 
-  cloudflare_origin_certificate_secret = {
-    for key, value in module.cloudflare_origin_certificate.origin_certificate : key => {
-      name            = format("%s-origin-certificate", replace(key, "_", "-"))
-      value           = value.certificate
-      key_vault_id    = module.key_vaults.key_vault["certificates"].id
-      content_type    = "Certificate"
-      expiration_date = value.expires_on
-    }
-  }
+  #cloudflare_origin_certificate_secret = {
+  #  for key, value in module.cloudflare_origin_certificate.origin_certificate : key => {
+  #    name            = format("%s-origin-certificate", replace(key, "_", "-"))
+  #    value           = value.certificate
+  #    key_vault_id    = module.key_vaults.key_vault["certificates"].id
+  #    content_type    = "Certificate"
+  #    expiration_date = value.expires_on
+  #  }
+  #}
 
   service_plans = {
     for key, value in data.terraform_remote_state.config.outputs.service_plans : key => {
@@ -178,16 +178,15 @@ locals {
     }
   }
 
-  custom_domain_certificate = {
-    for key, value in data.terraform_remote_state.config.outputs.dns.web_app_association : key => {
-      name                = key
-      resource_group_name = module.windows_web_apps.web_app[value.web_app].resource_group_name
-      location            = module.windows_web_apps.web_app[value.web_app].location
-      app_service_plan_id = module.windows_web_apps.web_app[value.web_app].id
-      #key_vault_secret_id = module.key_vault_secrets.secret[value.zone].id
-      key_vault_secret_id = "https://kv-xvmmh1motx5tojrt.vault.azure.net/secrets/infratechy-co-uk-origin-certificate/b355c7e8cecb4921ad49ffb99e92d2e0"
-    }
-  }
+  #custom_domain_certificate = {
+  #  for key, value in data.terraform_remote_state.config.outputs.dns.web_app_association : key => {
+  #    name                = key
+  #    resource_group_name = module.windows_web_apps.web_app[value.web_app].resource_group_name
+  #    location            = module.windows_web_apps.web_app[value.web_app].location
+  #    app_service_plan_id = module.windows_web_apps.web_app[value.web_app].id
+  #    key_vault_secret_id = module.key_vault_secrets.secret[value.zone].id
+  #  }
+  #}
 
   cloudflare_txt_domain_verification_record = {
     for key, value in data.terraform_remote_state.config.outputs.cloudflare.dns_records : key => {
