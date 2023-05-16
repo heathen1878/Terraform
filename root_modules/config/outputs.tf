@@ -36,8 +36,9 @@ output "container_registries" {
 
 output "dns" {
   value = {
-    zones       = local.azure_managed_zones
-    dns_records = local.azure_dns_records
+    zones               = local.azure_managed_zones
+    dns_records         = local.azure_dns_records
+    web_app_association = local.zone_and_web_app_association
   }
 }
 
@@ -65,7 +66,7 @@ output "nsg_rules_map" {
   value = local.nsg_rules_map
 }
 
-output "key_vaults" {
+output "key_vault" {
   value = local.key_vault_output
 }
 

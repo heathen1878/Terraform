@@ -6,6 +6,16 @@ locals {
       resource_group       = "demo"
       cloudflare_protected = true
     }
+    demo1 = {
+      name                 = "demo1"
+      resource_group       = "demo"
+      cloudflare_protected = true
+    }
+    demo2 = {
+      name                 = "demo2"
+      resource_group       = "demo"
+      cloudflare_protected = true
+    }
   }
 
   windows_web_app_output = {

@@ -21,7 +21,7 @@ variable "dns_records" {
     {
       azure_managed        = optional(bool, false)
       cloudflare_protected = optional(bool, false)
-      content              = string
+      associated_web_app   = string
       type                 = optional(string, "A")
       ttl                  = optional(number, 3600)
       proxy_status         = optional(bool, true)
@@ -58,6 +58,9 @@ variable "dns_zones" {
       tags = {
         key = "value"
       }
+      associated_web_apps = [
+        "demo"
+      ]
     }
     cloudflare_protected = {
       name                 = "domain.com"
@@ -67,6 +70,9 @@ variable "dns_zones" {
       paused               = false
       plan                 = "free"
       type                 = "full"
+      associated_web_apps = [
+        "demo1"
+      ]
     }
   }
   type = map(object(
@@ -80,6 +86,7 @@ variable "dns_zones" {
       paused               = optional(bool, false)
       plan                 = optional(string, "free")
       type                 = optional(string, "full")
+      associated_web_apps  = list(string)
     }
   ))
 }
