@@ -1,0 +1,10 @@
+network_watcher = {
+    key = {
+        name = "string"
+        resource_group_name = "resource_group_name"
+        location = "location"
+        tags = {
+            key = "value"
+        }
+    }
+}

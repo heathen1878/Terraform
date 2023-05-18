@@ -32,10 +32,10 @@ resource "cloudflare_origin_ca_certificate" "origin_certificate" {
 }
 
 locals {
-  
+
   origin_certificate_output = {
     for key, value in cloudflare_origin_ca_certificate.origin_certificate : key => {
-      
+
     }
   }
 
