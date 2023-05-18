@@ -1,41 +1,41 @@
 locals {
 
   aad_applications = {
-    azdo_service_connection_devtest = {
-      display_name     = "Dev Ops DevTest Service Connection"
-      description      = "Connects DevOps to the DevTest Management group"
-      management_group = "devtest"
-      azdo_projects = [
-        "pipelines"
-      ]
-    }
-    azdo_service_connection_prod = {
-      display_name     = "Dev Ops Production Service Connection"
-      description      = "Connects DevOps to the Production Management group"
-      management_group = "production"
-    }
-    docker_build = {
-      display_name        = "Docker Build"
-      description         = "Builds and pushes Docker Images to ACR"
-      expire_secret_after = 90
-      kv = [
-        "management"
-      ]
-      homepage_url                  = "https://visualstudio/SPN"
-      access_token_issuance_enabled = false
-      redirect_uris = [
-        "https://VisualStudio/SPN"
-      ]
-      rotate_secret_days_before_expiry = 14
-    }
+    #azdo_service_connection_devtest = {
+    #  display_name     = "Dev Ops DevTest Service Connection"
+    #  description      = "Connects DevOps to the DevTest Management group"
+    #  management_group = "devtest"
+    #  azdo_projects = [
+    #    "pipelines"
+    #  ]
+    #}
+    #azdo_service_connection_prod = {
+    #  display_name     = "Dev Ops Production Service Connection"
+    #  description      = "Connects DevOps to the Production Management group"
+    #  management_group = "production"
+    #}
+    #docker_build = {
+    #  display_name        = "Docker Build"
+    #  description         = "Builds and pushes Docker Images to ACR"
+    #  expire_secret_after = 90
+    #  kv = [
+    #    "management"
+    #  ]
+    #  homepage_url                  = "https://visualstudio/SPN"
+    #  access_token_issuance_enabled = false
+    #  redirect_uris = [
+    #    "https://VisualStudio/SPN"
+    #  ]
+    #  rotate_secret_days_before_expiry = 14
+    #}
   }
 
   aad_users = {
-    naug = {
-      domain_suffix = var.domain_suffix == null ? data.azuread_domains.aad_domains.domains[0].domain_name : var.domain_suffix
-      forename      = "Northern Azure"
-      surname       = "User Group"
-    }
+    #naug = {
+    #  domain_suffix = var.domain_suffix == null ? data.azuread_domains.aad_domains.domains[0].domain_name : var.domain_suffix
+    #  forename      = "Northern Azure"
+    #  surname       = "User Group"
+    #}
   }
 
   aad_groups = {

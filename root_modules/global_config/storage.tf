@@ -1,27 +1,27 @@
 locals {
   storage = {
-    storageaccount1 = {
-      name                            = "account1"
-      allow_nested_items_to_be_public = true
-      containers = {
-        repos = {
-          access_type = "blob"
-        }
-      }
-      lifecycle = {}
-    }
-    packer_images = {
-      name                            = "packerimages"
-      allow_nested_items_to_be_public = true
-      containers = {
-        images = {
-          access_type = "private"
-        }
-        tools = {
-          access_type = "private"
-        }
-      }
-    }
+    #storageaccount1 = {
+    #  name                            = "account1"
+    #  allow_nested_items_to_be_public = true
+    #  containers = {
+    #    repos = {
+    #      access_type = "blob"
+    #    }
+    #  }
+    #  lifecycle = {}
+    #}
+    #packer_images = {
+    #  name                            = "packerimages"
+    #  allow_nested_items_to_be_public = true
+    #  containers = {
+    #    images = {
+    #      access_type = "private"
+    #    }
+    #    tools = {
+    #      access_type = "private"
+    #    }
+    #  }
+    #}
   }
 
   # ---------------------------------------------------------------------------------------------------------------------

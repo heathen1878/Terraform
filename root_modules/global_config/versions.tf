@@ -1,23 +1,29 @@
 terraform {
-  required_version = "~> 1.1.0"
+  required_version = "~> 1.4.0"
   required_providers {
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 2.0"
+      version = "2.38"
     }
     azurecaf = {
       source  = "aztfmod/azurecaf"
-      version = "1.2.10"
+      version = "1.2.25"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=3.37.0"
+      version = "=3.45.0"
+    }
+    http = {
+      source  = "hashicorp/http"
+      version = "3.3.0"
     }
     random = {
-      source = "hashicorp/random"
+      source  = "hashicorp/random"
+      version = "3.5.1"
     }
     time = {
-      source = "hashicorp/time"
+      source  = "hashicorp/time"
+      version = "0.9.1"
     }
   }
 }

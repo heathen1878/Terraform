@@ -1,25 +1,25 @@
 locals {
 
   virtual_machine = {
-    vm1 = {
-      availability_set              = false
-      managed_availability_set      = true
-      platform_fault_domain_count   = 2
-      platform_update_domain_count  = 5
-      public_ip_address             = true
-      private_ip_address_allocation = "dynamic"
-      subnet                        = "Workstations" # Name of the subnet, must be defined within virtual_network.tf
-      operating_system              = "linux"        # Determines whether azurerm_windows_virtual_machine or azurerm_linux_virtual_machine resource is used.
-      vm_hardware_sku               = "Standard_B2ms"
-      image_publisher               = ""
-      image_offer                   = ""
-      image_sku                     = ""
-      image_version                 = ""
-      kv = [
-        "management"
-      ]
-      resource_group = "demo"
-    }
+    #vm1 = {
+    #  availability_set              = false
+    #  managed_availability_set      = true
+    #  platform_fault_domain_count   = 2
+    #  platform_update_domain_count  = 5
+    #  public_ip_address             = true
+    #  private_ip_address_allocation = "dynamic"
+    #  subnet                        = "Workstations" # Name of the subnet, must be defined within virtual_network.tf
+    #  operating_system              = "linux"        # Determines whether azurerm_windows_virtual_machine or azurerm_linux_virtual_machine resource is used.
+    #  vm_hardware_sku               = "Standard_B2ms"
+    #  image_publisher               = ""
+    #  image_offer                   = ""
+    #  image_sku                     = ""
+    #  image_version                 = ""
+    #  kv = [
+    #    "management"
+    #  ]
+    #  resource_group = "demo"
+    #}
     #vm2 = {
     #    availability_set    = false
     #    managed_availability_set = true

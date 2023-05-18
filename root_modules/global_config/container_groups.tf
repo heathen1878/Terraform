@@ -1,56 +1,56 @@
 locals {
 
   container_groups = {
-    azdo_linux_self_hosted_agent_0 = {
-      containers = {
-        azdo_linux_agent_0 = {
-          acr_image = "azdoagent"
-          acr_tag   = "233"
-          cpu       = 2
-          memory    = 2
-          name      = "azdolinuxagent0"
-          environment_variables = {
-            AZP_URL        = data.azurerm_key_vault_secret.azdo_service_url.value
-            AZP_AGENT_NAME = "azdolinuxagent0"
-            AZP_POOL       = "Platform"
-          }
-          secure_environment_variables = {
-            AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
-          }
-        }
-      }
-      image_registry_credential_key = "northeuropeacr"
-      ip_address_type               = "Private"
-      resource_group                = "demo"
-      restart_policy                = "OnFailure"
-      subnet                        = "Containers"
-      tags                          = { usage = "DevOpsAgent" }
-    }
-    azdo_linux_self_hosted_agent_1 = {
-      containers = {
-        azdo_linux_agent_1 = {
-          acr_image = "azdoagent"
-          acr_tag   = "233"
-          cpu       = 2
-          memory    = 2
-          name      = "azdolinuxagent1"
-          environment_variables = {
-            AZP_URL        = data.azurerm_key_vault_secret.azdo_service_url.value
-            AZP_AGENT_NAME = "azdolinuxagent1"
-            AZP_POOL       = "Platform"
-          }
-          secure_environment_variables = {
-            AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
-          }
-        }
-      }
-      image_registry_credential_key = "northeuropeacr"
-      ip_address_type               = "Private"
-      resource_group                = "demo"
-      restart_policy                = "OnFailure"
-      subnet                        = "Containers"
-      tags                          = { usage = "DevOpsAgent" }
-    }
+    #azdo_linux_self_hosted_agent_0 = {
+    #  containers = {
+    #    azdo_linux_agent_0 = {
+    #      acr_image = "azdoagent"
+    #      acr_tag   = "233"
+    #      cpu       = 2
+    #      memory    = 2
+    #      name      = "azdolinuxagent0"
+    #      environment_variables = {
+    #        AZP_URL        = data.azurerm_key_vault_secret.azdo_service_url.value
+    #        AZP_AGENT_NAME = "azdolinuxagent0"
+    #        AZP_POOL       = "Platform"
+    #      }
+    #      secure_environment_variables = {
+    #        AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
+    #      }
+    #    }
+    #  }
+    #  image_registry_credential_key = "northeuropeacr"
+    #  ip_address_type               = "Private"
+    #  resource_group                = "demo"
+    #  restart_policy                = "OnFailure"
+    #  subnet                        = "Containers"
+    #  tags                          = { usage = "DevOpsAgent" }
+    #}
+    #azdo_linux_self_hosted_agent_1 = {
+    #  containers = {
+    #    azdo_linux_agent_1 = {
+    #      acr_image = "azdoagent"
+    #      acr_tag   = "233"
+    #      cpu       = 2
+    #      memory    = 2
+    #      name      = "azdolinuxagent1"
+    #      environment_variables = {
+    #        AZP_URL        = data.azurerm_key_vault_secret.azdo_service_url.value
+    #        AZP_AGENT_NAME = "azdolinuxagent1"
+    #        AZP_POOL       = "Platform"
+    #      }
+    #      secure_environment_variables = {
+    #        AZP_TOKEN = data.azurerm_key_vault_secret.aci_pat_token.value
+    #      }
+    #    }
+    #  }
+    #  image_registry_credential_key = "northeuropeacr"
+    #  ip_address_type               = "Private"
+    #  resource_group                = "demo"
+    #  restart_policy                = "OnFailure"
+    #  subnet                        = "Containers"
+    #  tags                          = { usage = "DevOpsAgent" }
+    #}
   }
 
   container_instances = {

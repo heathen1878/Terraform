@@ -1,11 +1,15 @@
 variable "access_token" {
   description = "Authentication access token used for querying APIs"
+  default     = ""
   type        = string
 }
+
 variable "azure_ip_ranges_json_url" {
   type        = string
+  default     = ""
   description = "The download link for Azure IP ranges json file. Set in setup.sh"
 }
+
 variable "bootstrap" {
   description = "The Key Vault that contains secrets for bootstrapping Terraform Configuration"
   type = map(object(
@@ -34,21 +38,18 @@ variable "container_groups" {
   )
   sensitive = true
 }
+
 variable "domain_suffix" {
   description = "A valid domain within AAD"
   default     = null
   type        = string
 }
-variable "environment" {
-  description = "Environment: Dev, Test, Prod..."
-  default     = "Dev"
-  type        = string
-}
+
 variable "location" {
   description = "Location name"
-  default     = "northeurope"
   type        = string
 }
+
 variable "management_groups" {
   description = "A map of management groups to manage"
   default     = {}
@@ -61,11 +62,18 @@ variable "management_groups" {
     )
   )
 }
-variable "namespace" {
-  description = "The namespace for the deployment e.g. mgt, dom, "
-  default     = "ns1"
+
+variable "management_subscription" {
+  description = "The management subscription id"
   type        = string
 }
+
+variable "namespace" {
+  description = "The namespace for the deployment e.g. global, mgt..."
+  default     = "global"
+  type        = string
+}
+
 variable "nsg_rules" {
   description = "A map of rules"
   default = {
@@ -111,18 +119,26 @@ variable "nsg_rules" {
     )
   )
 }
+
+variable "state_storage_account" {
+  description = "storage account where Terraform state is stored; primarily used by data resources"
+  default     = ""
+  type        = string
+}
+
 variable "tags" {
   description = "Tags required for the resource groups and resources"
   default = {
-    IaC             = "Terraform"
-    applicationName = "Configuration"
+    IaC = "Terraform"
   }
   type = map(any)
 }
+
 variable "tenant_id" {
   description = "AAD tenant id"
   type        = string
 }
+
 variable "virtual_networks" {
   description = "A virtual network for this environment"
   default = {

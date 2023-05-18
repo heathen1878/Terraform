@@ -9,42 +9,31 @@ locals {
       address_space_block = 0
       delegations         = {}
       octet               = 0
-      subnet_size         = 5
+      subnet_size         = 8
     }
-    Containers = {
-      address_space_block = 1
+    GatewaySubnet = {
+      address_space_block = 0
+      delegations         = {}
+      octet               = 1
+      subnet_size         = 11
+    }
+    dnsinbound = {
+      address_space_block = 0
       delegations = {
-        aci = {
-          name = "aci"
+        dns_resolver = {
+          name = "dnsResolvers"
           service_delegation = {
-            name = "Microsoft.ContainerInstance/containerGroups"
+            name = "Microsoft.Network/dnsResolvers"
             actions = [
               "Microsoft.Network/virtualNetworks/subnets/action"
             ]
           }
         }
       }
-      octet       = 6
-      subnet_size = 4
+      octet       = 2
+      subnet_size = 8
     }
-    Databases = {
-      address_space_block = 1
-      delegations         = {}
-      octet               = 3
-      subnet_size         = 5
-    }
-    Webs = {
-      address_space_block = 1
-      delegations         = {}
-      octet               = 4
-      subnet_size         = 5
-    }
-    FunctionApps = {
-      address_space_block = 1
-      delegations         = {}
-      octet               = 5
-      subnet_size         = 5
-    }
+
   }
 
   # ---------------------------------------------------------------------------------------------------------------------
@@ -52,31 +41,43 @@ locals {
   # ---------------------------------------------------------------------------------------------------------------------
 
   network_watcher_output = {
-    format("nw_%s_%s", var.environment, local.location) = {
-      name                = format("nw-%s-%s", var.environment, local.location)
-      resource_group_name = "management"
+    format("nw_%s_%s", var.namespace, local.location) = {
+      name           = format("nw-%s-%s", var.namespace, local.location)
+      resource_group = "management"
+      location       = local.location
+      tags = merge(var.tags,
+        {
+          namespace = var.namespace
+          usage = "management"
+        }
+      )
     }
   }
 
   virtual_networks_output = {
-    format("%s_%s", var.environment, local.location) = {
-      name                = format("vnet-%s-%s", var.environment, local.location)
-      resource_group_name = "management"
-      location            = var.location
-      address_space       = var.virtual_networks[format("%s-%s", var.environment, local.location)].address_space
-      dns_servers         = var.virtual_networks[format("%s-%s", var.environment, local.location)].dns_servers != null ? var.virtual_networks[format("%s-%s", var.environment, local.location)].dns_servers : []
-      tags = {
-        IaC         = "Terraform"
-        environment = var.environment
-        module      = "Networking"
-        location    = var.location
-      }
+    format("%s_%s", var.namespace, local.location) = {
+      name           = format("vnet-%s-%s", var.namespace, local.location)
+      resource_group = "management"
+      location       = var.location
+      address_space  = var.virtual_networks[format("%s-%s", var.namespace, local.location)].address_space
+      dns_servers    = var.virtual_networks[format("%s-%s", var.namespace, local.location)].dns_servers != null ? var.virtual_networks[format("%s-%s", var.namespace, local.location)].dns_servers : []
+      tags = merge(var.tags,
+        {
+          namespace = var.namespace
+          usage = "management"
+        }
+      )
     }
   }
 
   virtual_network_subnets_output = {
-    subnets = local.virtual_network_subnets
+    for key, value in local.virtual_network_subnets : key => {
+      address_space = cidrsubnet(local.virtual_networks_output[format("%s_%s", var.namespace, local.location)].address_space[value.address_space_block], value.subnet_size, value.octet)
+      delegations   = value.delegations
+    }
   }
+
+  #[value.address_space_block]
 
   subnets_with_nsgs = flatten(
     [
