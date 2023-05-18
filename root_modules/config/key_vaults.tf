@@ -1,11 +1,29 @@
 locals {
 
   key_vaults = {
-    secrets = {
-
+    frontend_secrets = {
+      resource_group = "frontend"
     }
-    certificates = {
-
+    backend_secrets = {
+      resource_group = "backend"
+    }
+    infrastructure_secrets = {
+      resource_group = "infrastructure"
+    }
+    management_secrets = {
+      resource_group = "management"
+    }
+    frontend_certificates = {
+      resource_group = "frontend"
+    }
+    backend_certificates = {
+      resource_group = "backend"
+    }
+    infrastructure_certificates = {
+      resource_group = "infrastructure"
+    }
+    management_certificates = {
+      resource_group = "management"
     }
   }
 

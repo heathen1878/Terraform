@@ -21,11 +21,12 @@ variable "dns_records" {
     {
       azure_managed        = optional(bool, false)
       cloudflare_protected = optional(bool, false)
-      associated_web_app   = string
+      associated_web_app   = optional(string)
       type                 = optional(string, "A")
       ttl                  = optional(number, 3600)
       proxy_status         = optional(bool, true)
-      zone_key             = string
+      zone_key             = optional(string)
+      content              = optional(string)
     }
   ))
 }

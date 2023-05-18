@@ -1,7 +1,8 @@
 locals {
 
   service_plans = {
-    demo = {
+    general = {
+      resource_group = "infrastructure"
     }
   }
 
@@ -12,6 +13,9 @@ locals {
       location                     = lookup(value, "location", var.location)
       os_type                      = lookup(value, "os_type", "Windows")
       sku_name                     = lookup(value, "sku_name", "B1")
+      auto_scale_default           = lookup(value, "auto_scale_default", 1)
+      auto_scale_min               = lookup(value, "auto_scale_min", 1)
+      auto_scale_max               = lookup(value, "auto_scale_max", 2)
       maximum_elastic_worker_count = lookup(value, "maximum_elastic_worker_count", 1)
       per_site_scaling_enabled     = lookup(value, "per_site_scaling_enabled", false)
       tags = merge(

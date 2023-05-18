@@ -1,9 +1,9 @@
 locals {
 
   container_registries = {
-    northeuropeacr = {
-      admin_enabled = true
-    }
+    #northeuropeacr = {
+    #  admin_enabled = true
+    #}
   }
 
   # ---------------------------------------------------------------------------------------------------------------------

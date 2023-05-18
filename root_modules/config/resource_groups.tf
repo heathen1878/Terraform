@@ -4,6 +4,18 @@ locals {
     demo = {
       name = "demo"
     }
+    management = {
+      name = "management"
+    }
+    infrastructure = {
+      name = "infrastructure"
+    }
+    frontend = {
+      name = "frontend"
+    }
+    backend = {
+      name = "backend"
+    }
   }
 
   resource_groups_outputs = {
