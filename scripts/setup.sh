@@ -16,6 +16,12 @@ KEY_VAULT_RG="rg-zayfsvctutjnk-tfconfiguration"
 # end constants
 
 # Checks
+
+# clear any environment variables set previously
+unset NAMESPACE
+unset ENVIRONMENT
+unset LOCATION
+
 # check script started with dot sourcing
 if [ "$BASH_SOURCE" == "$0" ]; then
     show_usage
@@ -74,13 +80,11 @@ if [ -z "$ARM_ACCESS_KEY" ]; then
 fi
 
 # check for environment configuration directory
-echo -e "$(green)Checking for: $PWD/configuration/environments $(default)"
 if ! check_path "$PWD/configuration/environments"; then
     return 1
 fi
 
 # check for root modules directory
-echo -e "$(green)Checking for: $PWD/root_modules/ $(default)"
 if ! check_path "$PWD/root_modules/"; then
     return 1
 fi
@@ -95,7 +99,7 @@ TERRAFORM_DEPLOYMENT="$PWD/root_modules/$DEPLOYMENT_NAME"
 # check for global or namespace-environment configuration directory
 case $DEPLOYMENT_NAME in
 
-    "global_config")
+    global*)
     
     # global configuration lives within the tenant id directory
     if check_path "$PWD/configuration/environments/$ARM_TENANT_ID"; then
@@ -179,7 +183,7 @@ key                  = "$STATE_FILE"
 EOF
 
 # set env.tfvars values for the config module; will only run on the first run.
-if [ ! -f "$TERRAFORM_ENV/env.tfvars" ] && [ "$DEPLOYMENT_NAME" = "config" ]; then
+if [ ! -f "$TERRAFORM_ENV/env.tfvars" ] && [[ "$DEPLOYMENT_NAME" == "config" ]]; then
 cat <<EOF >"$TERRAFORM_ENV/env.tfvars"
 bootstrap={
     key_vault={
@@ -205,7 +209,35 @@ EOF
 echo -e "$(yellow)WARNING$(warning):$(default)"
 echo -e "$(yellow)Please check the default IP address space 10.0.0.0/16 does not $(red)overlap$(yellow) with any other networks. If it does please$(default)"
 echo -e "$(yellow)update env.tfvars in $TERRAFORM_ENV$(default)"
-elif [ ! "$DEPLOYMENT_NAME" = "config" ]; then
+
+elif [ ! -f "$TERRAFORM_ENV/env.tfvars" ] && [[ "$DEPLOYMENT_NAME" == "global_config" ]]; then
+# set env.tfvars values for global_config module; will only run on the first run.
+cat <<EOF >"$TERRAFORM_ENV/env.tfvars"
+bootstrap={
+    key_vault={
+        resource_group="$KEY_VAULT_RG"
+        name="$KEY_VAULT"
+    }
+}
+location = "$LOCATION"
+management_subscription = "$MGMT_SUBSCRIPTION_ID"
+namespace = "$NAMESPACE"
+tenant_id = "$ARM_TENANT_ID"
+virtual_networks={
+    "$NAMESPACE-$LOCATION" = {
+      address_space = [
+        "10.0.0.0/16"
+      ]
+      dns_servers = []
+    }
+}
+EOF
+
+echo -e "$(yellow)WARNING$(warning):$(default)"
+echo -e "$(yellow)Please check the default IP address space 10.0.0.0/16 does not $(red)overlap$(yellow) with any other networks. If it does please$(default)"
+echo -e "$(yellow)update env.tfvars in $TERRAFORM_ENV$(default)"
+
+elif [[ "$DEPLOYMENT_NAME" != *"config" ]]; then
 cat <<EOF >"$TERRAFORM_ENV/env.tfvars"
 EOF
 fi
@@ -213,12 +245,14 @@ fi
 # export variables
 export ARM_SUBSCRIPTION_ID
 export ARM_ACCESS_KEY
+export DEPLOYMENT_NAME
 export ENVIRONMENT
 export LOCATION
 export KEY_VAULT
 export KEY_VAULT_RG
 export MANAGEMENT_SUBSCRIPTION_ID
 export NAMESPACE
+export NAMESPACE_ENVIRONMENT
 export STATE_ACCOUNT
 export STATE_CONTAINER
 export STATE_FILE
