@@ -64,12 +64,48 @@ resource "random_id" "acg" {
   keepers = {
     resource_group = azurecaf_name.resource_group[each.value.resource_group].result
   }
-  byte_length = 6
+  byte_length = 12
 
 }
 
+resource "random_id" "network_watcher" {
+  for_each = local.network_watchers
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+}
+
+resource "random_id" "virtual_network" {
+  for_each = local.virtual_networks
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+}
+
+resource "random_id" "dns_resolver" {
+  for_each = local.dns_resolvers
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+}
+
+resource "random_id" "virtual_network_gateway" {
+  for_each = local.virtual_network_gateways
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+}
+
 resource "random_id" "virtual_machine" {
-  for_each = local.virtual_machine
+  for_each = local.virtual_machines
 
   keepers = {
     resource_group = azurecaf_name.resource_group[each.value.resource_group].result
@@ -129,6 +165,11 @@ locals {
       name = replace(lower(acr_value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
+  dns_resolver = {
+    for key, value in random_id.dns_resolver : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
   key_vault = {
     for key_vault_key, key_vault_value in random_id.key_vault : key_vault_key => {
       name = replace(lower(key_vault_value.id), "/[^0-9a-zA-Z]/", "")
@@ -139,7 +180,22 @@ locals {
       name = replace(lower(resource_group_value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
-  formatted_virtual_machine = {
+  network_watcher = {
+    for key, value in random_id.network_watcher : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  virtual_network = {
+    for key, value in random_id.virtual_network : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  virtual_network_gateway = {
+    for key, value in random_id.virtual_network_gateway : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  virtual_machine = {
     for virtual_machine_key, virtual_machine_value in random_id.virtual_machine : virtual_machine_key => {
       name = replace(lower(virtual_machine_value.id), "/[^0-9a-zA-Z]/", "")
     }

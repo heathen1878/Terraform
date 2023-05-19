@@ -1,6 +1,6 @@
 locals {
 
-  virtual_machine = {
+  virtual_machines = {
     #vm1 = {
     #  availability_set              = false
     #  managed_availability_set      = true

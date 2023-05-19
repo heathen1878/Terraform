@@ -31,6 +31,10 @@ output "container_registries" {
   value = local.container_registry_output
 }
 
+output "dns_resolver" {
+  value = local.dns_resolver_output
+}
+
 #output "azure_service_tags" {
 #  value = {
 #    frontdoor_backend = local.azure_frontdoor_backend
@@ -53,14 +57,18 @@ output "virtual_network" {
   value = local.virtual_networks_output
 }
 
+output "virtual_network_gateway" {
+  value = local.virtual_network_gateway_output
+}
+
 output "virtual_network_subnets" {
   value = local.virtual_network_subnets_output
 }
 
 output "subnets_with_nsgs_map" {
-  value = local.subnets_with_nsgs_map
+  value = local.subnets_with_nsgs_output
 }
 
 output "nsg_rules_map" {
-  value = local.nsg_rules_map
+  value = local.nsg_rules_output
 }
