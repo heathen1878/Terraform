@@ -184,7 +184,8 @@ management_subscription = "$MGMT_SUBSCRIPTION_ID"
 namespace = "$NAMESPACE"
 tenant_id = "$ARM_TENANT_ID"
 virtual_networks={
-    "$NAMESPACE-$ENVIRONMENT-$LOCATION" = {
+    environment = {
+      resource_group = "environment"
       address_space = [
         "10.0.0.0/16"
       ]
@@ -211,7 +212,8 @@ management_subscription = "$MGMT_SUBSCRIPTION_ID"
 namespace = "$NAMESPACE"
 tenant_id = "$ARM_TENANT_ID"
 virtual_networks={
-    "$NAMESPACE-$LOCATION" = {
+    management = {
+        resource_group = "management"
       address_space = [
         "10.0.0.0/16"
       ]
