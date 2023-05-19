@@ -93,18 +93,14 @@ case $DEPLOYMENT_NAME in
     global*)
     
     # global configuration lives within the tenant id directory
-    if check_path "$PWD/configuration/environments/$ARM_TENANT_ID"; then
-        echo "$ARM_TENANT_ID exists"
-    else
-        echo "Creating $ARM_TENANT_ID directory"
+    if ! check_path "$PWD/configuration/environments/$ARM_TENANT_ID"; then
+        echo -e "$(green)Creating $ARM_TENANT_ID directory$(default)"
         mkdir "$PWD/configuration/environments/$ARM_TENANT_ID"
     fi
 
     # check for deployment directory within the namespace-environment directory
-    if check_path "$PWD/configuration/environments/$ARM_TENANT_ID/$DEPLOYMENT_NAME"; then
-        echo "$PWD/configuration/environments/$ARM_TENANT_ID/$DEPLOYMENT_NAME"
-    else
-        echo "Creating $DEPLOYMENT_NAME in $ARM_TENANT_ID"
+    if ! check_path "$PWD/configuration/environments/$ARM_TENANT_ID/$DEPLOYMENT_NAME"; then
+        echo -e "$(green)Creating $DEPLOYMENT_NAME in $ARM_TENANT_ID$(default)"
         mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$DEPLOYMENT_NAME"
         mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$DEPLOYMENT_NAME/plans"
     fi

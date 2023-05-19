@@ -11,12 +11,12 @@ if ! check_for_terraform_executable; then
 fi
 
 # check whether the TERRAFORM_ENV environment variable exists
-if ! check_parameter "$TERRAFORM_ENV"; then
+if ! check_parameter "$TERRAFORM_ENV" "\$TERRAFORM_ENV"; then
     return 1
 fi
 
 # Check whether the TERRAFORM_DEPLOYMENT environment variable exists
-if ! check_parameter "$TERRAFORM_DEPLOYMENT"; then
+if ! check_parameter "$TERRAFORM_DEPLOYMENT" "\$TERRAFORM_DEPLOYMENT"; then
     return 1
 fi
 

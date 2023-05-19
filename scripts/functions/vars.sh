@@ -23,7 +23,7 @@ function check_deployment_parameter() {
 function check_parameter() {
 
     if [ -z "$1" ]; then
-        echo -e "$(red)$1 is empty, please ensure ./scripts/setup.sh has been run$(default)"
+        echo -e "$(red)$2 is empty, please ensure ./scripts/setup.sh has been run$(default)"
         return 1
     fi
 

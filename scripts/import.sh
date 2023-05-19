@@ -7,32 +7,32 @@ if (( $# == 0 )); then
 fi
 
 # Check whether the TERRAFORM_ENV environment variable exists
-if ! check_parameter "$TERRAFORM_ENV"; then
+if ! check_parameter "$TERRAFORM_ENV" "\$TERRAFORM_ENV"; then
     return 1
 fi
 
 # Check whether the TERRAFORM_DEPLOYMENT environment variable exists
-if ! check_parameter "$TERRAFORM_DEPLOYMENT"; then
+if ! check_parameter "$TERRAFORM_DEPLOYMENT" "\$TERRAFORM_DEPLOYMENT"; then
     return 1
 fi
 
 # Check whether the ENVIRONMENT parameter exists
-if ! check_parameter "$ENVIRONMENT"; then
+if ! check_parameter "$ENVIRONMENT" "\$ENVIRONMENT"; then
     return 1
 fi
 
 # Check whether the NAMESPACE parameter exists
-if ! check_parameter "$NAMESPACE"; then
+if ! check_parameter "$NAMESPACE" "\$NAMESPACE"; then
     return 1
 fi
 
 # Check whether the LOCATION parameter exists
-if ! check_parameter "$LOCATION"; then
+if ! check_parameter "$LOCATION" "\$LOCATION"; then
     return 1
 fi
 
 # Check whether the STATE_ACCOUNT parameter exists
-if ! check_parameter "$STATE_ACCOUNT"; then
+if ! check_parameter "$STATE_ACCOUNT" "\$STATE_ACCOUNT"; then
     return 1
 fi
 # end checks
