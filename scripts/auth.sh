@@ -2,10 +2,6 @@
 
 # shellcheck source=./scripts/functions/usage.sh
 
-# dot source functions
-source ./scripts/functions/common.sh
-source ./scripts/functions/usage.sh
-
 # Checks
 if [ "$BASH_SOURCE" == "$0" ]; then
     show_usage

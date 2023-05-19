@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# shellcheck source=./scripts/functions
-
-# dot source functions
-source "./scripts/functions/common.sh"
-
 function check_namespace_environment_parameter() {
     
     if [[ $1 != *'-'* ]]; then

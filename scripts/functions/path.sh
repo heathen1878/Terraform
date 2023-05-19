@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source ./scripts/functions/common.sh
-
 function check_path() {
 
     if [ ! -d "$1" ]; then

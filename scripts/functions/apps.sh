@@ -21,3 +21,10 @@ function check_for_terraform_executable() {
         return 1
     fi
 }
+
+function az_logout() {
+
+    echo -e "$(yellow)Logging out az cli$(default)"
+    az logout
+    sleep 5
+}

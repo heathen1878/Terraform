@@ -1,14 +1,5 @@
 #!/bin/bash
 
-# shellcheck source=./scripts/functions/usage.sh
-
-# dot source functions
-source ./scripts/functions/common.sh
-source ./scripts/functions/path.sh
-source ./scripts/functions/usage.sh
-source ./scripts/functions/apps.sh
-source ./scripts/functions/vars.sh
-
 # Checks
 # check script for input parameters
 if (( $# == 0 )); then

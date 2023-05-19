@@ -1,14 +1,5 @@
 #!/bin/bash 
 
-# shellcheck source=./scripts/functions/
-
-# dot source functions
-source ./scripts/functions/common.sh
-source ./scripts/functions/path.sh
-source ./scripts/functions/usage.sh
-source ./scripts/functions/apps.sh
-source ./scripts/functions/vars.sh
-
 # constants
 STORAGE_ACCOUNT="sthmflu45flwcmm"
 KEY_VAULT="kv-hmflu45flwcmm"
