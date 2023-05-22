@@ -13,11 +13,6 @@ locals {
   # The address space block attribute determines which block of address space is used e.g. a virtual network with more than one block would
   # be 0 for the first block, then 1 for the next block and so on. The virtual network is defined within tfvars - see variables.tf for the defaults.
   virtual_network_subnets = {
-    default = {
-      address_space_block = 0
-      octet               = 0
-      subnet_size         = 8
-    }
     GatewaySubnet = {
       address_space_block = 0
       octet               = 1
@@ -31,7 +26,7 @@ locals {
           service_delegation = {
             name = "Microsoft.Network/dnsResolvers"
             actions = [
-              "Microsoft.Network/virtualNetworks/subnets/action"
+              "Microsoft.Network/virtualNetworks/subnets/join/action"
             ]
           }
         }
@@ -54,6 +49,7 @@ locals {
       pip_allocation_method = "Static"
       pip_sku               = "Standard"
       resource_group        = "management"
+      sku                   = "VpnGw1"
     }
   }
 
@@ -148,7 +144,7 @@ locals {
             "169.254.21.0"
           ])
         }
-        peering_weight = lookup(value, "bgp_settings.peering_weight", 0)
+        peer_weight = lookup(value, "bgp_settings.peering_weight", 0)
       }
       custom_route = {
         address_prefixes = lookup(value, "custom_route.address_prefixes", [])
@@ -164,6 +160,7 @@ locals {
         aad_tenant   = lookup(value, "vpn_client_configuration.aad_tenant", format("https://login.microsoftonline.com/%s/", var.tenant_id))
         aad_audience = lookup(value, "vpn_client_configuration.aad_audience", "41b23e61-6c1e-4545-b367-cd054e0ed4b4")
         aad_issuer   = lookup(value, "vpn_client_configuration.aad_issuer", format("https://sts.windows.net/%s/", var.tenant_id))
+        enabled      = lookup(value, "vpn_client_configuration.enabled", false)
         root_certificate = {
         }
         radius_server_address = lookup(value, "vpn_client_configuration.radius_server_address", null)

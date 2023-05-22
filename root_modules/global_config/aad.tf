@@ -39,18 +39,18 @@ locals {
   }
 
   aad_groups = {
-    azdo-project-readers = {
-      description = "Grants read access to Projects within Azure DevOps"
-    }
-    certificates-officer = {
-      description = "Can manage certificates within a Key Vault"
-    }
-    secrets-officer = {
-      description = "Can manage secrets within a Key Vault"
-    }
-    key-vault-admin = {
-      description = "Administrators of Key Vaults"
-    }
+    #azdo-project-readers = {
+    #  description = "Grants read access to Projects within Azure DevOps"
+    #}
+    #certificates-officer = {
+    #  description = "Can manage certificates within a Key Vault"
+    #}
+    #secrets-officer = {
+    #  description = "Can manage secrets within a Key Vault"
+    #}
+    #key-vault-admin = {
+    #  description = "Administrators of Key Vaults"
+    #}
   }
 
   # ---------------------------------------------------------------------------------------------------------------------

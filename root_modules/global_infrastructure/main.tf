@@ -32,6 +32,10 @@ module "virtual_network_gateway" {
   source = "../../modules/terraform-azure-networking/gateway"
 
   virtual_network_gateway = local.virtual_network_gateways
+
+  depends_on = [ 
+    module.dns_resolver # Ensure the DNS resolver has set the custom DNS records before starting the Gateway deployment. 
+   ]
 }
 
 
@@ -97,7 +101,7 @@ locals {
           apipa_addresses       = value.bgp_settings.peering_addresses.apipa_addresses
           ip_configuration_name = value.bgp_settings.peering_addresses.ip_configuration_name
         }
-        peering_weight = value.bgp_settings.peering_weight
+        peer_weight = value.bgp_settings.peer_weight
       }
       custom_route = {
         address_prefixes = value.custom_route.address_prefixes
@@ -117,6 +121,7 @@ locals {
         aad_issuer            = value.vpn_client_configuration.aad_issuer
         aad_tenant            = value.vpn_client_configuration.aad_tenant
         address_space         = value.vpn_client_configuration.address_space
+        enabled               = value.vpn_client_configuration.enabled
         radius_server_address = value.vpn_client_configuration.radius_server_address
         radius_server_secret  = value.vpn_client_configuration.radius_server_secret
         vpn_auth_types        = value.vpn_client_configuration.vpn_auth_types
