@@ -14,6 +14,10 @@ module "virtual_network" {
   source = "../../modules/terraform-azure-networking/vnets"
 
   virtual_networks = local.virtual_network
+
+  depends_on = [ 
+    module.network_watcher
+   ]
 }
 
 module "subnets" {
@@ -33,9 +37,9 @@ module "virtual_network_gateway" {
 
   virtual_network_gateway = local.virtual_network_gateways
 
-  depends_on = [ 
+  depends_on = [
     module.dns_resolver # Ensure the DNS resolver has set the custom DNS records before starting the Gateway deployment. 
-   ]
+  ]
 }
 
 
