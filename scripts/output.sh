@@ -1,19 +1,13 @@
 #!/bin/bash
 
-# shellcheck source=./scripts/functions/
-
-# dot source functions
-source ./scripts/functions/common.sh
-source ./scripts/functions/path.sh
+# shellcheck source=./scripts/functions/usage.sh
 source ./scripts/functions/usage.sh
-source ./scripts/functions/apps.sh
-source ./scripts/functions/vars.sh
-
-# constants
-
-# end of constants
 
 # Checks
+if [ "$BASH_SOURCE" == "$0" ]; then
+    show_usage
+fi
+
 # Check whether the TERRAFORM_DEPLOYMENT environment variable exists
 if ! check_parameter "$TERRAFORM_DEPLOYMENT"; then
     return 1

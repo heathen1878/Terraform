@@ -1,8 +1,10 @@
 #!/bin/bash
 
+# shellcheck source=./scripts/functions/usage.sh
+source ./scripts/functions/usage.sh
+
 # Checks
-# check script for input parameters
-if (( $# == 0 )); then
+if [ "$BASH_SOURCE" == "$0" ]; then
     show_usage
 fi
 
@@ -17,9 +19,12 @@ if ! check_parameter "$TERRAFORM_DEPLOYMENT" "\$TERRAFORM_DEPLOYMENT"; then
 fi
 
 # Check whether the ENVIRONMENT parameter exists
-if ! check_parameter "$ENVIRONMENT" "\$ENVIRONMENT"; then
-    return 1
+if [[ "$NAMESPACE" != "global" ]]; then
+    if ! check_parameter "$ENVIRONMENT" "\$ENVIRONMENT"; then
+        return 1
+    fi
 fi
+
 
 # Check whether the NAMESPACE parameter exists
 if ! check_parameter "$NAMESPACE" "\$NAMESPACE"; then
@@ -37,15 +42,16 @@ if ! check_parameter "$STATE_ACCOUNT" "\$STATE_ACCOUNT"; then
 fi
 # end checks
 
+# set parameters
+if [[ "$NAMESPACE" == "global" ]]; then
+    PARAMS="-config=$TERRAFORM_DEPLOYMENT -var="location=$LOCATION" -var="namespace=$NAMESPACE" -var="state_storage_account=$STATE_ACCOUNT" \
+-var-file=$TERRAFORM_ENV/env.tfvars"
+else
+    PARAMS="-config=$TERRAFORM_DEPLOYMENT -var="environment=$ENVIRONMENT" -var="location=$LOCATION" -var="namespace=$NAMESPACE" -var="state_storage_account=$STATE_ACCOUNT" \
+-var-file=$TERRAFORM_ENV/env.tfvars"
+fi
+
 # flow
-terraform -chdir="$TERRAFORM_DEPLOYMENT" import \
-    -config="$TERRAFORM_DEPLOYMENT" \
-    -var="environment=$ENVIRONMENT" \
-    -var="location=$LOCATION" \
-    -var="namespace=$NAMESPACE" \
-    -var="state_storage_account=$STATE_ACCOUNT" \
-    -var-file="$TERRAFORM_ENV/env.tfvars" \
-    $1 \
-    $2
+terraform -chdir="$TERRAFORM_DEPLOYMENT" import $PARAMS $1 $2
 
 echo -e "$(green)Done, you need to run init, plan and apply now to complete the import$(default)"

@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# constants
-
-# end of constants
+# shellcheck source=./scripts/functions/usage.sh
+source ./scripts/functions/usage.sh
 
 # Checks
+if [ "$BASH_SOURCE" == "$0" ]; then
+    show_usage
+fi
 
 if ! check_for_terraform_executable; then
     return 1

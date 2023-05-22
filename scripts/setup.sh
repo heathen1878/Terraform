@@ -1,5 +1,8 @@
 #!/bin/bash 
 
+# shellcheck source=./scripts/functions/usage.sh
+source ./scripts/functions/usage.sh
+
 # constants
 STORAGE_ACCOUNT="sthmflu45flwcmm"
 KEY_VAULT="kv-hmflu45flwcmm"
@@ -98,14 +101,19 @@ case $DEPLOYMENT_NAME in
         mkdir "$PWD/configuration/environments/$ARM_TENANT_ID"
     fi
 
-    # check for deployment directory within the namespace-environment directory
-    if ! check_path "$PWD/configuration/environments/$ARM_TENANT_ID/$DEPLOYMENT_NAME"; then
-        echo -e "$(green)Creating $DEPLOYMENT_NAME in $ARM_TENANT_ID$(default)"
-        mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$DEPLOYMENT_NAME"
-        mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$DEPLOYMENT_NAME/plans"
+    if ! check_path "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION"; then
+        echo -e "$(green)creating $LOCATION directory within $ARM_TENANT_ID$(default)"
+        mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION"
     fi
 
-    TERRAFORM_ENV="$PWD/configuration/environments/$ARM_TENANT_ID/$DEPLOYMENT_NAME"
+    # check for deployment directory within the namespace-environment directory
+    if ! check_path "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME"; then
+        echo -e "$(green)Creating $DEPLOYMENT_NAME in $ARM_TENANT_ID/$LOCATION$(default)"
+        mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME"
+        mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME/plans"
+    fi
+
+    TERRAFORM_ENV="$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME"
     TF_DATA_DIR=$TERRAFORM_ENV/.terraform
     ;;
 

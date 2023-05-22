@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# constants
+# shellcheck source=./scripts/functions/usage.sh
+source ./scripts/functions/usage.sh
 
-# end of constants
-
-# Checks
+# checks
+if [ "$BASH_SOURCE" == "$0" ]; then
+    show_usage
+fi
 
 if ! check_for_terraform_executable; then
     return 1
@@ -32,12 +34,12 @@ echo -e "$(green)Applying latest plan: $filePlan$(default)"
 if [ -n "$TF_BUILD" ]; then
     # automation mode
     if ! (terraform -chdir="$TERRAFORM_DEPLOYMENT" apply $AUTOMATION_PARAMS "$filePlan"); then
-        exit 1
+        return 1
     fi
 else
     # manual mode
     if ! (terraform -chdir="$TERRAFORM_DEPLOYMENT" apply $MANUAL_PARAMS "$filePlan"); then
-        exit 1
+        return 1
     fi  
 fi
 

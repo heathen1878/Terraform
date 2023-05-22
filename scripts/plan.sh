@@ -1,9 +1,15 @@
 #!/bin/bash 
 
+# shellcheck source=./scripts/functions/usage.sh
+source ./scripts/functions/usage.sh
+
 # variables
 planName="$(date +%Y-%m-%d_%H-%M-%S).plan"
 
 # checks
+if [ "$BASH_SOURCE" == "$0" ]; then
+    show_usage
+fi
 
 # Check whether the TERRAFORM_ENV environment variable exists
 if ! check_parameter "$TERRAFORM_ENV" "\$TERRAFORM_ENV"; then

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # shellcheck source=./scripts/functions/usage.sh
+source ./scripts/functions/usage.sh
 
 # Checks
 if [ "$BASH_SOURCE" == "$0" ]; then
