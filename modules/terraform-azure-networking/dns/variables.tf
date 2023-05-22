@@ -8,7 +8,7 @@ variable "dns_resolver" {
       virtual_network_id         = string
       inbound_resolver_name      = string
       inbound_resolver_subnet_id = string
-      tags = map(any)
+      tags                       = map(any)
     }
   ))
 }

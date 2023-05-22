@@ -112,5 +112,5 @@ resource "azurecaf_name" "virtual_network_gateway" {
   for_each = local.virtual_network_gateway
 
   name          = each.value.name
-  resource_type = "azurerm_virtual_network_gateway"
+  resource_type = "general"
 }

@@ -50,7 +50,10 @@ locals {
 
   virtual_network_gateways = {
     management = {
-      resource_group = "management"
+      deploy_gateway        = true
+      pip_allocation_method = "Static"
+      pip_sku               = "Standard"
+      resource_group        = "management"
     }
   }
 
@@ -124,7 +127,7 @@ locals {
 
   virtual_network_gateway_output = {
     for key, value in local.virtual_network_gateways : key => {
-      name           = azurecaf_name.virtual_network_gateway[key].result
+      name           = format("vgw-%s", azurecaf_name.virtual_network_gateway[key].result)
       resource_group = lookup(value, "resource_group", "management")
       location       = local.location
       ip_configuration = {
@@ -152,6 +155,7 @@ locals {
       }
       generation                 = lookup(value, "generation", "Generation1") #https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpngateways#benchmark
       private_ip_address_enabled = lookup(value, "private_ip_address_enabled", false)
+      public_ip_address_name     = format("pip-%s", azurecaf_name.virtual_network_gateway[key].result)
       vpn_client_configuration = {
         address_space = lookup(value, "vpn_client_configuration.address_space", [
           "172.16.0.0/24",
@@ -171,7 +175,19 @@ locals {
           "AAD"
         ])
       }
-      vpn_type = lookup(value, "vpn_type", "RouteBased")
+      vpn_type                    = lookup(value, "vpn_type", "RouteBased")
+      pip_allocation_method       = lookup(value, "pip_allocation_method", "Dynamic")
+      pip_ddos_protection_mode    = lookup(value, "pip_ddos_protection_mode", "VirtualNetworkInherited")
+      pip_ddos_protection_plan    = lookup(value, "pip_ddos_protection_plan", false)
+      pip_domain_name_label       = lookup(value, "pip_domain_name_label", null)
+      pip_edge_zone               = lookup(value, "pip_edge_zone", null) # TODO: work out what this actually does
+      pip_idle_timeout_in_minutes = lookup(value, "pip_idle_timeout_in_minutes", 30)
+      pip_ip_tags                 = lookup(value, "pip_ip_tags", {})
+      pip_public_ip_prefix        = lookup(value, "pip_public_ip_prefix", false)
+      pip_reverse_fqdn            = lookup(value, "pip_reverse_fqdn", null)
+      pip_sku                     = lookup(value, "pip_sku", "Basic")
+      pip_sku_tier                = lookup(value, "pip_sku_tier", "Regional")
+      pip_zones                   = lookup(value, "pip_zones", [])
       tags = merge(var.tags,
         {
           namespace = var.namespace
