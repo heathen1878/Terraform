@@ -20,4 +20,10 @@ resource "azurerm_virtual_network" "virtual_network" {
   edge_zone               = each.value.edge_zone
   flow_timeout_in_minutes = each.value.flow_timeout_in_minutes
   tags                    = each.value.tags
+
+  lifecycle {
+    ignore_changes = [ 
+      dns_servers # DNS is managed by terraform-azure-networking/dns
+     ]
+  }
 }

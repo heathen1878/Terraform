@@ -38,24 +38,67 @@ resource "azurerm_virtual_network_gateway" "virtual_network_gateway" {
     subnet_id                     = each.value.ip_configuration.subnet_id
   }
 
+  # Optional
   active_active = each.value.active_active
-
 
   enable_bgp = each.value.enable_bgp
 
-  vpn_client_configuration {
-    address_space        = each.value.vpn_client_configuration.address_space
-    aad_tenant           = each.value.vpn_client_configuration.aad_tenant
-    aad_audience         = each.value.vpn_client_configuration.aad_audience
-    aad_issuer           = each.value.vpn_client_configuration.aad_issuer
-    vpn_client_protocols = each.value.vpn_client_configuration.vpn_client_protocols
+  dynamic "bgp_settings" {
+    for_each = each.value.enable_bgp == true ? { "bgp" = "enabled" } : {}
+
+    content {
+      asn = each.value.bgp_settings.asn
+      peering_addresses {
+        apipa_addresses       = each.value.peering_addresses.apipa_addresses
+        ip_configuration_name = each.value.peering_addresses.ip_configuration_name
+      }
+      peer_weight = each.value.peer_weight
+    }
   }
 
-  tags = each.value.tags
+  dynamic "custom_route" {
+    for_each = length(each.value.custom_route.address_prefixes) != 0 ? { "custom_routes" = "enabled" } : {}
 
+    content {
+      address_prefixes = each.value.custom_route.address_prefixes
+    }
+
+  }
+
+  generation = each.value.generation
+
+  private_ip_address_enabled = each.value.private_ip_address_enabled
+
+  dynamic "vpn_client_configuration" {
+    for_each = each.value.vpn_client_configuration.enabled == true ? { "client_vpn" = "enabled" } : {}
+
+    content {
+      address_space         = each.value.vpn_client_configuration.address_space
+      aad_tenant            = each.value.vpn_client_configuration.aad_tenant
+      aad_audience          = each.value.vpn_client_configuration.aad_audience
+      aad_issuer            = each.value.vpn_client_configuration.aad_issuer
+      radius_server_address = each.value.vpn_client_configuration.radius_server_address
+      radius_server_secret  = each.value.vpn_client_configuration.radius_server_secret
+      vpn_auth_types        = each.value.vpn_client_configuration.vpn_auth_types
+      vpn_client_protocols  = each.value.vpn_client_configuration.vpn_client_protocols
+    }
+  }
+
+  vpn_type = each.value.vpn_type
+  tags     = each.value.tags
 
   timeouts {
     create = "90m"
+    delete = "90m"
   }
 
 }
+
+
+
+
+
+
+
+
+      

@@ -13,7 +13,7 @@ variable "virtual_network_gateway" {
             apipa_addresses       = optional(list(string))
             ip_configuration_name = optional(string)
           })
-          peering_weight = optional(number)
+          peer_weight = optional(number)
       })
       custom_route = optional(object(
         {
@@ -39,6 +39,7 @@ variable "virtual_network_gateway" {
           aad_issuer            = string
           aad_tenant            = string
           address_space         = list(string)
+          enabled = bool
           radius_server_address = string
           radius_server_secret  = string
           vpn_auth_types        = list(string)
