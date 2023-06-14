@@ -19,12 +19,12 @@ function show_usage() {
         exit 1
         ;;
     "import.sh")
-        echo "Usage: ./scripts/import.sh terraform resource-example resource-ID example"
-        echo "Usage: ./scipts/import.sh azurerm_storage_account.example /subscriptions/0000.../resourceGroups/rg.../providers/Microsoft.Storage/storageAccounts/resource..."
+        echo "Usage: source ./scripts/import.sh terraform resource-example resource-ID example"
+        echo "Usage: source ./scipts/import.sh azurerm_storage_account.example /subscriptions/0000.../resourceGroups/rg.../providers/Microsoft.Storage/storageAccounts/resource..."
         exit 1
         ;;
     "plan.sh")
-        echo "Usage: ./scripts/plan.sh"
+        echo "Usage: source ./scripts/plan.sh"
         exit 1
         ;;
     "setup.sh")

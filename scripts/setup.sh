@@ -167,6 +167,12 @@ case $DEPLOYMENT_NAME in
     IONOS_API_KEY=$(az keyvault secret show --name ionos-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')
     export IONOS_API_KEY
     ;;
+    *infrastructure)
+    AZDO_ORG_SERVICE_URL="$(az keyvault secret show --name azdo-service-url --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
+    export AZDO_ORG_SERVICE_URL
+    AZDO_PERSONAL_ACCESS_TOKEN="$(az keyvault secret show --name azdo-pat-token-tf --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
+    export AZDO_PERSONAL_ACCESS_TOKEN
+    ;;
 
 esac
 

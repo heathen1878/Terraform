@@ -44,5 +44,24 @@ else
 fi
 
 # flow
-terraform -chdir="$TERRAFORM_DEPLOYMENT" plan $PARAMS    
-    
+terraform -chdir="$TERRAFORM_DEPLOYMENT" plan $PARAMS
+EXITCODE=$?
+
+export EXITCODE
+
+#In DevOps the exit code is handled in the yaml pipeline.
+if [ -z "$TF_BUILD" ]; then
+    # Running in a DevOps pipeline
+    case $EXITCODE in
+        0)
+            return 0
+        ;;
+        1)
+            echo "Error planning"
+            return 1
+        ;;
+        2)
+            return 0
+        ;;
+    esac
+fi
