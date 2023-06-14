@@ -45,7 +45,6 @@ locals {
 
   virtual_network_gateways = {
     management = {
-      deploy_gateway        = true
       pip_allocation_method = "Static"
       pip_sku               = "Standard"
       resource_group        = "management"

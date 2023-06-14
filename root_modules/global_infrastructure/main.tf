@@ -5,7 +5,7 @@ module "devops_projects" {
 }
 
 module "resource_groups" {
-  source = "../../modules/terraform-azure-resource-group"
+  source = "../../../terraform-azurerm-resource-groups"
 
   resource_groups = data.terraform_remote_state.global_config.outputs.resource_groups
 }

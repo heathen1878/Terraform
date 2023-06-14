@@ -22,6 +22,10 @@ output "azdo_projects" {
   value = local.azdo_projects_output
 }
 
+output "azdo_repos" {
+  value = local.azdo_project_repositories_output
+}
+
 output "container_groups" {
   value     = local.container_groups_output
   sensitive = true

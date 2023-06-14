@@ -39,7 +39,7 @@ variable "virtual_network_gateway" {
           aad_issuer            = string
           aad_tenant            = string
           address_space         = list(string)
-          enabled = bool
+          enabled               = bool
           radius_server_address = string
           radius_server_secret  = string
           vpn_auth_types        = list(string)

@@ -22,8 +22,8 @@ resource "azurerm_virtual_network" "virtual_network" {
   tags                    = each.value.tags
 
   lifecycle {
-    ignore_changes = [ 
+    ignore_changes = [
       dns_servers # DNS is managed by terraform-azure-networking/dns
-     ]
+    ]
   }
 }
