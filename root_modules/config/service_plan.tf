@@ -23,6 +23,7 @@ locals {
         lookup(value, "tags", {
           environment = var.environment
           namespace   = var.namespace
+          location    = var.location
         })
       )
       worker_count           = lookup(value, "worker_count", 1)
