@@ -1,5 +1,6 @@
 module "resource_groups" {
-  source = "../../modules/terraform-azure-resource-group"
+  source  = "heathen1878/resource-groups/azurerm"
+  version = "1.0.1"
 
   resource_groups = data.terraform_remote_state.config.outputs.resource_groups
 }
@@ -27,7 +28,8 @@ module "dns_records" {
 }
 
 module "service_plans" {
-  source = "../../modules/terraform-azure-service-plan"
+  source  = "heathen1878/app-service-plan/azurerm"
+  version = "1.0.0"
 
   service_plans = local.service_plans
 }
@@ -38,11 +40,11 @@ module "windows_web_apps" {
   windows_web_apps = local.windows_web_apps
 }
 
-module "cloudflare_domain_verification_record" {
-  source = "../../modules/terraform-cloudflare/dns_records"
-
-  dns_record = local.cloudflare_txt_domain_verification_record
-}
+#module "cloudflare_domain_verification_record" {
+#  source = "../../modules/terraform-cloudflare/dns_records"
+#
+#  dns_record = local.cloudflare_txt_domain_verification_record
+#}
 
 # TODO: Create a custom domsin name host binding
 # TODO: Add CNAMEs with for DNS resolution only
@@ -55,11 +57,11 @@ module "cloudflare_domain_verification_record" {
 # https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone_settings_override#always_use_https
 
 # Adds CNAMEs with proxy set - probably needs to use the existing resource 
-module "web_app_cloudflare_records" {
-  source = "../../modules/terraform-cloudflare/dns_records"
-
-  dns_record = local.cloudflare_cname_record
-}
+#module "web_app_cloudflare_records" {
+#  source = "../../modules/terraform-cloudflare/dns_records"
+#
+#  dns_record = local.cloudflare_cname_record
+#}
 
 locals {
 
@@ -142,9 +144,11 @@ locals {
       sku_name                     = value.sku_name
       maximum_elastic_worker_count = value.maximum_elastic_worker_count
       per_site_scaling_enabled     = value.per_site_scaling_enabled
-      tags                         = value.tags
-      worker_count                 = value.worker_count
-      zone_balancing_enabled       = value.zone_balancing_enabled
+      tags = merge(value.tags, {
+        workload = key
+      })
+      worker_count           = value.worker_count
+      zone_balancing_enabled = value.zone_balancing_enabled
     }
   }
 
@@ -164,6 +168,7 @@ locals {
       client_certificate_exclusion_paths = value.client_certificate_exclusion_paths
       client_certificate_mode            = value.client_certificate_mode
       connection_string                  = value.connection_string
+      deploy_slot                        = value.deploy_slot
       enabled                            = value.enabled
       https_only                         = value.https_only
       identity                           = value.identity
@@ -172,9 +177,12 @@ locals {
       logs                               = value.logs
       sticky_settings                    = value.sticky_settings
       storage_account                    = value.storage_account
-      tags                               = value.tags
-      virtual_network_subnet_id          = value.virtual_network_subnet_id
-      zip_deploy_file                    = value.zip_deploy_file
+      tags = merge(value.tags, {
+        parent = module.service_plans.service_plan[value.service_plan].name
+        name   = key
+      })
+      virtual_network_subnet_id = value.virtual_network_subnet_id
+      zip_deploy_file           = value.zip_deploy_file
     }
   }
 
