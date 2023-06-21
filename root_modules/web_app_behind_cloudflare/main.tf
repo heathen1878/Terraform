@@ -35,7 +35,8 @@ module "service_plans" {
 }
 
 module "windows_web_apps" {
-  source = "../../modules/terraform-azure-web-app/windows"
+  source  = "heathen1878/windows-web-app/azurerm"
+  version = "1.0.0"
 
   windows_web_apps = local.windows_web_apps
 }

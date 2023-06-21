@@ -5,31 +5,18 @@ module "devops_projects" {
 }
 
 module "resource_groups" {
-  source = "../../../terraform-azurerm-resource-groups"
+  source  = "heathen1878/resource-groups/azurerm"
+  version = "1.0.1"
 
   resource_groups = data.terraform_remote_state.global_config.outputs.resource_groups
 }
 
-module "network_watcher" {
-  source = "../../modules/terraform-azure-networking/network-watcher"
+module "networking" {
+  source = "../../../terraform-azurerm-networking"
 
-  network_watcher = local.network_watcher
-}
-
-module "virtual_network" {
-  source = "../../modules/terraform-azure-networking/vnets"
-
+  network_watcher  = local.network_watcher
   virtual_networks = local.virtual_network
-
-  depends_on = [
-    module.network_watcher
-  ]
-}
-
-module "subnets" {
-  source = "../../modules/terraform-azure-networking/subnets"
-
-  subnets = local.subnets
+  subnets          = local.subnets
 }
 
 module "dns_resolver" {
@@ -73,6 +60,7 @@ locals {
       resource_group_name = module.resource_groups.resource_group[value.resource_group].name
       location            = value.location
       tags                = value.tags
+      use_existing        = value.use_existing
     }
   }
 
@@ -91,7 +79,7 @@ locals {
     for key, value in data.terraform_remote_state.global_config.outputs.virtual_network_subnets : key => {
       name                 = value.name
       resource_group_name  = module.resource_groups.resource_group[value.resource_group].name
-      virtual_network_name = module.virtual_network.virtual_network[value.virtual_network_key].name
+      virtual_network_name = value.virtual_network_key
       address_prefixes = [
         value.address_space
       ]
@@ -108,9 +96,9 @@ locals {
       name                       = value.name
       resource_group_name        = module.resource_groups.resource_group[value.resource_group].name
       location                   = value.location
-      virtual_network_id         = module.virtual_network.virtual_network[value.virtual_network_key].id
+      virtual_network_id         = module.networking.virtual_network[value.virtual_network_key].id
       inbound_resolver_name      = value.inbound_resolver_name
-      inbound_resolver_subnet_id = module.subnets.subnet[value.inbound_resolver_subnet_key].id
+      inbound_resolver_subnet_id = module.networking.subnet[value.inbound_resolver_subnet_key].id
       tags                       = value.tags
     }
   }
@@ -137,7 +125,7 @@ locals {
       ip_configuration = {
         name                          = value.ip_configuration.name
         private_ip_address_allocation = value.ip_configuration.private_ip_address_allocation
-        subnet_id                     = module.subnets.subnet[value.ip_configuration.subnet_key].id
+        subnet_id                     = module.networking.subnet[value.ip_configuration.subnet_key].id
       }
       private_ip_address_enabled = value.private_ip_address_enabled
       sku                        = value.sku

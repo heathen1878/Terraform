@@ -68,6 +68,7 @@ locals {
           usage     = key
         }
       )
+      use_existing = lookup(value, "use_existing", false)
     }
   }
 
