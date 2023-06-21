@@ -1,6 +1,8 @@
 locals {
 
   resource_groups = {
+    global = {
+    }
     management = {
     }
     management2 = {

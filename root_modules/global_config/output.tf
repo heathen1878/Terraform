@@ -39,6 +39,12 @@ output "dns_resolver" {
   value = local.dns_resolver_output
 }
 
+output "dns_zones" {
+  value = {
+    private = local.private_dns_zone_outputs
+  }
+}
+
 #output "azure_service_tags" {
 #  value = {
 #    frontdoor_backend = local.azure_frontdoor_backend
