@@ -100,8 +100,6 @@ This module creates and manages the following networking components:
 - Virtual Networks
 - Subnets
 - Route table
-- Private DNS
-- Private DNS link
 
 #### Resources
 
@@ -120,3 +118,7 @@ azurerm_private_dns_zone_virtual_network_link
 
 Resource Group module
 
+### Web App Module
+
+- Private DNS
+- Private DNS link

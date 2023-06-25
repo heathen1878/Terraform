@@ -3,20 +3,6 @@ locals {
   resource_groups = {
     global = {
     }
-    management = {
-    }
-    management2 = {
-      iam = {
-        readers = {
-          role_definition_name = "Reader"
-          principal_id         = "bdde475c-f254-44b0-b48d-65ad83bffa4e"
-        }
-        contributors = {
-          role_definition_name = "Contributor"
-          principal_id         = "bdde475c-f254-44b0-b48d-65ad83bffa4e"
-        }
-      }
-    }
   }
 
   resource_groups_outputs = {

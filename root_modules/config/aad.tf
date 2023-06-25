@@ -63,7 +63,7 @@ locals {
           group      = groups_value
           membership = key
         }
-      ] if lookup(value, "aad_groups", []) != []
+      ] if length(value.aad_groups) != 0
     ]) : format("%s_%s", group_membership.membership, group_membership.group) => group_membership
   }
 
@@ -74,7 +74,7 @@ locals {
           group      = groups_value
           membership = key
         }
-      ] if lookup(value, "aad_groups", []) != []
+      ] if length(value.aad_groups) != 0
     ]) : format("%s_%s", group_membership.membership, group_membership.group) => group_membership
   }
 

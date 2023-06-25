@@ -55,12 +55,31 @@ output "key_vaults" {
   value = local.key_vault_output
 }
 
+output "nat_gateways" {
+  value = local.nat_gateway_outputs
+}
+
 output "network_watcher" {
   value = local.network_watcher_output
 }
 
+output "public_ip_addresses" {
+  value = local.public_ip_address_outputs
+}
+
 output "resource_groups" {
   value = local.resource_groups_outputs
+}
+
+output "route_tables" {
+  value = {
+    route_table        = local.route_table_outputs
+    subnet_association = local.route_table_associations
+  }
+}
+
+output "routes" {
+  value = local.udr_outputs
 }
 
 output "virtual_network" {

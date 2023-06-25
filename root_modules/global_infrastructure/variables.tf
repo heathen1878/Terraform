@@ -10,6 +10,10 @@ variable "namespace" {
 
 variable "state_storage_account" {
   description = "storage account where Terraform state is stored; primarily used by data resources"
-  default     = ""
+  type        = string
+}
+
+variable "tenant_id" {
+  description = "AAD tenant id"
   type        = string
 }

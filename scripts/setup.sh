@@ -115,6 +115,9 @@ case $DEPLOYMENT_NAME in
 
     TERRAFORM_ENV="$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME"
     TF_DATA_DIR=$TERRAFORM_ENV/.terraform
+
+    CONTAINER_NAME="$ARM_TENANT_ID-$LOCATION"
+    TF_VAR_tenant_id="$ARM_TENANT_ID"
     ;;
 
     *)
@@ -138,18 +141,20 @@ case $DEPLOYMENT_NAME in
 
     TERRAFORM_ENV="$PWD/configuration/environments/$NAMESPACE_ENVIRONMENT/$LOCATION/$DEPLOYMENT_NAME"
     TF_DATA_DIR=$TERRAFORM_ENV/.terraform
+
+    CONTAINER_NAME="$NAMESPACE_ENVIRONMENT-$LOCATION"
     ;;
 
 esac
 
 # check for the container within the storage account
-CONTAINER_EXISTS=$(az storage container exists --name "$NAMESPACE_ENVIRONMENT-$LOCATION" --account-name $STORAGE_ACCOUNT --auth-mode login --subscription "$MGMT_SUBSCRIPTION_ID" | jq -rc .exists)
+CONTAINER_EXISTS=$(az storage container exists --name "$CONTAINER_NAME" --account-name $STORAGE_ACCOUNT --auth-mode login --subscription "$MGMT_SUBSCRIPTION_ID" | jq -rc .exists)
 if [ "$CONTAINER_EXISTS" = "false" ]; then
-    az storage container create --auth-mode login --account-name $STORAGE_ACCOUNT --name "$NAMESPACE_ENVIRONMENT-$LOCATION" > /dev/null 2>&1
+    az storage container create --auth-mode login --account-name $STORAGE_ACCOUNT --name "$CONTAINER_NAME" > /dev/null 2>&1
 fi
 
 STATE_ACCOUNT=$STORAGE_ACCOUNT
-STATE_CONTAINER="$NAMESPACE_ENVIRONMENT-$LOCATION"
+STATE_CONTAINER="$CONTAINER_NAME"
 STATE_FILE="$DEPLOYMENT_NAME.tfstate"
 
 # end checks
@@ -192,11 +197,7 @@ bootstrap={
         name="$KEY_VAULT"
     }
 }
-environment = "$ENVIRONMENT"
-location = "$LOCATION"
 management_subscription = "$MGMT_SUBSCRIPTION_ID"
-namespace = "$NAMESPACE"
-tenant_id = "$ARM_TENANT_ID"
 virtual_networks={
     environment = {
       resource_group = "environment"
@@ -221,13 +222,11 @@ bootstrap={
         name="$KEY_VAULT"
     }
 }
-location = "$LOCATION"
+
 management_subscription = "$MGMT_SUBSCRIPTION_ID"
-namespace = "$NAMESPACE"
-tenant_id = "$ARM_TENANT_ID"
 virtual_networks={
     management = {
-        resource_group = "management"
+        resource_group = "global"
       address_space = [
         "10.0.0.0/16"
       ]
@@ -246,16 +245,21 @@ EOF
 fi
 
 # export variables
+TF_VAR_environment="$ENVIRONMENT"
+export TF_VAR_environment
+TF_VAR_location="$LOCATION"
+export TF_VAR_location
+TF_VAR_namespace="$NAMESPACE"
+export TF_VAR_namespace
+export TF_VAR_tenant_id
+TF_VAR_state_storage_account="$STATE_ACCOUNT"
+export TF_VAR_state_storage_account
 export ARM_SUBSCRIPTION_ID
 export ARM_ACCESS_KEY
 export DEPLOYMENT_NAME
-export ENVIRONMENT
-export LOCATION
 export KEY_VAULT
 export KEY_VAULT_RG
 export MANAGEMENT_SUBSCRIPTION_ID
-export NAMESPACE
-export NAMESPACE_ENVIRONMENT
 export STATE_ACCOUNT
 export STATE_CONTAINER
 export STATE_FILE

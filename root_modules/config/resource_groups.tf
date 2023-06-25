@@ -1,14 +1,8 @@
 locals {
 
   resource_groups = {
-    demo = {
-      name = "demo"
-    }
-    management = {
-      name = "management"
-    }
-    infrastructure = {
-      name = "infrastructure"
+    environment = {
+      name = "environment"
     }
     frontend = {
       name = "frontend"

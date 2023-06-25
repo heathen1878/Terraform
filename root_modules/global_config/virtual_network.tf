@@ -2,7 +2,7 @@ locals {
 
   network_watchers = {
     management = {
-      resource_group = "management"
+      resource_group = "global"
     }
   }
 
@@ -13,44 +13,34 @@ locals {
   # The address space block attribute determines which block of address space is used e.g. a virtual network with more than one block would
   # be 0 for the first block, then 1 for the next block and so on. The virtual network is defined within tfvars - see variables.tf for the defaults.
   virtual_network_subnets = {
-    GatewaySubnet = {
+    palo_alto_management = {
       address_space_block = 0
-      octet               = 1
-      subnet_size         = 11
+      octet               = 0
+      subnet_size         = 8
     }
-    dnsinbound = {
-      address_space_block = 0
-      delegations = {
-        dns_resolver = {
-          name = "dnsResolvers"
-          service_delegation = {
-            name = "Microsoft.Network/dnsResolvers"
-            actions = [
-              "Microsoft.Network/virtualNetworks/subnets/join/action"
-            ]
-          }
-        }
-      }
-      octet       = 2
-      subnet_size = 8
+    palo_alto_public = {
+      address_space_block = 1
+      octet               = 0
+      subnet_size         = 8
     }
-
-  }
-
-  dns_resolvers = {
-    management = {
-      resource_group = "management"
+    palo_alto_private = {
+      address_space_block = 2
+      octet               = 0
+      subnet_size         = 8
     }
   }
 
-  virtual_network_gateways = {
-    management = {
-      pip_allocation_method = "Static"
-      pip_sku               = "Standard"
-      resource_group        = "management"
-      sku                   = "VpnGw1"
-    }
-  }
+  dns_resolvers = {}
+
+  virtual_network_gateways = {}
+
+  nat_gateways = {}
+
+  public_ip_addresses = {}
+
+  route_tables = {}
+
+  udrs = {}
 
   # ---------------------------------------------------------------------------------------------------------------------
   # LOCAL CALCULATED
@@ -92,23 +82,25 @@ locals {
   virtual_network_subnets_output = {
     for key, value in local.virtual_network_subnets : key => {
       name                                          = key
-      resource_group                                = lookup(value, "resource_group", "management")
-      virtual_network_key                           = lookup(value, "virtual_network_key", "management")
-      address_space                                 = cidrsubnet(local.virtual_networks_output[lookup(value, "virtual_network_key", "management")].address_space[value.address_space_block], value.subnet_size, value.octet)
+      resource_group                                = lookup(value, "resource_group", "global")
+      virtual_network_key                           = lookup(value, "virtual_network_key", "global")
+      address_space                                 = cidrsubnet(local.virtual_networks_output[lookup(value, "virtual_network_key", "global")].address_space[value.address_space_block], value.subnet_size, value.octet)
       delegations                                   = lookup(value, "delegations", {})
       private_endpoint_network_policies_enabled     = lookup(value, "private_endpoint_network_policies_enabled", true)
       private_link_service_network_policies_enabled = lookup(value, "private_link_service_network_policies_enabled", true)
       service_endpoints                             = lookup(value, "service_endpoints", null)
       service_endpoint_policy                       = lookup(value, "service_endpoint_policy", false)
+      enable_nat_gateway                            = lookup(value, "enable_nat_gateway", false)
+      nat_gateway_key                               = lookup(value, "nat_gateway_key", "nat_gateway")
     }
   }
 
   dns_resolver_output = {
     for key, value in local.dns_resolvers : key => {
       name                        = format("dnspr-%s", azurecaf_name.dns_resolver[key].result)
-      resource_group              = lookup(value, "resource_group", "management")
+      resource_group              = lookup(value, "resource_group", "global")
       location                    = local.location
-      virtual_network_key         = lookup(value, "virtual_network_key", "management")
+      virtual_network_key         = lookup(value, "virtual_network_key", "global")
       inbound_resolver_name       = format("in-%s", azurecaf_name.dns_resolver[key].result)
       inbound_resolver_subnet_key = lookup(value, "subnet_key", "dnsinbound")
       tags = merge(var.tags,
@@ -121,10 +113,28 @@ locals {
     }
   }
 
+  nat_gateway_outputs = {
+    for key, value in local.nat_gateways : key => {
+      name                    = format("ng-%s", azurecaf_name.nat_gateway[key].result)
+      resource_group          = value.resource_group
+      location                = local.location
+      idle_timeout_in_minutes = lookup(value, "idle_timeout_in_minutes", 4)
+      sku_name                = lookup(value, "sku_name", "Standard")
+      tags = merge(var.tags,
+        {
+          namespace = var.namespace
+          location  = local.location
+          usage     = key
+        }
+      )
+      zones = lookup(value, "zones", [])
+    }
+  }
+
   virtual_network_gateway_output = {
     for key, value in local.virtual_network_gateways : key => {
       name           = format("vgw-%s", azurecaf_name.virtual_network_gateway[key].result)
-      resource_group = lookup(value, "resource_group", "management")
+      resource_group = lookup(value, "resource_group", "global")
       location       = local.location
       ip_configuration = {
         name                          = lookup(value, "ip_configuration.name", "vnetGatewayConfig")
@@ -172,19 +182,7 @@ locals {
           "AAD"
         ])
       }
-      vpn_type                    = lookup(value, "vpn_type", "RouteBased")
-      pip_allocation_method       = lookup(value, "pip_allocation_method", "Dynamic")
-      pip_ddos_protection_mode    = lookup(value, "pip_ddos_protection_mode", "VirtualNetworkInherited")
-      pip_ddos_protection_plan    = lookup(value, "pip_ddos_protection_plan", false)
-      pip_domain_name_label       = lookup(value, "pip_domain_name_label", null)
-      pip_edge_zone               = lookup(value, "pip_edge_zone", null) # TODO: work out what this actually does
-      pip_idle_timeout_in_minutes = lookup(value, "pip_idle_timeout_in_minutes", 30)
-      pip_ip_tags                 = lookup(value, "pip_ip_tags", {})
-      pip_public_ip_prefix        = lookup(value, "pip_public_ip_prefix", false)
-      pip_reverse_fqdn            = lookup(value, "pip_reverse_fqdn", null)
-      pip_sku                     = lookup(value, "pip_sku", "Basic")
-      pip_sku_tier                = lookup(value, "pip_sku_tier", "Regional")
-      pip_zones                   = lookup(value, "pip_zones", [])
+      vpn_type = lookup(value, "vpn_type", "RouteBased")
       tags = merge(var.tags,
         {
           namespace = var.namespace
@@ -195,42 +193,113 @@ locals {
     }
   }
 
+  public_ip_address_outputs = {
+    for key, value in local.public_ip_addresses : key => {
+      name                    = azurecaf_name.public_ip_address[key].result
+      resource_group          = value.resource_group
+      location                = local.location
+      sku                     = lookup(value, "sku", "Basic")
+      sku_tier                = lookup(value, "sku_tier", "Regional")
+      allocation_method       = lookup(value, "allocation_method", "Dynamic")
+      ip_version              = lookup(value, "ip_version", "IPv4")
+      ip_tags                 = lookup(value, "ip_tags", {})
+      idle_timeout_in_minutes = lookup(value, "idle_timeout_in_minutes", 4)
+      domain_name_label       = lookup(value, "domain_name_label", null)
+      ddos_protection_mode    = lookup(value, "ddos_protection_mode", "VirtualNetworkInherited")
+      ddos_protection_plan    = lookup(value, "ddos_protection_plan", false)
+      ddos_protection_plan_id = lookup(value, "ddos_protection_plan_id", null)
+      edge_zone               = lookup(value, "edge_zone", null)
+      reverse_fqdn            = lookup(value, "reverse_fqdn", null)
+      public_ip_prefix        = lookup(value, "public_ip_prefix", false)
+      public_ip_prefix_key    = lookup(value, "public_ip_prefix_key", null)
+      tags = merge(var.tags,
+        {
+          namespace = var.namespace
+          location  = local.location
+        }
+      )
+      zones = lookup(value, "zones", [])
+    }
+  }
+
+  route_table_outputs = {
+    for key, value in local.route_tables : key => {
+      name                          = format("rt-%s", azurecaf_name.route_table[key].result)
+      location                      = local.location
+      resource_group                = value.resource_group
+      disable_bgp_route_propagation = lookup(value, "disable_bgp_route_propagation", false)
+      tags = merge(var.tags,
+        {
+          namespace = var.namespace
+          location  = local.location
+          usage     = key
+        }
+      )
+    }
+  }
+
+  route_table_associations = {
+    for subnet in flatten([
+      for key, value in local.route_tables : [
+        for subnet_value in value.associated_subnets : {
+          subnet_key      = subnet_value
+          route_table_key = key
+        }
+      ]
+    ]) : format("%s_%s", subnet.subnet_key, subnet.route_table_key) => subnet
+  }
+
+  udr_outputs = {
+    for udr in flatten([
+      for key, value in local.udrs : [
+        for association in value.route_table_association : {
+          name                  = format("udr-%s", key)
+          resource_group        = lookup(value, "resource_group", "global")
+          route_table_key       = association
+          address_prefix        = value.address_prefix
+          next_hop_type         = value.next_hop_type
+          virtual_appliance_key = value.next_hop_type == "VirtualAppliance" ? value.virtual_appliance_key : null
+          route_table_key       = association
+          udr                   = key
+        }
+      ]
+    ]) : format("%s_%s", udr.udr, udr.route_table_key) => udr
+  }
+
   subnets_with_nsgs_output = {
-    for subnets_with_nsgs in flatten(
-      [
-        for key, values in var.nsg_rules : [
-          {
-            nsg_name = lower(azurecaf_name.network_security_group[key].result)
-            subnet   = key
-          }
-        ]
+    for subnets_with_nsgs in flatten([
+      for key, values in var.nsg_rules : [
+        {
+          nsg_name = lower(azurecaf_name.network_security_group[key].result)
+          subnet   = key
+        }
+      ]
     ]) : lower(format("%s_%s", subnets_with_nsgs.nsg_name, subnets_with_nsgs.subnet)) => subnets_with_nsgs
   }
 
   nsg_rules_output = {
-    for nsg_rules in flatten(
-      [
-        for key, values in var.nsg_rules : [
-          for rule_key, rule_value in values : {
-            nsg_name                     = lower(azurecaf_name.network_security_group[key].result)
-            subnet                       = key
-            ruleId                       = rule_key
-            name                         = rule_value.name
-            priority                     = rule_value.priority
-            protocol                     = rule_value.protocol
-            direction                    = rule_value.direction
-            access                       = rule_value.access
-            description                  = rule_value.description == "" ? null : rule_value.description
-            source_port_range            = rule_value.source_port_range == "" ? null : rule_value.source_port_range
-            source_port_ranges           = length(rule_value.source_port_ranges) == 0 ? null : rule_value.source_port_ranges
-            destination_port_range       = rule_value.destination_port_range == "" ? null : rule_value.destination_port_range
-            destination_port_ranges      = length(rule_value.destination_port_ranges) == 0 ? null : rule_value.destination_port_ranges
-            source_address_prefix        = rule_value.source_address_prefix == "" ? null : rule_value.source_address_prefix
-            source_address_prefixes      = length(rule_value.source_address_prefixes) == 0 ? null : rule_value.source_address_prefixes
-            destination_address_prefix   = rule_value.destination_address_prefix == "" ? null : rule_value.destination_address_prefix
-            destination_address_prefixes = length(rule_value.destination_address_prefixes) == 0 ? null : rule_value.destination_address_prefixes
-          }
-        ]
+    for nsg_rules in flatten([
+      for key, values in var.nsg_rules : [
+        for rule_key, rule_value in values : {
+          nsg_name                     = lower(azurecaf_name.network_security_group[key].result)
+          subnet                       = key
+          ruleId                       = rule_key
+          name                         = rule_value.name
+          priority                     = rule_value.priority
+          protocol                     = rule_value.protocol
+          direction                    = rule_value.direction
+          access                       = rule_value.access
+          description                  = rule_value.description == "" ? null : rule_value.description
+          source_port_range            = rule_value.source_port_range == "" ? null : rule_value.source_port_range
+          source_port_ranges           = length(rule_value.source_port_ranges) == 0 ? null : rule_value.source_port_ranges
+          destination_port_range       = rule_value.destination_port_range == "" ? null : rule_value.destination_port_range
+          destination_port_ranges      = length(rule_value.destination_port_ranges) == 0 ? null : rule_value.destination_port_ranges
+          source_address_prefix        = rule_value.source_address_prefix == "" ? null : rule_value.source_address_prefix
+          source_address_prefixes      = length(rule_value.source_address_prefixes) == 0 ? null : rule_value.source_address_prefixes
+          destination_address_prefix   = rule_value.destination_address_prefix == "" ? null : rule_value.destination_address_prefix
+          destination_address_prefixes = length(rule_value.destination_address_prefixes) == 0 ? null : rule_value.destination_address_prefixes
+        }
+      ]
     ]) : lower(format("%s_%s", nsg_rules.subnet, nsg_rules.ruleId)) => nsg_rules
   }
 }
