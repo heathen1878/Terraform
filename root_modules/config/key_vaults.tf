@@ -7,11 +7,8 @@ locals {
     backend_secrets = {
       resource_group = "backend"
     }
-    infrastructure_secrets = {
-      resource_group = "infrastructure"
-    }
-    management_secrets = {
-      resource_group = "management"
+    environment_secrets = {
+      resource_group = "environment"
     }
     frontend_certificates = {
       resource_group = "frontend"
@@ -19,11 +16,8 @@ locals {
     backend_certificates = {
       resource_group = "backend"
     }
-    infrastructure_certificates = {
-      resource_group = "infrastructure"
-    }
-    management_certificates = {
-      resource_group = "management"
+    environment_certificates = {
+      resource_group = "environment"
     }
   }
 
@@ -34,7 +28,7 @@ locals {
   key_vault_output = {
     for key, value in local.key_vaults : key => {
       name           = azurecaf_name.key_vault[key].result
-      resource_group = lookup(value, "resource_group", "demo")
+      resource_group = lookup(value, "resource_group", "global")
       tenant_id      = var.tenant_id
       network_acls = {
         bypass                     = lookup(value, "network_acls.bypass", "None")

@@ -46,24 +46,23 @@ output "resource_groups" {
   value = local.resource_groups_outputs
 }
 
-output "network_watcher" {
-  value = local.network_watcher_output
-}
-
-output "virtual_network" {
-  value = local.virtual_networks_output
-}
-
-output "virtual_network_subnets" {
-  value = local.virtual_network_subnets_output
-}
-
-output "subnets_with_nsgs_map" {
-  value = local.subnets_with_nsgs_map
-}
-
-output "nsg_rules_map" {
-  value = local.nsg_rules_map
+output "networking" {
+  value = {
+    dns_resolvers                  = local.dns_resolver_output
+    nat_gateways                   = local.nat_gateway_outputs
+    network_watcher                = local.network_watcher_output
+    nsgs                           = local.nsgs
+    nsg_rules                      = local.nsg_rule_outputs
+    nsg_subnet_association         = local.nsg_subnet_association_outputs
+    public_ip_addresses            = local.public_ip_address_outputs
+    route_tables                   = local.route_table_outputs
+    route_table_subnet_association = local.route_table_associations
+    routes                         = local.udr_outputs
+    subnets                        = local.virtual_network_subnets_output
+    virtual_networks               = local.virtual_networks_output
+    virtual_network_gateways       = local.virtual_network_gateway_output
+    virtual_network_peers          = local.virtual_network_peers
+  }
 }
 
 output "key_vault" {
@@ -91,4 +90,3 @@ output "web_apps" {
     windows = local.windows_web_app_output
   }
 }
-

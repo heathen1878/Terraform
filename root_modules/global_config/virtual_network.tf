@@ -79,6 +79,8 @@ locals {
     }
   }
 
+  virtual_network_peers = {}
+
   virtual_network_subnets_output = {
     for key, value in local.virtual_network_subnets : key => {
       name                                          = key
@@ -245,7 +247,7 @@ locals {
           subnet_key      = subnet_value
           route_table_key = key
         }
-      ]
+      ] if length(value.associated_subnets) != 0
     ]) : format("%s_%s", subnet.subnet_key, subnet.route_table_key) => subnet
   }
 
@@ -262,27 +264,41 @@ locals {
           route_table_key       = association
           udr                   = key
         }
-      ]
+      ] if length(value.route_table_association) != 0
     ]) : format("%s_%s", udr.udr, udr.route_table_key) => udr
   }
 
-  subnets_with_nsgs_output = {
+  nsgs = {
+    for key, value in var.nsg_rules : key => {
+      name           = lower(azurecaf_name.network_security_group[key].result)
+      location       = local.location
+      resource_group = value.resource_group
+      tags = merge(var.tags,
+        {
+          namespace = var.namespace
+          location  = local.location
+          usage     = key
+        }
+      )
+    }
+  }
+
+  nsg_subnet_association_outputs = {
     for subnets_with_nsgs in flatten([
       for key, values in var.nsg_rules : [
         {
           nsg_name = lower(azurecaf_name.network_security_group[key].result)
-          subnet   = key
+          key      = key
         }
       ]
-    ]) : lower(format("%s_%s", subnets_with_nsgs.nsg_name, subnets_with_nsgs.subnet)) => subnets_with_nsgs
+    ]) : lower(format("%s_%s", subnets_with_nsgs.nsg_name, subnets_with_nsgs.key)) => subnets_with_nsgs
   }
 
-  nsg_rules_output = {
+  nsg_rule_outputs = {
     for nsg_rules in flatten([
-      for key, values in var.nsg_rules : [
-        for rule_key, rule_value in values : {
-          nsg_name                     = lower(azurecaf_name.network_security_group[key].result)
-          subnet                       = key
+      for key, value in var.nsg_rules : [
+        for rule_key, rule_value in value.rules : {
+          key                          = key
           ruleId                       = rule_key
           name                         = rule_value.name
           priority                     = rule_value.priority
@@ -300,6 +316,6 @@ locals {
           destination_address_prefixes = length(rule_value.destination_address_prefixes) == 0 ? null : rule_value.destination_address_prefixes
         }
       ]
-    ]) : lower(format("%s_%s", nsg_rules.subnet, nsg_rules.ruleId)) => nsg_rules
+    ]) : lower(format("%s_%s", nsg_rules.key, nsg_rules.ruleId)) => nsg_rules
   }
 }

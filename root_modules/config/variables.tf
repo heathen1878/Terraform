@@ -131,29 +131,11 @@ variable "namespace" {
 
 variable "nsg_rules" {
   description = "A map of rules"
-  default = {
-    "default" = {
-      "default" = {
-        access                       = "Deny"
-        description                  = "Default rule - Allow SSH access when access = Allowed"
-        destination_address_prefix   = "VirtualNetwork"
-        destination_address_prefixes = []
-        destination_port_range       = "22"
-        destination_port_ranges      = []
-        direction                    = "Inbound"
-        name                         = "Default_SSH_Inbound"
-        priority                     = 1000
-        protocol                     = "Tcp"
-        source_address_prefix        = "*"
-        source_address_prefixes      = []
-        source_port_range            = "*"
-        source_port_ranges           = []
-      }
-    }
-  }
-  type = map( # reference to subnet
-    map(      # rule 
-      object( # rule configuration
+  default     = {}
+  type = map(object(
+    {
+      resource_group = string
+      rules = map(object(
         {
           name                         = string
           priority                     = number
@@ -170,9 +152,10 @@ variable "nsg_rules" {
           destination_address_prefix   = string
           destination_address_prefixes = list(string)
         }
-      )
-    )
-  )
+      ))
+      tags = optional(map(any))
+    }
+  ))
 }
 
 variable "state_storage_account" {
@@ -196,19 +179,14 @@ variable "tenant_id" {
 
 variable "virtual_networks" {
   description = "A virtual network for this environment"
-  default = {
-    "ns1-dev-northeurope" = {
-      address_space = [
-        "192.168.254.0/24"
-      ]
-      dns_servers = []
-    }
-  }
+  default     = {}
   type = map(
     object(
       {
-        address_space = list(string)
-        dns_servers   = list(string)
+        resource_group = string
+        address_space  = list(string)
+        dns_servers    = list(string)
+        peers          = list(string)
       }
     )
   )

@@ -2,8 +2,8 @@ locals {
 
   windows_web_apps = {
     demo = {
-      name           = "demo"
-      resource_group = "demo"
+      name           = "app1"
+      resource_group = "frontend"
       app_plan       = "general"
       site_config = {
         application_stack = {}
@@ -31,8 +31,8 @@ locals {
       sticky_settings = {}
     }
     demo1 = {
-      name           = "demo1"
-      resource_group = "demo"
+      name           = "app2"
+      resource_group = "frontend"
       app_plan       = "general"
       site_config = {
         application_stack = {}
@@ -64,9 +64,9 @@ locals {
   windows_web_app_output = {
     for key, value in local.windows_web_apps : key => {
       name           = azurecaf_name.windows_web_app[key].result
-      resource_group = lookup(value, "resource_group", "demo")
+      resource_group = lookup(value, "resource_group", "frontend")
       location       = var.location
-      service_plan   = lookup(value, "app_plan", "demo")
+      service_plan   = lookup(value, "app_plan", "general")
       site_config = {
         always_on             = lookup(value.site_config, "always_on", false)
         api_definition_url    = lookup(value.site_config, "api_defnition_url", null)

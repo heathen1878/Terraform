@@ -35,10 +35,6 @@ output "container_registries" {
   value = local.container_registry_output
 }
 
-output "dns_resolver" {
-  value = local.dns_resolver_output
-}
-
 output "dns_zones" {
   value = {
     private = local.private_dns_zone_outputs
@@ -55,49 +51,25 @@ output "key_vaults" {
   value = local.key_vault_output
 }
 
-output "nat_gateways" {
-  value = local.nat_gateway_outputs
-}
-
-output "network_watcher" {
-  value = local.network_watcher_output
-}
-
-output "public_ip_addresses" {
-  value = local.public_ip_address_outputs
-}
-
 output "resource_groups" {
   value = local.resource_groups_outputs
 }
 
-output "route_tables" {
+output "networking" {
   value = {
-    route_table        = local.route_table_outputs
-    subnet_association = local.route_table_associations
+    dns_resolvers                  = local.dns_resolver_output
+    nat_gateways                   = local.nat_gateway_outputs
+    network_watcher                = local.network_watcher_output
+    nsgs                           = local.nsgs
+    nsg_rules                      = local.nsg_rule_outputs
+    nsg_subnet_association         = local.nsg_subnet_association_outputs
+    public_ip_addresses            = local.public_ip_address_outputs
+    route_tables                   = local.route_table_outputs
+    route_table_subnet_association = local.route_table_associations
+    routes                         = local.udr_outputs
+    subnets                        = local.virtual_network_subnets_output
+    virtual_networks               = local.virtual_networks_output
+    virtual_network_gateways       = local.virtual_network_gateway_output
+    virtual_network_peers          = local.virtual_network_peers
   }
-}
-
-output "routes" {
-  value = local.udr_outputs
-}
-
-output "virtual_network" {
-  value = local.virtual_networks_output
-}
-
-output "virtual_network_gateway" {
-  value = local.virtual_network_gateway_output
-}
-
-output "virtual_network_subnets" {
-  value = local.virtual_network_subnets_output
-}
-
-output "subnets_with_nsgs_map" {
-  value = local.subnets_with_nsgs_output
-}
-
-output "nsg_rules_map" {
-  value = local.nsg_rules_output
 }

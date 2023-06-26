@@ -14,33 +14,90 @@ locals {
   # The address space block attribute determines which block of address space is used e.g. a virtual network with more than one block would
   # be 0 for the first block, then 1 for the next block and so on. The virtual network is defined within tfvars - see variables.tf for the defaults.
   virtual_network_subnets = {
-    app_services = {
+    app_services_backend = {
       address_space_block = 0
-      octet               = 1
-      subnet_size         = 8
-      enable_nat_gateway  = true
+      delegations = {
+        app_services = {
+          name = "appServices"
+          service_delegation = {
+            name = "Microsoft.Web/serverFarms"
+            actions = [
+              "Microsoft.Network/virtualNetworks/subnets/action",
+              "Microsoft.Network/virtualNetworks/subnets/join/action"
+            ]
+          }
+        }
+      }
+      octet              = 1
+      subnet_size        = 8
+      enable_nat_gateway = true
     }
-    sql_databases = {
+    app_services_frontend = {
       address_space_block = 0
       octet               = 2
       subnet_size         = 8
     }
-    function_apps = {
+    function_apps_frontend = {
       address_space_block = 0
       octet               = 3
       subnet_size         = 8
-      enable_nat_gateway  = true
+    }
+    function_apps_backend = {
+      address_space_block = 0
+      delegations = {
+        function_apps = {
+          name = "functionApps"
+          service_delegation = {
+            name = "Microsoft.Web/serverFarms"
+            actions = [
+              "Microsoft.Network/virtualNetworks/subnets/action",
+              "Microsoft.Network/virtualNetworks/subnets/join/action"
+            ]
+          }
+        }
+      }
+      octet              = 4
+      subnet_size        = 8
+      enable_nat_gateway = true
+    }
+    sql_databases = {
+      address_space_block = 0
+      octet               = 5
+      subnet_size         = 8
     }
     service_bus = {
       address_space_block = 0
-      octet               = 4
+      octet               = 6
+      subnet_size         = 8
+    }
+    storage = {
+      address_space_block = 0
+      octet               = 7
+      subnet_size         = 8
+    }
+    key_vault = {
+      address_space_block = 0
+      octet               = 8
+      subnet_size         = 8
+    }
+    redis_cache = {
+      address_space_block = 0
+      octet               = 9
+      subnet_size         = 8
+    }
+    search_services = {
+      address_space_block = 0
+      octet               = 10
+      subnet_size         = 8
+    }
+    log_analytics = {
+      address_space_block = 0
+      octet               = 11
       subnet_size         = 8
     }
   }
 
   dns_resolvers = {}
-
-  virtual_network_gateways = {}
 
   nat_gateways = {
     nat_gateway = {
@@ -56,9 +113,13 @@ locals {
     }
   }
 
-  route_tables = {}
+  route_tables = {
 
-  udrs = {}
+  }
+
+  udrs = {
+
+  }
 
   # ---------------------------------------------------------------------------------------------------------------------
   # LOCAL CALCULATED
@@ -97,19 +158,32 @@ locals {
     }
   }
 
+  virtual_network_peers = {
+    for peer in flatten([
+      for key, value in local.virtual_networks : [
+        for peer in value.peers : {
+          peer_1_id   = data.terraform_remote_state.global_infrastructure.outputs.virtual_networks[peer].id
+          peer_1_rg   = data.terraform_remote_state.global_infrastructure.outputs.virtual_networks[peer].resource_group_name
+          peer_1_name = data.terraform_remote_state.global_infrastructure.outputs.virtual_networks[peer].name
+          peer_2_id   = key
+        }
+      ]
+    ]) : format("%s_%s", peer.peer_1_name, peer.peer_2_id) => peer
+  }
+
   virtual_network_subnets_output = {
     for key, value in local.virtual_network_subnets : key => {
       name                                          = key
-      resource_group                                = lookup(value, "resource_group", "global")
-      virtual_network_key                           = lookup(value, "virtual_network_key", "global")
-      address_space                                 = cidrsubnet(local.virtual_networks_output[lookup(value, "virtual_network_key", "global")].address_space[value.address_space_block], value.subnet_size, value.octet)
+      resource_group                                = lookup(value, "resource_group", "environment")
+      virtual_network_key                           = lookup(value, "virtual_network_key", "environment")
+      address_space                                 = cidrsubnet(local.virtual_networks_output[lookup(value, "virtual_network_key", "environment")].address_space[value.address_space_block], value.subnet_size, value.octet)
       delegations                                   = lookup(value, "delegations", {})
       private_endpoint_network_policies_enabled     = lookup(value, "private_endpoint_network_policies_enabled", true)
       private_link_service_network_policies_enabled = lookup(value, "private_link_service_network_policies_enabled", true)
       service_endpoints                             = lookup(value, "service_endpoints", null)
       service_endpoint_policy                       = lookup(value, "service_endpoint_policy", false)
       enable_nat_gateway                            = lookup(value, "enable_nat_gateway", false)
-      nat_gateway_key = lookup(value, "nat_gateway_key", "nat_gateway")
+      nat_gateway_key                               = lookup(value, "nat_gateway_key", "nat_gateway")
     }
   }
 
@@ -149,67 +223,7 @@ locals {
     }
   }
 
-  virtual_network_gateway_output = {
-    for key, value in local.virtual_network_gateways : key => {
-      name           = format("vgw-%s", azurecaf_name.virtual_network_gateway[key].result)
-      resource_group = lookup(value, "resource_group", "global")
-      location       = local.location
-      ip_configuration = {
-        name                          = lookup(value, "ip_configuration.name", "vnetGatewayConfig")
-        private_ip_address_allocation = lookup(value, "ip_configuration.private_ip_address_allocation", "Dynamic")
-        subnet_key                    = lookup(value, "ip_configuration.subnet_key", "GatewaySubnet")
-      }
-      sku            = lookup(value, "sku", "Basic")
-      type           = lookup(value, "type", "Vpn")
-      deploy_gateway = lookup(value, "deploy_gateway", false)
-      active_active  = lookup(value, "active_active", false) # If true, requires HighPerformance SKU as a minimum.
-      enable_bgp     = lookup(value, "enable_bgp", false)
-      bgp_settings = {
-        asn = lookup(value, "bgp_settings.asn", null)
-        peering_addresses = {
-          ip_configuration_name = lookup(value, "bgp_settings.peering_addresses.ip_configuration_name", "vnetGatewayConfig")
-          apipa_addresses = lookup(value, "bgp_settings.peering_addresses.apipa_addresses", [
-            "169.254.21.0"
-          ])
-        }
-        peer_weight = lookup(value, "bgp_settings.peering_weight", 0)
-      }
-      custom_route = {
-        address_prefixes = lookup(value, "custom_route.address_prefixes", [])
-      }
-      generation                 = lookup(value, "generation", "Generation1") #https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpngateways#benchmark
-      private_ip_address_enabled = lookup(value, "private_ip_address_enabled", false)
-      public_ip_address_name     = format("pip-%s", azurecaf_name.virtual_network_gateway[key].result)
-      vpn_client_configuration = {
-        address_space = lookup(value, "vpn_client_configuration.address_space", [
-          "172.16.0.0/24",
-          "172.16.1.0/24"
-        ])
-        aad_tenant   = lookup(value, "vpn_client_configuration.aad_tenant", format("https://login.microsoftonline.com/%s/", var.tenant_id))
-        aad_audience = lookup(value, "vpn_client_configuration.aad_audience", "41b23e61-6c1e-4545-b367-cd054e0ed4b4")
-        aad_issuer   = lookup(value, "vpn_client_configuration.aad_issuer", format("https://sts.windows.net/%s/", var.tenant_id))
-        enabled      = lookup(value, "vpn_client_configuration.enabled", false)
-        root_certificate = {
-        }
-        radius_server_address = lookup(value, "vpn_client_configuration.radius_server_address", null)
-        radius_server_secret  = lookup(value, "vpn_client_configuration.radius_server_secret", null)
-        vpn_client_protocols = lookup(value, "vpn_client_configuration.vpn_client_protocols", [
-          "OpenVPN"
-        ])
-        vpn_auth_types = lookup(value, "vpn_client_configuration.vpn_auth_types", [
-          "AAD"
-        ])
-      }
-      vpn_type = lookup(value, "vpn_type", "RouteBased")
-      tags = merge(var.tags,
-        {
-          namespace = var.namespace
-          location  = local.location
-          usage     = key
-        }
-      )
-    }
-  }
+  virtual_network_gateway_output = {}
 
   public_ip_address_outputs = {
     for key, value in local.public_ip_addresses : key => {
@@ -284,23 +298,37 @@ locals {
     ]) : format("%s_%s", udr.udr, udr.route_table_key) => udr
   }
 
-  subnets_with_nsgs_output = {
+  nsgs = {
+    for key, value in var.nsg_rules : key => {
+      name           = lower(azurecaf_name.network_security_group[key].result)
+      location       = local.location
+      resource_group = value.resource_group
+      tags = merge(var.tags,
+        {
+          namespace = var.namespace
+          location  = local.location
+          usage     = key
+        }
+      )
+    }
+  }
+
+  nsg_subnet_association_outputs = {
     for subnets_with_nsgs in flatten([
       for key, values in var.nsg_rules : [
         {
           nsg_name = lower(azurecaf_name.network_security_group[key].result)
-          subnet   = key
+          key      = key
         }
       ]
-    ]) : lower(format("%s_%s", subnets_with_nsgs.nsg_name, subnets_with_nsgs.subnet)) => subnets_with_nsgs
+    ]) : lower(format("%s_%s", subnets_with_nsgs.nsg_name, subnets_with_nsgs.key)) => subnets_with_nsgs
   }
 
-  nsg_rules_output = {
+  nsg_rule_outputs = {
     for nsg_rules in flatten([
-      for key, values in var.nsg_rules : [
-        for rule_key, rule_value in values : {
-          nsg_name                     = lower(azurecaf_name.network_security_group[key].result)
-          subnet                       = key
+      for key, value in var.nsg_rules : [
+        for rule_key, rule_value in value.rules : {
+          key                          = key
           ruleId                       = rule_key
           name                         = rule_value.name
           priority                     = rule_value.priority
@@ -318,6 +346,6 @@ locals {
           destination_address_prefixes = length(rule_value.destination_address_prefixes) == 0 ? null : rule_value.destination_address_prefixes
         }
       ]
-    ]) : lower(format("%s_%s", nsg_rules.subnet, nsg_rules.ruleId)) => nsg_rules
+    ]) : lower(format("%s_%s", nsg_rules.key, nsg_rules.ruleId)) => nsg_rules
   }
 }

@@ -12,31 +12,26 @@ module "resource_groups" {
 }
 
 module "networking" {
-  source = "../../../terraform-azurerm-networking"
+  source  = "heathen1878/networking/azurerm"
+  version = "1.0.0"
 
-  network_watcher     = local.network_watcher
-  virtual_networks    = local.virtual_network
-  subnets             = local.subnets
-  public_ip_addresses = local.public_ip_addresses
-  nat_gateways        = local.nat_gateways
-  route_tables        = local.route_tables
-  routes              = local.routes
+  network_watcher       = local.network_watcher
+  virtual_networks      = local.virtual_network
+  virtual_network_peers = local.virtual_network_peers
+  subnets               = local.subnets
+  public_ip_addresses   = local.public_ip_addresses
+  nat_gateways          = local.nat_gateways
+  route_tables          = local.route_tables
+  routes                = local.routes
+  nsgs                  = local.nsgs
+  nsg_rules             = data.terraform_remote_state.global_config.outputs.networking.nsg_rules
+  nsg_association       = data.terraform_remote_state.global_config.outputs.networking.nsg_subnet_association
 }
 
 module "dns_resolver" {
   source = "../../modules/terraform-azure-networking/dns"
 
   dns_resolver = local.dns_resolver
-}
-
-module "virtual_network_gateway" {
-  source = "../../modules/terraform-azure-networking/gateway"
-
-  virtual_network_gateway = local.virtual_network_gateways
-
-  depends_on = [
-    module.dns_resolver # Ensure the DNS resolver has set the custom DNS records before starting the Gateway deployment. 
-  ]
 }
 
 locals {
@@ -59,7 +54,7 @@ locals {
   }
 
   network_watcher = {
-    for key, value in data.terraform_remote_state.global_config.outputs.network_watcher : key => {
+    for key, value in data.terraform_remote_state.global_config.outputs.networking.network_watcher : key => {
       name                = value.name
       resource_group_name = module.resource_groups.resource_group[value.resource_group].name
       location            = value.location
@@ -69,7 +64,7 @@ locals {
   }
 
   virtual_network = {
-    for key, value in data.terraform_remote_state.global_config.outputs.virtual_network : key => {
+    for key, value in data.terraform_remote_state.global_config.outputs.networking.virtual_networks : key => {
       name                = value.name
       resource_group_name = module.resource_groups.resource_group[value.resource_group].name
       location            = value.location
@@ -79,8 +74,15 @@ locals {
     }
   }
 
+  virtual_network_peers = {
+    for key, value in data.terraform_remote_state.global_config.outputs.networking.virtual_network_peers : key => {
+      peer_1_id = value.peer_1_id
+      peer_2_id = value.peer_2_id
+    }
+  }
+
   subnets = {
-    for key, value in data.terraform_remote_state.global_config.outputs.virtual_network_subnets : key => {
+    for key, value in data.terraform_remote_state.global_config.outputs.networking.subnets : key => {
       name                = value.name
       resource_group_name = module.resource_groups.resource_group[value.resource_group].name
       virtual_network_key = value.virtual_network_key
@@ -93,12 +95,12 @@ locals {
       service_endpoints                             = value.service_endpoints
       service_endpoint_policy_ids                   = value.service_endpoint_policy != false ? [] : null # TODO: work out how to dynamically get Ids if this is true.
       enable_nat_gateway                            = value.enable_nat_gateway
-      nat_gateway_key = value.nat_gateway_key
+      nat_gateway_key                               = value.nat_gateway_key
     }
   }
 
   nat_gateways = {
-    for key, value in data.terraform_remote_state.global_config.outputs.nat_gateways : key => {
+    for key, value in data.terraform_remote_state.global_config.outputs.networking.nat_gateways : key => {
       name                    = value.name
       resource_group_name     = module.resource_groups.resource_group[value.resource_group].name
       location                = value.location
@@ -110,7 +112,7 @@ locals {
   }
 
   public_ip_addresses = {
-    for key, value in data.terraform_remote_state.global_config.outputs.public_ip_addresses : key => {
+    for key, value in data.terraform_remote_state.global_config.outputs.networking.public_ip_addresses : key => {
       name                    = value.name
       resource_group_name     = module.resource_groups.resource_group[value.resource_group].name
       location                = value.location
@@ -132,7 +134,7 @@ locals {
   }
 
   route_tables = {
-    for key, value in data.terraform_remote_state.global_config.outputs.route_tables.route_table : key => {
+    for key, value in data.terraform_remote_state.global_config.outputs.networking.route_tables : key => {
       name                          = value.name
       location                      = value.location
       resource_group_name           = module.resource_groups.resource_group[value.resource_group].name
@@ -142,7 +144,7 @@ locals {
   }
 
   routes = {
-    for key, value in data.terraform_remote_state.global_config.outputs.routes : key => {
+    for key, value in data.terraform_remote_state.global_config.outputs.networking.routes : key => {
       name                   = value.name
       resource_group_name    = module.resource_groups.resource_group[value.resource_group].name
       route_table_key        = value.route_table_key
@@ -152,8 +154,17 @@ locals {
     }
   }
 
+  nsgs = {
+    for key, value in data.terraform_remote_state.global_config.outputs.networking.nsgs : key => {
+      name                = value.name
+      location            = value.location
+      resource_group_name = module.resource_groups.resource_group[value.resource_group].name
+      tags                = value.tags
+    }
+  }
+
   dns_resolver = {
-    for key, value in data.terraform_remote_state.global_config.outputs.dns_resolver : key => {
+    for key, value in data.terraform_remote_state.global_config.outputs.networking.dns_resolvers : key => {
       name                       = value.name
       resource_group_name        = module.resource_groups.resource_group[value.resource_group].name
       location                   = value.location
@@ -165,7 +176,7 @@ locals {
   }
 
   virtual_network_gateways = {
-    for key, value in data.terraform_remote_state.global_config.outputs.virtual_network_gateway : key => {
+    for key, value in data.terraform_remote_state.global_config.outputs.networking.virtual_network_gateways : key => {
       name                = value.name
       resource_group_name = module.resource_groups.resource_group[value.resource_group].name
       location            = value.location

@@ -1,14 +1,16 @@
 locals {
 
   resource_groups = {
+    backend = {
+      name = "backend"
+    }
     environment = {
       name = "environment"
     }
     frontend = {
       name = "frontend"
     }
-    backend = {
-      name = "backend"
+    global = {
     }
   }
 

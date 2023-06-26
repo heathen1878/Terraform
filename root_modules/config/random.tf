@@ -111,6 +111,63 @@ resource "random_id" "acg" {
 
 }
 
+resource "random_id" "nat_gateway" {
+  for_each = local.nat_gateways
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+
+}
+
+resource "random_id" "network_watcher" {
+  for_each = local.network_watchers
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+}
+
+resource "random_id" "public_ip_address" {
+  for_each = local.public_ip_addresses
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+
+}
+
+resource "random_id" "route_table" {
+  for_each = local.route_tables
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+
+}
+
+resource "random_id" "virtual_network" {
+  for_each = local.virtual_networks
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+}
+
+resource "random_id" "dns_resolver" {
+  for_each = local.dns_resolvers
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+}
+
 resource "random_id" "virtual_machine" {
   for_each = local.virtual_machine
 
@@ -181,6 +238,11 @@ locals {
       name = replace(lower(acr_value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
+  dns_resolver = {
+    for key, value in random_id.dns_resolver : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
   key_vault = {
     for key_vault_key, key_vault_value in random_id.key_vault : key_vault_key => {
       name = replace(lower(key_vault_value.id), "/[^0-9a-zA-Z]/", "")
@@ -189,6 +251,31 @@ locals {
   resource_group = {
     for resource_group_key, resource_group_value in random_id.subscription_location_namespace_environment_unique_rg : resource_group_key => {
       name = replace(lower(resource_group_value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  nat_gateway = {
+    for key, value in random_id.nat_gateway : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  network_watcher = {
+    for key, value in random_id.network_watcher : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  public_ip_address = {
+    for key, value in random_id.public_ip_address : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  route_table = {
+    for key, value in random_id.route_table : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  virtual_network = {
+    for key, value in random_id.virtual_network : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
   formatted_virtual_machine = {

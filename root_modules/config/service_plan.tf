@@ -2,14 +2,14 @@ locals {
 
   service_plans = {
     general = {
-      resource_group = "infrastructure"
+      resource_group = "frontend"
     }
   }
 
   service_plan_output = {
     for key, value in local.service_plans : key => {
       name                         = azurecaf_name.service_plans[key].result
-      resource_group               = lookup(value, "resource_group", "demo")
+      resource_group               = lookup(value, "resource_group", "environment")
       location                     = lookup(value, "location", var.location)
       os_type                      = lookup(value, "os_type", "Windows")
       sku_name                     = lookup(value, "sku_name", "B1")
