@@ -249,6 +249,7 @@ TF_VAR_environment="$ENVIRONMENT"
 export TF_VAR_environment
 TF_VAR_location="$LOCATION"
 export TF_VAR_location
+export LOCATION
 TF_VAR_namespace="$NAMESPACE"
 export TF_VAR_namespace
 export TF_VAR_tenant_id
@@ -260,6 +261,7 @@ export DEPLOYMENT_NAME
 export KEY_VAULT
 export KEY_VAULT_RG
 export MANAGEMENT_SUBSCRIPTION_ID
+export NAMESPACE_ENVIRONMENT
 export STATE_ACCOUNT
 export STATE_CONTAINER
 export STATE_FILE
