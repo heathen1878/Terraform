@@ -68,8 +68,9 @@ module "service_plans" {
 }
 
 module "windows_web_apps" {
-  source  = "heathen1878/windows-web-app/azurerm"
-  version = "1.0.0"
+  source = "../../../terraform-azurerm-windows-web-app"
+  #source  = "heathen1878/windows-web-app/azurerm"
+  #version = "1.0.0"
 
   windows_web_apps = local.windows_web_apps
 }
@@ -374,22 +375,29 @@ locals {
       client_certificate_enabled         = value.client_certificate_enabled
       client_certificate_exclusion_paths = value.client_certificate_exclusion_paths
       client_certificate_mode            = value.client_certificate_mode
+      cloudflare_protected               = value.cloudflare_protected
       connection_string                  = value.connection_string
       deploy_slot                        = value.deploy_slot
       enabled                            = value.enabled
+      enable_private_endpoint            = value.enable_private_endpoint
       https_only                         = value.https_only
       identity                           = value.identity
       ip_restriction                     = value.cloudflare_protected ? module.cloudflare_ip_addresses.ip_addresses.ipv4 : []
       key_vault_reference_identity_id    = value.key_vault_reference_identity_id
       logs                               = value.logs
-      sticky_settings                    = value.sticky_settings
-      storage_account                    = value.storage_account
+      private_dns_zone_ids = [
+        module.dns.private_dns_zones["azurewebsites"].id,
+        module.dns.private_dns_zones["scm_azurewebsites"].id
+      ]
+      sticky_settings = value.sticky_settings
+      storage_account = value.storage_account
       tags = merge(value.tags, {
         parent = module.service_plans.service_plan[value.service_plan].name
         name   = key
       })
-      virtual_network_subnet_id = value.virtual_network_subnet_id
-      zip_deploy_file           = value.zip_deploy_file
+      virtual_network_subnet_private_endpoint_id   = module.networking.subnet[value.virtual_network_subnet_private_endpoint_key].id
+      virtual_network_subnet_integration_subnet_id = module.networking.subnet[value.virtual_network_subnet_integration_subnet_key].id
+      zip_deploy_file                              = value.zip_deploy_file
     }
   }
 

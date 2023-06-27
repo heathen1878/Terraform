@@ -1,9 +1,10 @@
 locals {
 
   service_plans = {
-    #general = {
-    #  resource_group = "frontend"
-    #}
+    general = {
+      resource_group = "frontend"
+      sku_name       = "S2"
+    }
   }
 
   service_plan_output = {

@@ -1,36 +1,40 @@
 locals {
 
   windows_web_apps = {
-    #demo1 = {
-    #  name           = "app1"
-    #  resource_group = "frontend"
-    #  app_plan       = "general"
-    #  site_config = {
-    #    application_stack = {}
-    #    virtual_application = {
-    #      virtual_directory = {}
-    #    }
-    #  }
-    #  auth_settings = {}
-    #  backup = {
-    #    schedule = {}
-    #  }
-    #  cloudflare_protected    = true
-    #  connection_string       = {}
-    #  enable_private_endpoint = true
-    #  identity                = {}
-    #  logs = {
-    #    application_logs = {
-    #      azure_blob_storage = {}
-    #    }
-    #    http_logs = {
-    #      file_system        = {}
-    #      azure_blob_storage = {}
-    #    }
-    #  }
-    #  storage_account = {}
-    #  sticky_settings = {}
-    #}
+    demo1 = {
+      name           = "app1"
+      resource_group = "frontend"
+      app_plan       = "general"
+      site_config = {
+        application_stack = {}
+        virtual_application = {
+          virtual_directory = {}
+        }
+      }
+      app_settings = {
+        "WEBSITE_DNS_SERVER" : "168.63.129.16"
+      }
+      auth_settings = {}
+      backup = {
+        schedule = {}
+      }
+      cloudflare_protected    = true
+      connection_string       = {}
+      enable_private_endpoint = true
+      identity                = {}
+      logs = {
+        application_logs = {
+          azure_blob_storage = {}
+        }
+        http_logs = {
+          file_system        = {}
+          azure_blob_storage = {}
+        }
+      }
+      storage_account                               = {}
+      sticky_settings                               = {}
+      virtual_network_subnet_integration_subnet_key = "app_services_backend"
+    }
     #demo2 = {
     #  name           = "app2"
     #  resource_group = "frontend"
@@ -161,7 +165,7 @@ locals {
           }
           virtual_path = lookup(value.site_config.virtual_application, "virtual_path", "/")
         }
-        vnet_route_all_enabled = lookup(value.site_config, "vnet_route_all_enabled", false)
+        vnet_route_all_enabled = length(value.virtual_network_subnet_integration_subnet_key) != 0 ? true : false
         websockets_enabled     = lookup(value.site_config, "websockets_enabled", false)
         worker_count           = lookup(value.site_config, "worker_count", 1)
       }
@@ -248,8 +252,9 @@ locals {
           location    = var.location
         })
       )
-      virtual_network_subnet_id = lookup(value, "virtual_network_subnet_key", null)
-      zip_deploy_file           = lookup(value, "zip_deploy_file", null)
+      virtual_network_subnet_private_endpoint_key   = lookup(value, "virtual_network_subnet_private_endpoint_key", "app_services_frontend")
+      virtual_network_subnet_integration_subnet_key = lookup(value, "virtual_network_subnet_integration_subnet_key", null)
+      zip_deploy_file                               = lookup(value, "zip_deploy_file", null)
     }
   }
 
