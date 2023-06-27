@@ -22,8 +22,7 @@ locals {
           service_delegation = {
             name = "Microsoft.Web/serverFarms"
             actions = [
-              "Microsoft.Network/virtualNetworks/subnets/action",
-              "Microsoft.Network/virtualNetworks/subnets/join/action"
+              "Microsoft.Network/virtualNetworks/subnets/action"
             ]
           }
         }
@@ -50,8 +49,7 @@ locals {
           service_delegation = {
             name = "Microsoft.Web/serverFarms"
             actions = [
-              "Microsoft.Network/virtualNetworks/subnets/action",
-              "Microsoft.Network/virtualNetworks/subnets/join/action"
+              "Microsoft.Network/virtualNetworks/subnets/action"
             ]
           }
         }

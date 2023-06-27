@@ -38,6 +38,7 @@ output "dns" {
   value = {
     zones               = local.azure_managed_zones
     dns_records         = local.azure_dns_records
+    private_dns_zones   = local.private_dns_zone_outputs
     web_app_association = local.zone_and_web_app_association
   }
 }

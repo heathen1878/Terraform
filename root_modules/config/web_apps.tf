@@ -1,64 +1,96 @@
 locals {
 
   windows_web_apps = {
-    demo = {
-      name           = "app1"
-      resource_group = "frontend"
-      app_plan       = "general"
-      site_config = {
-        application_stack = {}
-        virtual_application = {
-          virtual_directory = {}
-        }
-      }
-      auth_settings = {}
-      backup = {
-        schedule = {}
-      }
-      cloudflare_protected = true
-      connection_string    = {}
-      identity             = {}
-      logs = {
-        application_logs = {
-          azure_blob_storage = {}
-        }
-        http_logs = {
-          file_system        = {}
-          azure_blob_storage = {}
-        }
-      }
-      storage_account = {}
-      sticky_settings = {}
-    }
-    demo1 = {
-      name           = "app2"
-      resource_group = "frontend"
-      app_plan       = "general"
-      site_config = {
-        application_stack = {}
-        virtual_application = {
-          virtual_directory = {}
-        }
-      }
-      auth_settings = {}
-      backup = {
-        schedule = {}
-      }
-      connection_string = {}
-      deploy_slot       = false
-      identity          = {}
-      logs = {
-        application_logs = {
-          azure_blob_storage = {}
-        }
-        http_logs = {
-          file_system        = {}
-          azure_blob_storage = {}
-        }
-      }
-      storage_account = {}
-      sticky_settings = {}
-    }
+    #demo1 = {
+    #  name           = "app1"
+    #  resource_group = "frontend"
+    #  app_plan       = "general"
+    #  site_config = {
+    #    application_stack = {}
+    #    virtual_application = {
+    #      virtual_directory = {}
+    #    }
+    #  }
+    #  auth_settings = {}
+    #  backup = {
+    #    schedule = {}
+    #  }
+    #  cloudflare_protected    = true
+    #  connection_string       = {}
+    #  enable_private_endpoint = true
+    #  identity                = {}
+    #  logs = {
+    #    application_logs = {
+    #      azure_blob_storage = {}
+    #    }
+    #    http_logs = {
+    #      file_system        = {}
+    #      azure_blob_storage = {}
+    #    }
+    #  }
+    #  storage_account = {}
+    #  sticky_settings = {}
+    #}
+    #demo2 = {
+    #  name           = "app2"
+    #  resource_group = "frontend"
+    #  app_plan       = "general"
+    #  site_config = {
+    #    application_stack = {}
+    #    virtual_application = {
+    #      virtual_directory = {}
+    #    }
+    #  }
+    #  auth_settings = {}
+    #  backup = {
+    #    schedule = {}
+    #  }
+    #  connection_string = {}
+    #  deploy_slot       = false
+    #  identity          = {}
+    #  logs = {
+    #    application_logs = {
+    #      azure_blob_storage = {}
+    #    }
+    #    http_logs = {
+    #      file_system        = {}
+    #      azure_blob_storage = {}
+    #    }
+    #  }
+    #  storage_account = {}
+    #  sticky_settings = {}
+    #}
+    #demo3 = {
+    #  name           = "app3"
+    #  resource_group = "frontend"
+    #  app_plan       = "general"
+    #  site_config = {
+    #    application_stack = {}
+    #    virtual_application = {
+    #      virtual_directory = {}
+    #    }
+    #  }
+    #  auth_settings = {}
+    #  backup = {
+    #    schedule = {}
+    #  }
+    #  cloudflare_protected    = true
+    #  connection_string       = {}
+    #  deploy_slot             = true
+    #  enable_private_endpoint = true
+    #  identity                = {}
+    #  logs = {
+    #    application_logs = {
+    #      azure_blob_storage = {}
+    #    }
+    #    http_logs = {
+    #      file_system        = {}
+    #      azure_blob_storage = {}
+    #    }
+    #  }
+    #  storage_account = {}
+    #  sticky_settings = {}
+    #}
   }
 
   windows_web_app_output = {
@@ -163,9 +195,10 @@ locals {
         type  = lookup(value.connection_string, "type", null)
         value = lookup(value.connection_string, "value", null)
       }
-      deploy_slot = lookup(value, "deploy_slot", true)
-      enabled     = lookup(value, "enabled", true)
-      https_only  = lookup(value, "https_only", true)
+      deploy_slot             = lookup(value, "deploy_slot", true)
+      enabled                 = lookup(value, "enabled", true)
+      enable_private_endpoint = lookup(value, "enable_private_endpoint", false)
+      https_only              = lookup(value, "https_only", true)
       identity = {
         type         = lookup(value.identity, "type", "SystemAssigned")
         identity_ids = []

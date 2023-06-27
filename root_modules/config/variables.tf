@@ -81,7 +81,7 @@ variable "dns_zones" {
       name                 = string
       azure_managed        = bool
       cloudflare_protected = bool
-      resource_group       = optional(string, "demo")
+      resource_group       = optional(string, "global")
       tags                 = optional(map(any))
       jump_start           = optional(bool, false)
       paused               = optional(bool, false)

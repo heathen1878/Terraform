@@ -21,8 +21,9 @@ module "cloudflare_ip_addresses" {
   source = "../../modules/terraform-cloudflare/ip_addresses"
 }
 
-module "public_dns_records" {
-  source = "../../modules/terraform-ionos-dns"
+module "cloudflare_public_dns_records" {
+  source  = "heathen1878/dns/ionos"
+  version = "1.0.0"
 
   dns_record = local.cloudflare_nameservers
 }
@@ -42,6 +43,21 @@ module "networking" {
   nsgs                  = local.nsgs
   nsg_rules             = data.terraform_remote_state.config.outputs.networking.nsg_rules
   nsg_association       = data.terraform_remote_state.config.outputs.networking.nsg_subnet_association
+}
+
+module "dns" {
+  source  = "heathen1878/dns/azurerm"
+  version = "1.0.0"
+
+  private_dns_zones = local.private_dns_zones
+  public_dns_zones  = local.public_dns_zones
+}
+
+module "azure_public_dns_records" {
+  source  = "heathen1878/dns/ionos"
+  version = "1.0.0"
+
+  dns_record = local.azure_nameservers
 }
 
 module "service_plans" {
@@ -64,7 +80,7 @@ module "windows_web_apps" {
 #  dns_record = local.cloudflare_txt_domain_verification_record
 #}
 
-# TODO: Create a custom domsin name host binding
+# TODO: Create a custom domain name host binding
 # TODO: Add CNAMEs with for DNS resolution only
 # TODO: Create a module which creates a managed certificate
 # TODO: Create a cert binding using the host and cert above
@@ -213,7 +229,7 @@ locals {
       route_table_key        = value.route_table_key
       address_prefix         = value.address_prefix
       next_hop_type          = value.next_hop_type
-      next_hop_in_ip_address = "10.10.0.10"
+      next_hop_in_ip_address = "10.10.0.10" # TODO: this needs to be a lookup if the next hop type is virtual appliance.
     }
   }
 
@@ -224,6 +240,38 @@ locals {
       resource_group_name = module.resource_groups.resource_group[value.resource_group].name
       tags                = value.tags
     }
+  }
+
+  public_dns_zones = {
+    for key, value in data.terraform_remote_state.config.outputs.dns.zones : key => {
+      name                = value.name
+      resource_group_name = module.resource_groups.resource_group[value.resource_group].name
+      tags                = value.tags
+    }
+  }
+
+  private_dns_zones = {
+    for key, value in data.terraform_remote_state.config.outputs.dns.private_dns_zones : key => {
+      name                 = value.name
+      resource_group_name  = module.resource_groups.resource_group[value.resource_group].name
+      tags                 = value.tags
+      virtual_network_name = module.networking.virtual_network["environment"].name
+      virtual_network_id   = module.networking.virtual_network["environment"].id
+    }
+  }
+
+  azure_nameservers = {
+    for nameserver in flatten([
+      for key, value in module.dns.public_dns_zones : [
+        for ns_value in value.name_servers : {
+          zone_name = replace(key, "_", ".")
+          name      = replace(key, "_", ".")
+          type      = "NS"
+          content   = ns_value
+          ttl       = 3600
+        }
+      ]
+    ]) : format("%s_%s", nameserver.zone_name, nameserver.content) => nameserver
   }
 
   dns_resolver = {
