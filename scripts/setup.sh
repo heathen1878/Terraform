@@ -165,18 +165,16 @@ output_configuration_name "$NAMESPACE_ENVIRONMENT" "$DEPLOYMENT_NAME" "$LOCATION
 # deployment specific environment variables
 case $DEPLOYMENT_NAME in
 
-    *cloudflare)
+    global*)
     # export cloudflare specific environment variables
-    CLOUDFLARE_API_TOKEN="$(az keyvault secret show --name cloudflare-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
-    export CLOUDFLARE_API_TOKEN
-    IONOS_API_KEY=$(az keyvault secret show --name ionos-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')
-    export IONOS_API_KEY
-    ;;
-    *infrastructure)
     AZDO_ORG_SERVICE_URL="$(az keyvault secret show --name azdo-service-url --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
     export AZDO_ORG_SERVICE_URL
     AZDO_PERSONAL_ACCESS_TOKEN="$(az keyvault secret show --name azdo-pat-token-tf --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
     export AZDO_PERSONAL_ACCESS_TOKEN
+    CLOUDFLARE_API_TOKEN="$(az keyvault secret show --name cloudflare-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
+    export CLOUDFLARE_API_TOKEN
+    IONOS_API_KEY=$(az keyvault secret show --name ionos-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')
+    export IONOS_API_KEY
     ;;
 
 esac
