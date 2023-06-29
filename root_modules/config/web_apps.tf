@@ -1,7 +1,7 @@
 locals {
 
   windows_web_apps = {
-    demo1 = {
+    app1 = {
       name           = "app1"
       resource_group = "frontend"
       app_plan       = "general"
@@ -35,35 +35,36 @@ locals {
       sticky_settings                               = {}
       virtual_network_subnet_integration_subnet_key = "app_services_backend"
     }
-    #demo2 = {
-    #  name           = "app2"
-    #  resource_group = "frontend"
-    #  app_plan       = "general"
-    #  site_config = {
-    #    application_stack = {}
-    #    virtual_application = {
-    #      virtual_directory = {}
-    #    }
-    #  }
-    #  auth_settings = {}
-    #  backup = {
-    #    schedule = {}
-    #  }
-    #  connection_string = {}
-    #  deploy_slot       = false
-    #  identity          = {}
-    #  logs = {
-    #    application_logs = {
-    #      azure_blob_storage = {}
-    #    }
-    #    http_logs = {
-    #      file_system        = {}
-    #      azure_blob_storage = {}
-    #    }
-    #  }
-    #  storage_account = {}
-    #  sticky_settings = {}
-    #}
+    app2 = {
+      name           = "app2"
+      resource_group = "frontend"
+      app_plan       = "general"
+      site_config = {
+        application_stack = {}
+        virtual_application = {
+          virtual_directory = {}
+        }
+      }
+      auth_settings = {}
+      backup = {
+        schedule = {}
+      }
+      cloudflare_protected = true
+      connection_string    = {}
+      deploy_slot          = false
+      identity             = {}
+      logs = {
+        application_logs = {
+          azure_blob_storage = {}
+        }
+        http_logs = {
+          file_system        = {}
+          azure_blob_storage = {}
+        }
+      }
+      storage_account = {}
+      sticky_settings = {}
+    }
     #demo3 = {
     #  name           = "app3"
     #  resource_group = "frontend"
@@ -144,7 +145,7 @@ locals {
         health_check_path                 = lookup(value.site_config, "health_check_path", "")
         health_check_eviction_time_in_min = lookup(value.site_config, "health_check_eviction_time_in_min", 10)
         http2_enabled                     = lookup(value.site_config, "http2_enabled", false)
-        ip_restriction                    = lookup(value.site_config, "ip_restriction", [])
+        ip_restriction                    = value.cloudflare_protected == true ? data.terraform_remote_state.global_config.outputs.cloudflare.ip_addresses.ipv4_cidr_blocks : lookup(value.site_config, "ip_restriction", [])
         load_balancing_mode               = lookup(value.site_config, "load_balancing_mode", "LeastRequests")
         local_mysql_enabled               = lookup(value.site_config, "mysql_enabled", false)
         managed_pipeline_mode             = lookup(value.site_config, "managed_pipeline_mode", "Integrated")
@@ -165,7 +166,7 @@ locals {
           }
           virtual_path = lookup(value.site_config.virtual_application, "virtual_path", "/")
         }
-        vnet_route_all_enabled = length(value.virtual_network_subnet_integration_subnet_key) != 0 ? true : false
+        vnet_route_all_enabled = lookup(value, "virtual_network_subnet_integration_subnet_key", null) != null ? true : false
         websockets_enabled     = lookup(value.site_config, "websockets_enabled", false)
         worker_count           = lookup(value.site_config, "worker_count", 1)
       }
@@ -199,7 +200,20 @@ locals {
         type  = lookup(value.connection_string, "type", null)
         value = lookup(value.connection_string, "value", null)
       }
-      deploy_slot             = lookup(value, "deploy_slot", true)
+      deploy_slot = lookup(value, "deploy_slot", true)
+      dns_records = {
+        for dns_key, dns_value in var.dns_records : dns_key => {
+          azure_managed        = dns_value.azure_managed
+          cloudflare_protected = dns_value.cloudflare_protected
+          type                 = dns_value.type
+          ttl                  = dns_value.ttl
+          proxy_status         = dns_value.proxy_status
+          zone_id              = dns_value.azure_managed == true ? data.terraform_remote_state.global_dns_zones.outputs.dns.zones.azure[dns_value.zone_key].id : data.terraform_remote_state.global_dns_zones.outputs.dns.zones.cloudflare[dns_value.zone_key].id
+          zone                 = var.environment == "prd" ? replace(dns_value.zone_key, "_", ".") : format("%s.%s", var.environment, replace(dns_value.zone_key, "_", "."))
+          content              = dns_value.content
+        }
+        if dns_value.associated_web_app == key
+      }
       enabled                 = lookup(value, "enabled", true)
       enable_private_endpoint = lookup(value, "enable_private_endpoint", false)
       https_only              = lookup(value, "https_only", true)

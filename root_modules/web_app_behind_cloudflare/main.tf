@@ -5,29 +5,6 @@ module "resource_groups" {
   resource_groups = data.terraform_remote_state.config.outputs.resource_groups
 }
 
-module "cloudflare_account" {
-  source = "../../modules/terraform-cloudflare/accounts"
-
-  account_names = local.cloudflare_accounts
-}
-
-module "cloudflare_zone" {
-  source = "../../modules/terraform-cloudflare/zones"
-
-  zones = local.cloudflare_zones
-}
-
-module "cloudflare_ip_addresses" {
-  source = "../../modules/terraform-cloudflare/ip_addresses"
-}
-
-module "cloudflare_public_dns_records" {
-  source  = "heathen1878/dns/ionos"
-  version = "1.0.0"
-
-  dns_record = local.cloudflare_nameservers
-}
-
 module "networking" {
   source  = "heathen1878/networking/azurerm"
   version = "1.0.0"
@@ -53,13 +30,6 @@ module "dns" {
   public_dns_zones  = local.public_dns_zones
 }
 
-module "azure_public_dns_records" {
-  source  = "heathen1878/dns/ionos"
-  version = "1.0.0"
-
-  dns_record = local.azure_nameservers
-}
-
 module "service_plans" {
   source  = "heathen1878/app-service-plan/azurerm"
   version = "1.0.0"
@@ -75,61 +45,37 @@ module "windows_web_apps" {
   windows_web_apps = local.windows_web_apps
 }
 
-#module "cloudflare_domain_verification_record" {
-#  source = "../../modules/terraform-cloudflare/dns_records"
-#
-#  dns_record = local.cloudflare_txt_domain_verification_record
-#}
+module "cloudflare_domain_verification_record" {
+  source = "../../modules/terraform-cloudflare/dns_records"
 
-# TODO: Create a custom domain name host binding
-# TODO: Add CNAMEs with for DNS resolution only
-# TODO: Create a module which creates a managed certificate
-# TODO: Create a cert binding using the host and cert above
-# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service_managed_certificate
-# TODO: Set Cloudflare SSL to strict.
-# https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone_settings_override#ssl
-# TODO: Set Cloudflare to redirect HTTP to HTTPS
-# https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone_settings_override#always_use_https
+  dns_record = local.web_app_verification_dns_record_cloudflare
+}
 
-# Adds CNAMEs with proxy set - probably needs to use the existing resource 
-#module "web_app_cloudflare_records" {
-#  source = "../../modules/terraform-cloudflare/dns_records"
-#
-#  dns_record = local.cloudflare_cname_record
-#}
+module "pre_verify_cloudflare_cname_record" {
+  source = "../../modules/terraform-cloudflare/dns_records"
+
+  dns_record = local.pre_verify_web_app_cname_dns_record_cloudflare
+}
+
+module "azure_domain_verification_record" {
+  source = "../../modules/terraform-azure-dns/records"
+
+  record = local.web_app_verification_dns_record_azure
+}
+
+module "secure_custom_domain" {
+  source = "../../../terraform-azurerm-secure-custom-domain"
+
+  custom_domain = local.web_app_custom_domain
+}
+
+module "post_verify_cloudflare_cname_record" {
+  source = "../../modules/terraform-cloudflare/dns_records"
+
+  dns_record = local.post_verify_web_app_cname_dns_record_cloudflare
+}
 
 locals {
-
-  cloudflare_accounts = {
-    for key, value in data.terraform_remote_state.config.outputs.cloudflare.zones : key => {
-      account_name = value.account_name
-    }
-  }
-
-  cloudflare_zones = {
-    for key, value in data.terraform_remote_state.config.outputs.cloudflare.zones : key => {
-      account_id = module.cloudflare_account.account[key].accounts[0].id
-      zone       = value.zone
-      jump_start = value.jump_start
-      paused     = value.paused
-      plan       = value.plan
-      type       = value.type
-    }
-  }
-
-  cloudflare_nameservers = {
-    for nameserver in flatten([
-      for key, value in module.cloudflare_zone.zone : [
-        for ns_value in value.name_servers : {
-          zone_name = replace(key, "_", ".")
-          name      = replace(key, "_", ".")
-          type      = "NS"
-          content   = ns_value
-          ttl       = 3600
-        }
-      ]
-    ]) : format("%s_%s", nameserver.zone_name, nameserver.content) => nameserver
-  }
 
   network_watcher = {
     for key, value in data.terraform_remote_state.config.outputs.networking.network_watcher : key => {
@@ -243,14 +189,6 @@ locals {
     }
   }
 
-  public_dns_zones = {
-    for key, value in data.terraform_remote_state.config.outputs.dns.zones : key => {
-      name                = value.name
-      resource_group_name = module.resource_groups.resource_group[value.resource_group].name
-      tags                = value.tags
-    }
-  }
-
   private_dns_zones = {
     for key, value in data.terraform_remote_state.config.outputs.dns.private_dns_zones : key => {
       name                 = value.name
@@ -261,19 +199,7 @@ locals {
     }
   }
 
-  azure_nameservers = {
-    for nameserver in flatten([
-      for key, value in module.dns.public_dns_zones : [
-        for ns_value in value.name_servers : {
-          zone_name = replace(key, "_", ".")
-          name      = replace(key, "_", ".")
-          type      = "NS"
-          content   = ns_value
-          ttl       = 3600
-        }
-      ]
-    ]) : format("%s_%s", nameserver.zone_name, nameserver.content) => nameserver
-  }
+  public_dns_zones = {}
 
   dns_resolver = {
     for key, value in data.terraform_remote_state.config.outputs.networking.dns_resolvers : key => {
@@ -378,11 +304,11 @@ locals {
       cloudflare_protected               = value.cloudflare_protected
       connection_string                  = value.connection_string
       deploy_slot                        = value.deploy_slot
+      dns_records                        = value.dns_records
       enabled                            = value.enabled
       enable_private_endpoint            = value.enable_private_endpoint
       https_only                         = value.https_only
       identity                           = value.identity
-      ip_restriction                     = value.cloudflare_protected ? module.cloudflare_ip_addresses.ip_addresses.ipv4 : []
       key_vault_reference_identity_id    = value.key_vault_reference_identity_id
       logs                               = value.logs
       private_dns_zone_ids = [
@@ -396,10 +322,97 @@ locals {
         name   = key
       })
       virtual_network_subnet_private_endpoint_id   = module.networking.subnet[value.virtual_network_subnet_private_endpoint_key].id
-      virtual_network_subnet_integration_subnet_id = module.networking.subnet[value.virtual_network_subnet_integration_subnet_key].id
+      virtual_network_subnet_integration_subnet_id = value.virtual_network_subnet_integration_subnet_key != null ? module.networking.subnet[value.virtual_network_subnet_integration_subnet_key].id : null
       zip_deploy_file                              = value.zip_deploy_file
     }
   }
+
+  web_app_verification_dns_record_cloudflare = {
+    for dns_record in flatten([
+      for key, value in local.windows_web_apps : [
+        for dns_key, dns_value in value.dns_records : {
+          zone_id = dns_value.zone_id
+          name    = dns_key == "apex" ? format("asuid.%s", dns_value.zone) : format("asuid.%s.%s", dns_key, dns_value.zone)
+          proxied = false
+          value   = module.windows_web_apps.web_app[key].custom_domain_verification_id
+          type    = "TXT"
+          ttl     = dns_value.ttl
+        } if dns_value.cloudflare_protected == true
+      ]
+    ]) : dns_record.name => dns_record
+  }
+
+  web_app_verification_dns_record_azure = {
+    for dns_record in flatten([
+      for key, value in local.windows_web_apps : [
+        for dns_key, dns_value in value.dns_records : {
+          zone_id = dns_value.zone_id
+          name    = dns_key == "apex" ? format("asuid.%s", dns_value.zone) : format("asuid.%s.%s", dns_key, dns_value.zone)
+          value   = module.windows_web_apps.web_app[key].custom_domain_verification_id
+          type    = "TXT"
+          ttl     = dns_value.ttl
+        } if dns_value.azure_managed == true
+      ]
+    ]) : dns_record.name => dns_record
+  }
+
+  pre_verify_web_app_cname_dns_record_cloudflare = {
+    for dns_record in flatten([
+      for key, value in local.windows_web_apps : [
+        for dns_key, dns_value in value.dns_records : {
+          zone_id = dns_value.zone_id
+          name    = dns_key == "apex" ? format("%s", dns_value.zone) : format("%s.%s", dns_key, dns_value.zone)
+          proxied = false
+          value   = module.windows_web_apps.web_app[key].default_hostname
+          type    = dns_value.type
+          ttl     = dns_value.ttl
+        } if dns_value.cloudflare_protected == true
+      ]
+    ]) : dns_record.name => dns_record
+  }
+
+  web_app_cname_dns_record_azure = {
+    for dns_record in flatten([
+      for key, value in local.windows_web_apps : [
+        for dns_key, dns_value in value.dns_records : {
+          zone_id = dns_value.zone_id
+          name    = dns_key == "apex" ? format("%s", dns_value.zone) : format("%s.%s", dns_key, dns_value.zone)
+          value   = module.windows_web_apps.web_app[key].default_hostname
+          type    = dns_value.type
+          ttl     = dns_value.ttl
+        } if dns_value.azure_managed == true
+      ]
+    ]) : dns_record.name => dns_record
+  }
+
+  web_app_custom_domain = {
+    for dns_record in flatten([
+      for key, value in local.windows_web_apps : [
+        for dns_key, dns_value in value.dns_records : {
+          hostname            = dns_key == "apex" ? format("%s", dns_value.zone) : format("%s.%s", dns_key, dns_value.zone)
+          app_service_name    = module.windows_web_apps.web_app[key].name
+          resource_group_name = module.windows_web_apps.web_app[key].resource_group_name
+        } if dns_value.cloudflare_protected == true
+      ]
+    ]) : dns_record.hostname => dns_record
+  }
+
+  post_verify_web_app_cname_dns_record_cloudflare = {
+    for dns_record in flatten([
+      for key, value in local.windows_web_apps : [
+        for dns_key, dns_value in value.dns_records : {
+          zone_id = dns_value.zone_id
+          name    = dns_key == "apex" ? format("%s", dns_value.zone) : format("%s.%s", dns_key, dns_value.zone)
+          proxied = true
+          value   = module.windows_web_apps.web_app[key].default_hostname
+          type    = dns_value.type
+          ttl     = dns_value.ttl
+        } if dns_value.cloudflare_protected == true
+      ]
+    ]) : dns_record.name => dns_record
+  }
+
+
 
   #custom_domain_certificate = {
   #  for key, value in data.terraform_remote_state.config.outputs.dns.web_app_association : key => {
@@ -408,17 +421,6 @@ locals {
   #    location            = module.windows_web_apps.web_app[value.web_app].location
   #    app_service_plan_id = module.windows_web_apps.web_app[value.web_app].id
   #    key_vault_secret_id = module.key_vault_secrets.secret[value.zone].id
-  #  }
-  #}
-
-  #cloudflare_txt_domain_verification_record = {
-  #  for key, value in data.terraform_remote_state.config.outputs.cloudflare.dns_records : key => {
-  #    zone_id = module.cloudflare_zone.zone[value.zone].id
-  #    name    = key == "apex" ? format("asuid.%s", replace(value.zone, "_", ".")) : format("asuid.%s.%s", key, replace(value.zone, "_", "."))
-  #    proxied = false
-  #    value   = module.windows_web_apps.web_app[value.associated_web_app].custom_domain_verification_id
-  #    type    = "TXT"
-  #    ttl     = value.ttl
   #  }
   #}
 

@@ -4,6 +4,34 @@ variable "access_token" {
   type        = string
 }
 
+variable "azdo_projects" {
+  description = "Projects to be created in Azure DevOps"
+  default     = {}
+  type = map(object(
+    {
+      description        = optional(string, "Not defined")
+      dockerhub          = optional(list(string), [])
+      features           = list(string)
+      name               = string
+      version_control    = optional(string, "Git")
+      visibility         = optional(string, "private")
+      work_item_template = optional(string, "Agile")
+    }
+  ))
+}
+
+variable "azdo_project_repositories" {
+  description = "Repositories to be created within a given Project within Azure DevOps"
+  default     = {}
+  type = map(object(
+    {
+      project = string
+      name    = optional(string)
+      branch  = optional(string)
+    }
+  ))
+}
+
 variable "azure_ip_ranges_json_url" {
   type        = string
   default     = ""
@@ -18,6 +46,12 @@ variable "bootstrap" {
       resource_group = string
     }
   ))
+}
+
+variable "cloudflare_account_name" {
+  description = "The name representation of the cloudflare account"
+  default     = ""
+  type        = string
 }
 
 variable "container_groups" {
@@ -37,6 +71,24 @@ variable "container_groups" {
     )
   )
   sensitive = true
+}
+
+variable "dns_zones" {
+  description = "A map of dns zones"
+  default     = {}
+  type = map(object(
+    {
+      name                 = string
+      azure_managed        = bool
+      cloudflare_protected = bool
+      resource_group       = optional(string, "global")
+      tags                 = optional(map(any))
+      jump_start           = optional(bool, false)
+      paused               = optional(bool, false)
+      plan                 = optional(string, "free")
+      type                 = optional(string, "full")
+    }
+  ))
 }
 
 variable "domain_suffix" {

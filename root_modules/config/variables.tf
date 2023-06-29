@@ -48,50 +48,6 @@ variable "container_groups" {
   )
 }
 
-variable "dns_zones" {
-  description = "A map of dns zones"
-  default = {
-    azure_managed = {
-      name                 = "domain.com"
-      azure_managed        = true
-      cloudflare_protected = false
-      resource_group       = "rg_key"
-      tags = {
-        key = "value"
-      }
-      associated_web_apps = [
-        "demo"
-      ]
-    }
-    cloudflare_protected = {
-      name                 = "domain.com"
-      azure_managed        = false
-      cloudflare_protected = true
-      jump_start           = false
-      paused               = false
-      plan                 = "free"
-      type                 = "full"
-      associated_web_apps = [
-        "demo1"
-      ]
-    }
-  }
-  type = map(object(
-    {
-      name                 = string
-      azure_managed        = bool
-      cloudflare_protected = bool
-      resource_group       = optional(string, "global")
-      tags                 = optional(map(any))
-      jump_start           = optional(bool, false)
-      paused               = optional(bool, false)
-      plan                 = optional(string, "free")
-      type                 = optional(string, "full")
-      associated_web_apps  = list(string)
-    }
-  ))
-}
-
 variable "domain_suffix" {
   description = "A valid domain within AAD"
   default     = "domain.com"

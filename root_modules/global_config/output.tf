@@ -35,24 +35,22 @@ output "container_registries" {
   value = local.container_registry_output
 }
 
-output "dns_zones" {
+output "cloudflare" {
   value = {
-    private = local.private_dns_zone_outputs
+    account      = data.cloudflare_accounts.account
+    ip_addresses = data.cloudflare_ip_ranges.cloudflare
+    zones        = local.cloudflare_protected_zones
   }
 }
 
-#output "azure_service_tags" {
-#  value = {
-#    frontdoor_backend = local.azure_frontdoor_backend
-#  }
-#}
+output "dns" {
+  value = {
+    zones = local.azure_managed_zones
+  }
+}
 
 output "key_vaults" {
   value = local.key_vault_output
-}
-
-output "resource_groups" {
-  value = local.resource_groups_outputs
 }
 
 output "networking" {
@@ -72,4 +70,8 @@ output "networking" {
     virtual_network_gateways       = local.virtual_network_gateway_output
     virtual_network_peers          = local.virtual_network_peers
   }
+}
+
+output "resource_groups" {
+  value = local.resource_groups_outputs
 }

@@ -1,5 +1,4 @@
 terraform {
-  required_version = "~> 1.4.0"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -7,7 +6,7 @@ terraform {
     }
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      version = "4.5.0"
+      version = "4.9.0"
     }
   }
 }
