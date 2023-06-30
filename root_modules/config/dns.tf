@@ -33,6 +33,20 @@ locals {
     }
   }
 
+  azure_dns_subdomains = {
+    for key, value in var.dns_records : key => {
+      name           = value.zone_key
+      subdomain      = var.environment != "prd" ? format("%s.%s", var.environment, replace(value.zone_key, "_", ".")) : null
+      resource_group = lookup(value, "resource_group", "global")
+      ttl            = 3600
+      tags = {
+        IaC         = "Terraform"
+        environment = var.environment
+        namespace   = var.namespace
+      }
+    } if value.azure_managed == true && key == "apex"
+  }
+
   azure_dns_records = {
     for key, value in var.dns_records : key => {
       type = value.type

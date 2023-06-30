@@ -37,6 +37,7 @@ output "dns" {
   value = {
     dns_records       = local.azure_dns_records
     private_dns_zones = local.private_dns_zone_outputs
+    subdomains        = local.azure_dns_subdomains
   }
 }
 
