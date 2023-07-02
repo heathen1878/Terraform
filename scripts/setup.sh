@@ -117,7 +117,6 @@ case $DEPLOYMENT_NAME in
     TF_DATA_DIR=$TERRAFORM_ENV/.terraform
 
     CONTAINER_NAME="$ARM_TENANT_ID-$LOCATION"
-    TF_VAR_tenant_id="$ARM_TENANT_ID"
     ;;
 
     *)
