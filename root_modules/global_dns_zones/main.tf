@@ -1,6 +1,6 @@
 module "dns" {
   source  = "heathen1878/dns/azurerm"
-  version = "1.0.0"
+  version = "1.0.1"
 
   private_dns_zones = local.private_dns_zones
   public_dns_zones  = local.public_dns_zones

@@ -1,46 +1,13 @@
 locals {
 
-  windows_web_apps = {
-    app1 = {
-      name           = "app1"
-      resource_group = "frontend"
-      app_plan       = "general"
+  windows_web_apps = merge(var.windows_web_apps, {
+    static_app = {
+      name           = "static"
+      resource_group = "az_104"
       site_config = {
-        application_stack = {}
-        virtual_application = {
-          virtual_directory = {}
+        application_stack = {
+          dotnet_version = "v7.0"
         }
-      }
-      app_settings = {
-        "WEBSITE_DNS_SERVER" : "168.63.129.16"
-      }
-      auth_settings = {}
-      backup = {
-        schedule = {}
-      }
-      cloudflare_protected    = true
-      connection_string       = {}
-      enable_private_endpoint = true
-      identity                = {}
-      logs = {
-        application_logs = {
-          azure_blob_storage = {}
-        }
-        http_logs = {
-          file_system        = {}
-          azure_blob_storage = {}
-        }
-      }
-      storage_account                               = {}
-      sticky_settings                               = {}
-      virtual_network_subnet_integration_subnet_key = "app_services_backend"
-    }
-    app2 = {
-      name           = "app2"
-      resource_group = "frontend"
-      app_plan       = "general"
-      site_config = {
-        application_stack = {}
         virtual_application = {
           virtual_directory = {}
         }
@@ -49,9 +16,8 @@ locals {
       backup = {
         schedule = {}
       }
-      cloudflare_protected = true
+      cloudflare_protected = false
       connection_string    = {}
-      deploy_slot          = false
       identity             = {}
       logs = {
         application_logs = {
@@ -65,43 +31,12 @@ locals {
       storage_account = {}
       sticky_settings = {}
     }
-    #demo3 = {
-    #  name           = "app3"
-    #  resource_group = "frontend"
-    #  app_plan       = "general"
-    #  site_config = {
-    #    application_stack = {}
-    #    virtual_application = {
-    #      virtual_directory = {}
-    #    }
-    #  }
-    #  auth_settings = {}
-    #  backup = {
-    #    schedule = {}
-    #  }
-    #  cloudflare_protected    = true
-    #  connection_string       = {}
-    #  deploy_slot             = true
-    #  enable_private_endpoint = true
-    #  identity                = {}
-    #  logs = {
-    #    application_logs = {
-    #      azure_blob_storage = {}
-    #    }
-    #    http_logs = {
-    #      file_system        = {}
-    #      azure_blob_storage = {}
-    #    }
-    #  }
-    #  storage_account = {}
-    #  sticky_settings = {}
-    #}
-  }
+  })
 
   windows_web_app_output = {
     for key, value in local.windows_web_apps : key => {
       name           = azurecaf_name.windows_web_app[key].result
-      resource_group = lookup(value, "resource_group", "frontend")
+      resource_group = value.resource_group
       location       = var.location
       service_plan   = lookup(value, "app_plan", "general")
       site_config = {
@@ -119,11 +54,7 @@ locals {
           java_version        = lookup(value.site_config.application_stack, "java_version", "17.0.2")
           tomcat_version      = lookup(value.site_config.application_stack, "tomcat_version", "10.0.20")
         }
-        auto_heal_enabled = lookup(value.site_config, "auto_heal_enabled", false)
-        #auto_heal_setting = {
-        #  action = lookup(value.)
-        #  trigger = lookup(value.site_config.auto_heal_setting, "trigger", )
-        #}
+        auto_heal_enabled                             = lookup(value.site_config, "auto_heal_enabled", false)
         container_registry_managed_identity_client_id = lookup(value.site_config, "container_registry_managed_identity_client_id", "")
         container_registry_use_managed_identity       = lookup(value.site_config, "container_registry_use_managed_identity", false)
         cors = {
@@ -271,5 +202,4 @@ locals {
       zip_deploy_file                               = lookup(value, "zip_deploy_file", null)
     }
   }
-
 }
