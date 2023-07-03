@@ -1,37 +1,6 @@
 locals {
 
-  windows_web_apps = merge(var.windows_web_apps, {
-    static_app = {
-      name           = "static"
-      resource_group = "az_104"
-      site_config = {
-        application_stack = {
-          dotnet_version = "v7.0"
-        }
-        virtual_application = {
-          virtual_directory = {}
-        }
-      }
-      auth_settings = {}
-      backup = {
-        schedule = {}
-      }
-      cloudflare_protected = false
-      connection_string    = {}
-      identity             = {}
-      logs = {
-        application_logs = {
-          azure_blob_storage = {}
-        }
-        http_logs = {
-          file_system        = {}
-          azure_blob_storage = {}
-        }
-      }
-      storage_account = {}
-      sticky_settings = {}
-    }
-  })
+  windows_web_apps = merge(var.windows_web_apps, {})
 
   windows_web_app_output = {
     for key, value in local.windows_web_apps : key => {
@@ -78,8 +47,8 @@ locals {
         http2_enabled                     = lookup(value.site_config, "http2_enabled", false)
         ip_restriction                    = value.cloudflare_protected == true ? data.terraform_remote_state.global_config.outputs.cloudflare.ip_addresses.ipv4_cidr_blocks : lookup(value.site_config, "ip_restriction", [])
         load_balancing_mode               = lookup(value.site_config, "load_balancing_mode", "LeastRequests")
-        local_mysql_enabled               = lookup(value.site_config, "mysql_enabled", false)
         managed_pipeline_mode             = lookup(value.site_config, "managed_pipeline_mode", "Integrated")
+        local_mysql_enabled               = lookup(value.site_config, "mysql_enabled", false)
         minimum_tls_version               = lookup(value.site_config, "minimum_tls_version", "1.2")
         remote_debugging_enabled          = lookup(value.site_config, "remote_debugging_enabled", false)
         remote_debugging_version          = lookup(value.site_config, "remote_debugging_version", "VS2019")
@@ -190,12 +159,13 @@ locals {
         mount_path   = lookup(value.storage_account, "mount_path", null)
       }
       tags = merge(
-        var.tags,
-        lookup(value, "tags", {
+        {
           environment = var.environment
           namespace   = var.namespace
           location    = var.location
-        })
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
       virtual_network_subnet_private_endpoint_key   = lookup(value, "virtual_network_subnet_private_endpoint_key", "app_services_frontend")
       virtual_network_subnet_integration_subnet_key = lookup(value, "virtual_network_subnet_integration_subnet_key", null)

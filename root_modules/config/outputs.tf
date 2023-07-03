@@ -41,8 +41,16 @@ output "dns" {
   }
 }
 
-output "resource_groups" {
-  value = local.resource_groups_outputs
+output "function" {
+  value = {
+    apps              = local.windows_function_app_output
+    premium_plans     = local.premium_service_plan_output
+    consumption_plans = local.consumption_service_plan_output
+  }
+}
+
+output "key_vault" {
+  value = local.key_vault_output
 }
 
 output "networking" {
@@ -64,8 +72,8 @@ output "networking" {
   }
 }
 
-output "key_vault" {
-  value = local.key_vault_output
+output "resource_groups" {
+  value = local.resource_groups_outputs
 }
 
 output "storage_accounts" {

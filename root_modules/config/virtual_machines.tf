@@ -1,6 +1,6 @@
 locals {
 
-  virtual_machine = {
+  virtual_machines = {
     #vm1 = {
     #  availability_set              = false
     #  managed_availability_set      = true
@@ -44,26 +44,26 @@ locals {
   # ---------------------------------------------------------------------------------------------------------------------
 
   virtual_machine_output = {
-    for virtual_machine_key, virtual_machine_value in local.virtual_machine : virtual_machine_key => {
-      availability_set   = virtual_machine_value.availability_set != false ? azurecaf_name.availability_set[virtual_machine_key].result : false
-      name               = virtual_machine_value.operating_system == "linux" ? format("%s-%s", azurecaf_name.linux_virtual_machine[virtual_machine_key].result, substr(virtual_machine_key, 2, -1)) : format("%s-%s", azurecaf_name.windows_virtual_machine[virtual_machine_key].result, substr(virtual_machine_key, 2, -1))
-      network_adapter    = azurecaf_name.network_adapter[virtual_machine_key].result
-      managed_os_disk    = azurecaf_name.managed_os_disk[virtual_machine_key].result
-      public_ip_address  = try(azurecaf_name.public_ip_address[virtual_machine_key].result, "")
-      private_ip_address = virtual_machine_value.private_ip_address_allocation == "static" ? substr(virtual_machine_key, 2, -1) + 128 : null
-      subnet             = virtual_machine_value.subnet
-      operating_system   = virtual_machine_value.operating_system
-      vm_hardware_sku    = virtual_machine_value.vm_hardware_sku
-      computer_name      = virtual_machine_value.operating_system == "linux" ? format("%s-%s", substr(azurecaf_name.linux_virtual_machine[virtual_machine_key].result, 3, -1), substr(virtual_machine_key, 2, -1)) : format("%s-%s", substr(azurecaf_name.windows_virtual_machine[virtual_machine_key].result, 3, -1), substr(virtual_machine_key, 2, -1))
-      admin_username     = virtual_machine_value.operating_system == "linux" ? format("%s-adm", azurecaf_name.linux_virtual_machine[virtual_machine_key].name) : format("%s-adm", azurecaf_name.windows_virtual_machine[virtual_machine_key].name)
-      admin_password     = random_password.virtual_machine[virtual_machine_key].result
-      generate_ssh_keys  = virtual_machine_value.operating_system == "linux" ? true : false
-      image_publisher    = virtual_machine_value.operating_system == "linux" ? "Canonical" : "MicrosoftWindowsServer"
-      image_offer        = virtual_machine_value.operating_system == "linux" ? "0001-com-ubuntu-server-focal" : "WindowsServer"
-      image_sku          = virtual_machine_value.operating_system == "linux" ? "20_04-lts" : "2019-Datacenter"
+    for key, value in local.virtual_machines : key => {
+      availability_set   = value.availability_set != false ? azurecaf_name.availability_set[key].result : false
+      name               = value.operating_system == "linux" ? format("%s-%s", azurecaf_name.linux_virtual_machine[key].result, substr(key, 2, -1)) : format("%s-%s", azurecaf_name.windows_virtual_machine[key].result, substr(key, 2, -1))
+      network_adapter    = azurecaf_name.network_adapter[key].result
+      managed_os_disk    = azurecaf_name.managed_os_disk[key].result
+      public_ip_address  = try(azurecaf_name.public_ip_address[key].result, "")
+      private_ip_address = value.private_ip_address_allocation == "static" ? substr(key, 2, -1) + 128 : null
+      subnet             = value.subnet
+      operating_system   = value.operating_system
+      vm_hardware_sku    = value.vm_hardware_sku
+      computer_name      = value.operating_system == "linux" ? format("%s-%s", substr(azurecaf_name.linux_virtual_machine[key].result, 3, -1), substr(key, 2, -1)) : format("%s-%s", substr(azurecaf_name.windows_virtual_machine[key].result, 3, -1), substr(key, 2, -1))
+      admin_username     = value.operating_system == "linux" ? format("%s-adm", azurecaf_name.linux_virtual_machine[key].name) : format("%s-adm", azurecaf_name.windows_virtual_machine[key].name)
+      admin_password     = random_password.virtual_machine[key].result
+      generate_ssh_keys  = value.operating_system == "linux" ? true : false
+      image_publisher    = value.operating_system == "linux" ? "Canonical" : "MicrosoftWindowsServer"
+      image_offer        = value.operating_system == "linux" ? "0001-com-ubuntu-server-focal" : "WindowsServer"
+      image_sku          = value.operating_system == "linux" ? "20_04-lts" : "2019-Datacenter"
       image_version      = "Latest"
-      kv                 = virtual_machine_value.kv
-      resource_group     = virtual_machine_value.resource_group
+      kv                 = value.kv
+      resource_group     = value.resource_group
     }
   }
 

@@ -59,6 +59,123 @@ variable "environment" {
   type        = string
 }
 
+variable "windows_function_apps" {
+  description = "Windows Web Apps for this environment"
+  default     = {}
+  type = map(object(
+    {
+      name           = string
+      resource_group = string
+      sku            = optional(string, "Y1")
+      site_config = optional(object({
+        always_on             = optional(bool, false)
+        api_definition_url    = optional(string, null)
+        api_management_api_id = optional(string, null)
+        app_command_line      = optional(string, null)
+        app_scale_limit       = optional(number, 1)
+        application_stack = optional(object({
+          dotnet_version              = optional(string, "v4.0")
+          use_dotnet_isolated_runtime = optional(bool, false)
+          java_version                = optional(string, "17.0.2")
+          node_version                = optional(string, "~18")
+          powershell_core_version     = optional(string, "7")
+        }), {})
+        app_service_logs = optional(object({
+          disk_quota_mb         = optional(number, 35)
+          retention_period_days = optional(number, 0)
+        }), {})
+        container_registry_managed_identity_client_id = optional(string, null)
+        container_registry_use_managed_identity       = optional(bool, false)
+        cors = optional(object({
+          allowed_origins     = optional(list(string), [])
+          support_credentials = optional(bool, false)
+        }), {})
+        default_documents = optional(list(string), [
+          "Default.htm",
+          "Default.html",
+          "Default.asp",
+          "index.htm",
+          "index.html",
+          "iisstart.htm",
+          "default.aspx",
+          "index.php",
+          "hostingstart.html"
+        ])
+        ftps_state                        = optional(string, "Disabled")
+        health_check_path                 = optional(string, "")
+        health_check_eviction_time_in_min = optional(number, 10)
+        http2_enabled                     = optional(bool, false)
+        load_balancing_mode               = optional(string, "LeastRequests")
+        managed_pipeline_mode             = optional(string, "Integrated")
+        minimum_tls_version               = optional(string, "1.2")
+        remote_debugging_enabled          = optional(bool, false)
+        remote_debugging_version          = optional(string, "VS2019")
+        scm_minimum_tls_version           = optional(string, "1.2")
+        scm_use_main_ip_restriction       = optional(bool, false)
+        use_32_bit_worker                 = optional(bool, true)
+        websockets_enabled                = optional(bool, false)
+        worker_count                      = optional(number, 1)
+      }), {})
+      auth_settings = optional(object({
+        enabled = optional(bool, false)
+      }), {})
+      auth_settings_v2 = optional(object({
+      }), {})
+      app_settings = optional(object({
+      }), {})
+      backup = optional(object({
+        enabled = optional(bool, false)
+        name    = optional(string, "custom backups")
+        schedule = optional(object({
+          frequency_interval       = optional(number, 1)
+          frequency_unit           = optional(string, "Day")
+          keep_at_least_one_backup = optional(bool, true)
+          retention_period_days    = optional(number, 30)
+          start_time               = optional(string, "")
+        }), {})
+        storage_account_url = optional(string, "")
+      }), {})
+      builtin_logging_enabled            = optional(bool, true)
+      client_certificate_enabled         = optional(string, false)
+      client_certificate_exclusion_paths = optional(string, "")
+      client_certificate_mode            = optional(string, "Required")
+      cloudflare_protected               = optional(bool, false)
+      connection_string = optional(object({
+        name  = optional(string, null)
+        type  = optional(string, null)
+        value = optional(string, null)
+      }), {})
+      content_share_force_disabled = optional(bool, false)
+      deploy_slot                  = optional(bool, true)
+      enabled                      = optional(bool, true)
+      enable_private_endpoint      = optional(bool, false)
+      functions_extension_version  = optional(string, "~4")
+      https_only                   = optional(bool, true)
+      identity = optional(object({
+        type         = optional(string, "SystemAssigned")
+        identity_ids = optional(list(string), [])
+      }), {})
+      key_vault_reference_identity_id = optional(string, null)
+      sticky_settings = optional(object({
+        app_setting_names       = optional(string, null)
+        connection_string_names = optional(string, null)
+      }), {})
+      storage_account = optional(object({
+        access_key   = optional(string)
+        account_name = optional(string, null)
+        name         = optional(string, null)
+        share_name   = optional(string, null)
+        type         = optional(string, "AzureBlob")
+        mount_path   = optional(string, null)
+      }), {})
+      storage_uses_managed_identity                 = optional(bool, true)
+      tags                                          = optional(map(any), {})
+      virtual_network_subnet_private_endpoint_key   = optional(string, "function_apps_frontend")
+      virtual_network_subnet_integration_subnet_key = optional(string, null)
+      zip_deploy_file                               = optional(string, null)
+  }))
+}
+
 variable "location" {
   description = "Location name"
   type        = string
@@ -135,6 +252,7 @@ variable "tenant_id" {
 
 variable "windows_web_apps" {
   description = "Windows Web Apps for this environment"
+  default     = {}
   type = map(object(
     {
       name           = string
@@ -242,13 +360,9 @@ variable "windows_web_apps" {
             level             = optional(string, "Error")
             retention_in_days = optional(number, 0)
             sas_url           = optional(string, "https://st.blob.core.windows.net/?sas_token")
-            }), {
-
-          })
+          }), {})
           file_system_level = optional(string, "Error")
-          }), {
-
-        })
+        }), {})
         detailed_error_messages = optional(bool, false)
         failed_request_tracing  = optional(bool, false)
         http_logs = optional(object({
@@ -274,10 +388,7 @@ variable "windows_web_apps" {
         type         = optional(string, "AzureBlob")
         mount_path   = optional(string, null)
       }), {})
-      tags = optional(object({
-        }), {
-        Iac = "Terraform"
-      })
+      tags                                          = optional(map(any), {})
       virtual_network_subnet_private_endpoint_key   = optional(string, "app_services_frontend")
       virtual_network_subnet_integration_subnet_key = optional(string, null)
       zip_deploy_file                               = optional(string, null)

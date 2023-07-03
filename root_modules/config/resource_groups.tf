@@ -12,9 +12,6 @@ locals {
     }
     global = {
     }
-    az_104 = {
-      name = "az-104"
-    }
   }
 
   resource_groups_outputs = {
