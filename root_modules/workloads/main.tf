@@ -24,12 +24,49 @@ locals {
       sku_name                     = value.sku_name
       maximum_elastic_worker_count = value.maximum_elastic_worker_count
       per_site_scaling_enabled     = value.per_site_scaling_enabled
-      tags = merge(value.tags, {
+      tags = merge(value.tags,
+      {
         workload = key
       })
       worker_count           = value.worker_count
       zone_balancing_enabled = value.zone_balancing_enabled
     }
+  }
+
+  consumption_plans = {
+for key, value in data.terraform_remote_state.config.outputs.function.consumption_plans : key => {
+name                         = value.name
+      resource_group_name          = data.terraform_remote_state.infrastructure.outputs.resource_groups[value.resource_group].name
+      location                     = value.location
+      os_type                      = value.os_type
+      sku_name                     = value.sku_name
+      maximum_elastic_worker_count = value.maximum_elastic_worker_count
+      per_site_scaling_enabled     = value.per_site_scaling_enabled
+      tags = merge(value.tags,
+      {
+        workload = key
+      })
+      worker_count           = value.worker_count
+      zone_balancing_enabled = value.zone_balancing_enabled
+}
+  }
+
+  premium_plans = {
+for key, value in data.terraform_remote_state.config.outputs.function.premium_plans : key => {
+name                         = value.name
+      resource_group_name          = data.terraform_remote_state.infrastructure.outputs.resource_groups[value.resource_group].name
+      location                     = value.location
+      os_type                      = value.os_type
+      sku_name                     = value.sku_name
+      maximum_elastic_worker_count = value.maximum_elastic_worker_count
+      per_site_scaling_enabled     = value.per_site_scaling_enabled
+      tags = merge(value.tags,
+      {
+        workload = key
+      })
+      worker_count           = value.worker_count
+      zone_balancing_enabled = value.zone_balancing_enabled
+}
   }
 
   windows_web_apps = {
