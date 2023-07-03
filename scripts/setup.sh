@@ -202,6 +202,7 @@ virtual_networks={
         "10.0.0.0/16"
       ]
       dns_servers = []
+      peers = []
     }
 }
 EOF
@@ -222,12 +223,13 @@ bootstrap={
 
 management_subscription = "$MGMT_SUBSCRIPTION_ID"
 virtual_networks={
-    management = {
+    global = {
         resource_group = "global"
       address_space = [
         "10.0.0.0/16"
       ]
       dns_servers = []
+      peers = []
     }
 }
 EOF
