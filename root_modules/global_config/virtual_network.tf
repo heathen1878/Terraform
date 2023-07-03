@@ -1,7 +1,7 @@
 locals {
 
   network_watchers = {
-    management = {
+    global = {
       resource_group = "global"
     }
   }
@@ -55,7 +55,7 @@ locals {
         {
           namespace = var.namespace
           location  = local.location
-          usage     = key
+          purpose   = "Monitor, diagnose, and view networking metrics"
         }
       )
       use_existing = lookup(value, "use_existing", false)
@@ -73,7 +73,7 @@ locals {
         {
           namespace = var.namespace
           location  = local.location
-          usage     = key
+          purpose   = "Global Virtual Network"
         }
       )
     }
@@ -109,7 +109,7 @@ locals {
         {
           namespace = var.namespace
           location  = local.location
-          usage     = key
+          purpose   = "Private DNS resolver, enabling VPN clients to resolve Azure private DNS"
         }
       )
     }
@@ -126,7 +126,7 @@ locals {
         {
           namespace = var.namespace
           location  = local.location
-          usage     = key
+          purpose   = "Global NAT gateway, allows resources to NAT outbound on a known address"
         }
       )
       zones = lookup(value, "zones", [])
@@ -189,7 +189,7 @@ locals {
         {
           namespace = var.namespace
           location  = local.location
-          usage     = key
+          purpose   = "Virtual Network Gateway, enablng S2S and P2S connections"
         }
       )
     }
@@ -275,9 +275,9 @@ locals {
       resource_group = value.resource_group
       tags = merge(var.tags,
         {
-          namespace = var.namespace
-          location  = local.location
-          usage     = key
+          namespace   = var.namespace
+          location    = local.location
+          assigned_to = key
         }
       )
     }
