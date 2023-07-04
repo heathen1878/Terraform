@@ -18,3 +18,8 @@ variable "state_storage_account" {
   default     = ""
   type        = string
 }
+
+variable "tenant_id" {
+  description = "AAD tenant id"
+  type        = string
+}
