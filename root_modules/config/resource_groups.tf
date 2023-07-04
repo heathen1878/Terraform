@@ -17,6 +17,7 @@ locals {
   resource_groups_outputs = {
     for key, value in local.resource_groups : key => {
       name     = azurecaf_name.resource_group[key].result
+      iam      = lookup(value, "iam", {})
       location = var.location
       tags = merge(var.tags,
         lookup(value, "tags", {
