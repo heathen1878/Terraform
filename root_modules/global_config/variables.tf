@@ -164,9 +164,12 @@ variable "state_storage_account" {
 variable "tags" {
   description = "Tags required for the resource groups and resources"
   default = {
-    IaC     = "Terraform"
-    Owner   = "Dom C"
-    Project = "Learning Terraform..."
+    Application = "Placeholder"
+    Criticality = "Placeholder"
+    Datadog     = ""
+    IaC         = "terraform"
+    Owner       = "Placeholder"
+    Project     = "Placeholder"
   }
   type = map(any)
 }

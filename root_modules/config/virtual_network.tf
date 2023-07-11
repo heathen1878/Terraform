@@ -2,7 +2,7 @@ locals {
 
   network_watchers = {
     management = {
-      resource_group = "global"
+      resource_group = "environment"
       use_existing   = true
     }
   }
@@ -128,12 +128,14 @@ locals {
       name           = azurecaf_name.network_watcher[key].result
       resource_group = value.resource_group
       location       = local.location
-      tags = merge(var.tags,
+      tags = merge(
         {
-          namespace = var.namespace
-          location  = local.location
-          usage     = key
-        }
+          environment = var.environment
+          namespace   = var.namespace
+          location    = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
       use_existing = lookup(value, "use_existing", false)
     }
@@ -146,12 +148,14 @@ locals {
       location       = local.location
       address_space  = value.address_space
       dns_servers    = value.dns_servers
-      tags = merge(var.tags,
+      tags = merge(
         {
-          namespace = var.namespace
-          location  = local.location
-          usage     = key
-        }
+          environment = var.environment
+          namespace   = var.namespace
+          location    = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }
@@ -188,17 +192,19 @@ locals {
   dns_resolver_output = {
     for key, value in local.dns_resolvers : key => {
       name                        = format("dnspr-%s", azurecaf_name.dns_resolver[key].result)
-      resource_group              = lookup(value, "resource_group", "global")
+      resource_group              = lookup(value, "resource_group", "environment")
       location                    = local.location
       virtual_network_key         = lookup(value, "virtual_network_key", "global")
       inbound_resolver_name       = format("in-%s", azurecaf_name.dns_resolver[key].result)
       inbound_resolver_subnet_key = lookup(value, "subnet_key", "dnsinbound")
-      tags = merge(var.tags,
+      tags = merge(
         {
-          namespace = var.namespace
-          location  = local.location
-          usage     = key
-        }
+          environment = var.environment
+          namespace   = var.namespace
+          location    = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }
@@ -210,12 +216,14 @@ locals {
       location                = local.location
       idle_timeout_in_minutes = lookup(value, "idle_timeout_in_minutes", 4)
       sku_name                = lookup(value, "sku_name", "Standard")
-      tags = merge(var.tags,
+      tags = merge(
         {
-          namespace = var.namespace
-          location  = local.location
-          usage     = key
-        }
+          environment = var.environment
+          namespace   = var.namespace
+          location    = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
       zones = lookup(value, "zones", [])
     }
@@ -242,11 +250,14 @@ locals {
       reverse_fqdn            = lookup(value, "reverse_fqdn", null)
       public_ip_prefix        = lookup(value, "public_ip_prefix", false)
       public_ip_prefix_key    = lookup(value, "public_ip_prefix_key", null)
-      tags = merge(var.tags,
+      tags = merge(
         {
-          namespace = var.namespace
-          location  = local.location
-        }
+          environment = var.environment
+          namespace   = var.namespace
+          location    = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
       zones = lookup(value, "zones", [])
     }
@@ -258,12 +269,14 @@ locals {
       location                      = local.location
       resource_group                = value.resource_group
       disable_bgp_route_propagation = lookup(value, "disable_bgp_route_propagation", false)
-      tags = merge(var.tags,
+      tags = merge(
         {
-          namespace = var.namespace
-          location  = local.location
-          usage     = key
-        }
+          environment = var.environment
+          namespace   = var.namespace
+          location    = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }
@@ -284,7 +297,7 @@ locals {
       for key, value in local.udrs : [
         for association in value.route_table_association : {
           name                  = format("udr-%s", key)
-          resource_group        = lookup(value, "resource_group", "global")
+          resource_group        = lookup(value, "resource_group", "environment")
           route_table_key       = association
           address_prefix        = value.address_prefix
           next_hop_type         = value.next_hop_type
@@ -301,12 +314,14 @@ locals {
       name           = lower(azurecaf_name.network_security_group[key].result)
       location       = local.location
       resource_group = value.resource_group
-      tags = merge(var.tags,
+      tags = merge(
         {
-          namespace = var.namespace
-          location  = local.location
-          usage     = key
-        }
+          environment = var.environment
+          namespace   = var.namespace
+          location    = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }

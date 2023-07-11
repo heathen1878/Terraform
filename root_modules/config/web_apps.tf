@@ -111,6 +111,7 @@ locals {
           zone_id              = dns_value.azure_managed == true ? data.terraform_remote_state.global_dns_zones.outputs.dns.zones.azure[dns_value.zone_key].id : data.terraform_remote_state.global_dns_zones.outputs.dns.zones.cloudflare[dns_value.zone_key].id
           zone                 = var.environment == "prd" ? replace(dns_value.zone_key, "_", ".") : format("%s.%s", var.environment, replace(dns_value.zone_key, "_", "."))
           content              = dns_value.content
+          key                  = dns_value.zone_key
         }
         if dns_value.associated_web_app == key
       }

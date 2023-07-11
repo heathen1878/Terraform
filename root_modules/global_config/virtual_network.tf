@@ -51,12 +51,13 @@ locals {
       name           = azurecaf_name.network_watcher[key].result
       resource_group = value.resource_group
       location       = local.location
-      tags = merge(var.tags,
+      tags = merge(
         {
           namespace = var.namespace
-          location  = local.location
-          purpose   = "Monitor, diagnose, and view networking metrics"
-        }
+          location  = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
       use_existing = lookup(value, "use_existing", false)
     }
@@ -69,12 +70,13 @@ locals {
       location       = local.location
       address_space  = value.address_space
       dns_servers    = value.dns_servers
-      tags = merge(var.tags,
+      tags = merge(
         {
           namespace = var.namespace
-          location  = local.location
-          purpose   = "Global Virtual Network"
-        }
+          location  = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }
@@ -105,12 +107,13 @@ locals {
       virtual_network_key         = lookup(value, "virtual_network_key", "global")
       inbound_resolver_name       = format("in-%s", azurecaf_name.dns_resolver[key].result)
       inbound_resolver_subnet_key = lookup(value, "subnet_key", "dnsinbound")
-      tags = merge(var.tags,
+      tags = merge(
         {
           namespace = var.namespace
-          location  = local.location
-          purpose   = "Private DNS resolver, enabling VPN clients to resolve Azure private DNS"
-        }
+          location  = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }
@@ -122,12 +125,13 @@ locals {
       location                = local.location
       idle_timeout_in_minutes = lookup(value, "idle_timeout_in_minutes", 4)
       sku_name                = lookup(value, "sku_name", "Standard")
-      tags = merge(var.tags,
+      tags = merge(
         {
           namespace = var.namespace
-          location  = local.location
-          purpose   = "Global NAT gateway, allows resources to NAT outbound on a known address"
-        }
+          location  = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
       zones = lookup(value, "zones", [])
     }
@@ -185,12 +189,13 @@ locals {
         ])
       }
       vpn_type = lookup(value, "vpn_type", "RouteBased")
-      tags = merge(var.tags,
+      tags = merge(
         {
           namespace = var.namespace
-          location  = local.location
-          purpose   = "Virtual Network Gateway, enablng S2S and P2S connections"
-        }
+          location  = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }
@@ -214,11 +219,13 @@ locals {
       reverse_fqdn            = lookup(value, "reverse_fqdn", null)
       public_ip_prefix        = lookup(value, "public_ip_prefix", false)
       public_ip_prefix_key    = lookup(value, "public_ip_prefix_key", null)
-      tags = merge(var.tags,
+      tags = merge(
         {
           namespace = var.namespace
-          location  = local.location
-        }
+          location  = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
       zones = lookup(value, "zones", [])
     }
@@ -230,12 +237,13 @@ locals {
       location                      = local.location
       resource_group                = value.resource_group
       disable_bgp_route_propagation = lookup(value, "disable_bgp_route_propagation", false)
-      tags = merge(var.tags,
+      tags = merge(
         {
           namespace = var.namespace
-          location  = local.location
-          usage     = key
-        }
+          location  = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }
@@ -273,12 +281,13 @@ locals {
       name           = lower(azurecaf_name.network_security_group[key].result)
       location       = local.location
       resource_group = value.resource_group
-      tags = merge(var.tags,
+      tags = merge(
         {
-          namespace   = var.namespace
-          location    = local.location
-          assigned_to = key
-        }
+          namespace = var.namespace
+          location  = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }

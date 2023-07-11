@@ -22,12 +22,6 @@ module "networking" {
   nsg_association       = data.terraform_remote_state.global_config.outputs.networking.nsg_subnet_association
 }
 
-module "dns_resolver" {
-  source = "../../modules/terraform-azure-networking/dns"
-
-  dns_resolver = local.dns_resolver
-}
-
 locals {
 
   network_watcher = {

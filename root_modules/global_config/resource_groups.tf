@@ -2,6 +2,9 @@ locals {
 
   resource_groups = {
     global = {
+      tags = {
+        Usage = "Global resources"
+      }
     }
   }
 
@@ -10,11 +13,13 @@ locals {
       name     = azurecaf_name.resource_group[key].result
       iam      = lookup(value, "iam", {})
       location = var.location
-      tags = merge(var.tags,
-        lookup(value, "tags", {
-          usage     = key
+      tags = merge(
+        {
           namespace = var.namespace
-        })
+          location  = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }

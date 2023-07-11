@@ -33,8 +33,8 @@ module "dns" {
 module "key_vaults" {
   for_each = local.key_vaults
 
-  source = "../../../terraform-azurerm-key-vault"
-  #version = ""
+  source  = "heathen1878/key-vault/azurerm"
+  version = "1.0.0"
 
   name                                       = each.value.name
   location                                   = each.value.location
@@ -48,6 +48,54 @@ module "key_vaults" {
   soft_delete_retention_days                 = each.value.soft_delete_retention_days
   tags                                       = each.value.tags
   tenant_id                                  = each.value.tenant_id
+  virtual_network_subnet_private_endpoint_id = each.value.virtual_network_subnet_private_endpoint_id
+}
+
+module "storage_accounts" {
+  for_each = local.storage_accounts
+
+  source  = "heathen1878/storage/azurerm"
+  version = "1.0.0"
+
+  name                                       = each.value.name
+  location                                   = each.value.location
+  resource_group_name                        = each.value.resource_group_name
+  account_replication_type                   = each.value.account_replication_type
+  account_tier                               = each.value.account_tier
+  allow_nested_items_to_be_public            = each.value.allow_nested_items_to_be_public
+  allowed_copy_scope                         = each.value.allowed_copy_scope
+  azure_files_authentication                 = each.value.azure_files_authentication
+  blob_properties                            = each.value.blob_properties
+  cross_tenant_replication_enabled           = each.value.cross_tenant_replication_enabled
+  container_iam                              = each.value.container_iam
+  containers                                 = each.value.containers
+  custom_domain                              = each.value.custom_domain
+  customer_managed_key                       = each.value.customer_managed_key
+  default_to_oauth_authentication            = each.value.default_to_oauth_authentication
+  edge_zone                                  = each.value.edge_zone
+  enable_https_traffic_only                  = each.value.enable_https_traffic_only
+  enable_private_endpoint                    = each.value.enable_private_endpoint
+  iam                                        = each.value.iam
+  identity                                   = each.value.identity
+  immutability_policy                        = each.value.immutability_policy
+  infrastructure_encryption_enabled          = each.value.infrastructure_encryption_enabled
+  is_hns_enabled                             = each.value.is_hns_enabled
+  large_file_share_enabled                   = each.value.large_file_share_enabled
+  min_tls_version                            = each.value.min_tls_version
+  network_rules                              = each.value.network_rules
+  nfsv3_enabled                              = each.value.nfsv3_enabled
+  private_dns_zone_ids                       = each.value.private_dns_zone_ids
+  public_network_access_enabled              = each.value.public_network_access_enabled
+  queue_encryption_key_type                  = each.value.queue_encryption_key_type
+  queue_properties                           = each.value.queue_properties
+  routing                                    = each.value.routing
+  sas_policy                                 = each.value.sas_policy
+  sftp_enabled                               = each.value.sftp_enabled
+  share_properies                            = each.value.share_properies
+  shared_access_key_enabled                  = each.value.shared_access_key_enabled
+  static_website                             = each.value.static_website
+  table_encryption_key_type                  = each.value.table_encryption_key_type
+  tags                                       = each.value.tags
   virtual_network_subnet_private_endpoint_id = each.value.virtual_network_subnet_private_endpoint_id
 }
 
@@ -211,7 +259,61 @@ locals {
     for key, value in data.terraform_remote_state.config.outputs.key_vault : key => {
       output = module.key_vaults[key].key_vault
     }
+  }
 
+  storage_accounts = {
+    for key, value in data.terraform_remote_state.config.outputs.storage_accounts : key => {
+      access_tier                       = value.access_tier
+      account_kind                      = value.account_kind
+      account_replication_type          = value.account_replication_type
+      account_tier                      = value.account_tier
+      allow_nested_items_to_be_public   = value.allow_nested_items_to_be_public
+      allowed_copy_scope                = value.allowed_copy_scope
+      azure_files_authentication        = value.azure_files_authentication
+      blob_properties                   = value.blob_properties
+      cross_tenant_replication_enabled  = value.cross_tenant_replication_enabled
+      container_iam                     = value.container_iam
+      containers                        = value.containers
+      custom_domain                     = value.custom_domain
+      customer_managed_key              = value.customer_managed_key
+      default_to_oauth_authentication   = value.default_to_oauth_authentication
+      edge_zone                         = value.edge_zone
+      enable_https_traffic_only         = value.enable_https_traffic_only
+      enable_private_endpoint           = value.enable_private_endpoint
+      iam                               = value.iam
+      identity                          = value.identity
+      immutability_policy               = value.immutability_policy
+      infrastructure_encryption_enabled = value.infrastructure_encryption_enabled
+      is_hns_enabled                    = value.is_hns_enabled
+      large_file_share_enabled          = value.large_file_share_enabled
+      location                          = value.location
+      min_tls_version                   = value.min_tls_version
+      name                              = value.name
+      network_rules                     = value.network_rules
+      nfsv3_enabled                     = value.nfsv3_enabled
+      private_dns_zone_ids = [
+        module.dns.private_dns_zones["blob_core_windows"].id
+      ]
+      public_network_access_enabled              = value.public_network_access_enabled
+      queue_encryption_key_type                  = value.queue_encryption_key_type
+      queue_properties                           = value.queue_properties
+      resource_group_name                        = module.resource_groups.resource_group[value.resource_group].name
+      routing                                    = value.routing
+      sas_policy                                 = value.sas_policy
+      sftp_enabled                               = value.sftp_enabled
+      share_properies                            = value.share_properies
+      shared_access_key_enabled                  = value.shared_access_key_enabled
+      static_website                             = value.static_website
+      table_encryption_key_type                  = value.table_encryption_key_type
+      tags                                       = value.tags
+      virtual_network_subnet_private_endpoint_id = module.networking.subnet[value.virtual_network_subnet_private_endpoint_key].id
+    }
+  }
+
+  storage_accounts_outputs = {
+    for key, value in data.terraform_remote_state.config.outputs.storage_accounts : key => {
+      output = module.storage_accounts[key].storage_account
+    }
   }
 
 }

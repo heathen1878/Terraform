@@ -50,13 +50,14 @@ resource "random_id" "windows_function_app" {
 }
 
 resource "random_id" "storage_account" {
-  for_each = local.storage
+  for_each = local.storage_accounts
 
   keepers = {
-    key          = each.key
-    environment  = var.environment
-    location     = local.location
-    subscription = data.azurerm_subscription.current.subscription_id
+    key            = each.key
+    environment    = var.environment
+    location       = local.location
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+    subscription   = data.azurerm_subscription.current.subscription_id
   }
   byte_length = 12
 
@@ -339,17 +340,11 @@ locals {
       name = replace(lower(windows_web_app_value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
-  resource_group_unique = {
-    for resource_group_key, resource_group_value in random_id.resource_group_unique : resource_group_key => {
-      name = replace(lower(resource_group_value.id), "/[^0-9a-zA-Z]/", "")
-    }
-  }
   storage_account = {
-    for storage_account_key, storage_account_value in random_id.storage_account : storage_account_key => {
-      name = replace(lower(storage_account_value.id), "/[^0-9a-zA-Z]/", "")
+    for key, value in random_id.storage_account : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
   subscription_location_namespace_environment_unique = replace(lower(random_id.subscription_location_namespace_environment_unique.id), "/[^0-9a-zA-Z]/", "")
-  subscription_location_unique                       = replace(lower(random_id.subscription_location_unique.id), "/[^0-9a-zA-Z]/", "")
   location                                           = replace(lower(var.location), " ", "")
 }

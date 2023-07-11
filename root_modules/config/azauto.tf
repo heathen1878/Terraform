@@ -1,6 +1,1 @@
-locals {
-
-  automation_accounts = {
-  }
-
-}
+locals {}

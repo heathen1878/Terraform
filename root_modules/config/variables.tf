@@ -8,12 +8,6 @@ variable "bootstrap" {
   ))
 }
 
-variable "cloudflare_account_name" {
-  description = "The name representation of the cloudflare account"
-  default     = ""
-  type        = string
-}
-
 variable "dns_records" {
   description = "A map of DNS records"
   default     = {}
@@ -46,12 +40,6 @@ variable "container_groups" {
       )
     )
   )
-}
-
-variable "domain_suffix" {
-  description = "A valid domain within AAD"
-  default     = "domain.com"
-  type        = string
 }
 
 variable "environment" {
@@ -181,6 +169,7 @@ variable "location" {
   type        = string
 }
 
+# tflint-ignore: terraform_unused_declarations
 variable "management_groups" {
   description = "A map of management groups to manage"
   default     = {}
@@ -240,9 +229,12 @@ variable "state_storage_account" {
 variable "tags" {
   description = "Tags required for the resource groups and resources"
   default = {
-    IaC     = "terraform"
-    Owner   = "Dom C"
-    Project = "Learning Terraform..."
+    Application = "Placeholder"
+    Criticality = "Placeholder"
+    Datadog     = ""
+    IaC         = "Terraform"
+    Owner       = "Placeholder"
+    Project     = "Placeholder"
   }
   type = map(any)
 }
@@ -323,8 +315,7 @@ variable "windows_web_apps" {
       }), {})
       auth_settings_v2 = optional(object({
       }), {})
-      app_settings = optional(object({
-      }), {})
+      app_settings = optional(map(any), {})
       backup = optional(object({
         enabled = optional(bool, false)
         name    = optional(string, "custom backups")

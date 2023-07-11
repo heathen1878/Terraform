@@ -45,7 +45,7 @@ resource "random_id" "acr" {
 }
 
 resource "random_id" "storage_account" {
-  for_each = local.storage
+  for_each = local.storage_accounts
 
   keepers = {
     key        = each.key
@@ -245,8 +245,8 @@ locals {
     }
   }
   storage_account = {
-    for storage_account_key, storage_account_value in random_id.storage_account : storage_account_key => {
-      name = replace(lower(storage_account_value.id), "/[^0-9a-zA-Z]/", "")
+    for key, value in random_id.storage_account : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
   tenant_location_namespace_unique = replace(lower(random_id.tenant_location_namespace_unique.id), "/[^0-9a-zA-Z]/", "")

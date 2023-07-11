@@ -15,6 +15,10 @@ output "resource_groups" {
   value = module.resource_groups.resource_group
 }
 
+output "storage_account" {
+  value = local.storage_accounts_outputs
+}
+
 output "subnets" {
   value = module.networking.subnet
 }

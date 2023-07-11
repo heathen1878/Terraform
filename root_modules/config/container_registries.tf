@@ -13,7 +13,7 @@ locals {
   container_registry_output = {
     for acr_key, acr_value in local.container_registries : acr_key => {
       name                          = azurecaf_name.acr[acr_key].result
-      resource_group                = lookup(acr_value, "resource_group", "demo")
+      resource_group                = lookup(acr_value, "resource_group", "environment")
       sku                           = lookup(acr_value, "sku", "Basic")
       admin_enabled                 = lookup(acr_value, "admin_enabled", false)
       anonymous_pull_enabled        = lookup(acr_value, "anonymous_pull_enabled", false)

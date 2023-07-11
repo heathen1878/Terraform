@@ -7,7 +7,8 @@ module "dns" {
 }
 
 module "cloudflare_zone" {
-  source = "../../../terraform-cloudflare-zones"
+  source  = "heathen1878/zones/cloudflare"
+  version = "1.0.2"
 
   zones = local.cloudflare_dns_zones
 }

@@ -24,7 +24,7 @@ locals {
   private_dns_zone_outputs = {
     for key, value in local.private_dns_zones : key => {
       name           = lookup(value, "name", format("privatelink.%s.net", replace(key, "_", ".")))
-      resource_group = lookup(value, "resource_group", "global")
+      resource_group = lookup(value, "resource_group", "environment")
       tags = {
         IaC         = "Terraform"
         environment = var.environment
@@ -37,13 +37,17 @@ locals {
     for key, value in var.dns_records : key => {
       name           = value.zone_key
       subdomain      = var.environment != "prd" ? format("%s.%s", var.environment, replace(value.zone_key, "_", ".")) : null
-      resource_group = lookup(value, "resource_group", "global")
+      resource_group = lookup(value, "resource_group", "environment")
       ttl            = 3600
-      tags = {
-        IaC         = "Terraform"
-        environment = var.environment
-        namespace   = var.namespace
-      }
+      tags = merge(
+        {
+          environment = var.environment
+          namespace   = var.namespace
+          location    = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
+      )
     } if value.azure_managed == true && key == "apex"
   }
 
@@ -63,6 +67,13 @@ locals {
       proxied            = value.proxy_status
       zone               = value.zone_key
     } if value.cloudflare_protected == true && value.associated_web_app == null
+  }
+
+  certificate_name = {
+    for key, value in data.terraform_remote_state.global_config.outputs.domain_names : key => {
+      name           = var.environment == "prd" ? format("wildcard-%s", replace(value.name, ".", "-")) : format("wildcard-%s-%s", var.environment, replace(value.name, ".", "-"))
+      resource_group = "frontend"
+    }
   }
 
 }

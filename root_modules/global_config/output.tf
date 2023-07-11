@@ -43,6 +43,10 @@ output "cloudflare" {
   }
 }
 
+output "domain_names" {
+  value = local.domains
+}
+
 output "dns" {
   value = {
     zones = local.azure_managed_zones
@@ -74,4 +78,8 @@ output "networking" {
 
 output "resource_groups" {
   value = local.resource_groups_outputs
+}
+
+output "storage_accounts" {
+  value = local.storage_account_output
 }

@@ -33,6 +33,10 @@ output "container_registries" {
   value = local.container_registry_output
 }
 
+output "certificate_name" {
+  value = local.certificate_name
+}
+
 output "dns" {
   value = {
     dns_records       = local.azure_dns_records
@@ -77,10 +81,7 @@ output "resource_groups" {
 }
 
 output "storage_accounts" {
-  value = {
-    accounts   = local.storage_account_output
-    containers = local.storage_containers_map
-  }
+  value = local.storage_account_output
 }
 
 output "virtual_machines" {

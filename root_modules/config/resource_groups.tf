@@ -3,14 +3,21 @@ locals {
   resource_groups = {
     backend = {
       name = "backend"
+      tags = {
+        usage = "Backend resources"
+      }
     }
     environment = {
       name = "environment"
+      tags = {
+        usage = "Environment resources"
+      }
     }
     frontend = {
       name = "frontend"
-    }
-    global = {
+      tags = {
+        usage = "Frontend resources"
+      }
     }
   }
 
@@ -19,12 +26,14 @@ locals {
       name     = azurecaf_name.resource_group[key].result
       iam      = lookup(value, "iam", {})
       location = var.location
-      tags = merge(var.tags,
-        lookup(value, "tags", {
-          usage       = key
-          namespace   = var.namespace
+      tags = merge(
+        {
           environment = var.environment
-        })
+          namespace   = var.namespace
+          location    = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }
