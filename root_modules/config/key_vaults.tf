@@ -6,7 +6,7 @@ locals {
       iam = {
         officers = {
           role_definition_name = "Key Vault Secrets Officer"
-          principal_id         = "1831bd6e-0648-4f14-b4f0-e020a6a67cb2"
+          principal_id         = ""
         }
       }
       network_acls = {
@@ -31,7 +31,7 @@ locals {
       iam = {
         terraform_officer = {
           role_definition_name = "Key Vault Certificates Officer"
-          principal_id         = "1831bd6e-0648-4f14-b4f0-e020a6a67cb2"
+          principal_id         = ""
         }
         web_app_cert_officer = {
           role_definition_name = "Key Vault Certificates Officer"

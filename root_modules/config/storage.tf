@@ -8,7 +8,7 @@ locals {
           access_type = "private"
           iam = {
             container_contributor = {
-              principal_id         = "1831bd6e-0648-4f14-b4f0-e020a6a67cb2"
+              principal_id         = ""
               role_definition_name = "Storage Blob Data Contributor"
             }
           }
