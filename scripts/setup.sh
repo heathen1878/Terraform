@@ -110,8 +110,10 @@ case $DEPLOYMENT_NAME in
     if ! check_path "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME"; then
         echo -e "$(green)Creating $DEPLOYMENT_NAME in $ARM_TENANT_ID/$LOCATION$(default)"
         mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME"
-        mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME/plans"
     fi
+
+    # Always create the plans directory
+    mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME/plans"
 
     TERRAFORM_ENV="$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME"
     TF_DATA_DIR=$TERRAFORM_ENV/.terraform
@@ -135,8 +137,10 @@ case $DEPLOYMENT_NAME in
     if ! check_path "$PWD/configuration/environments/$NAMESPACE_ENVIRONMENT/$LOCATION/$DEPLOYMENT_NAME"; then
         echo -e "$(green)Creating $DEPLOYMENT_NAME in $NAMESPACE_ENVIRONMENT/$LOCATION/$(default)"
         mkdir "$PWD/configuration/environments/$NAMESPACE_ENVIRONMENT/$LOCATION/$DEPLOYMENT_NAME"
-        mkdir "$PWD/configuration/environments/$NAMESPACE_ENVIRONMENT/$LOCATION/$DEPLOYMENT_NAME/plans"
     fi
+
+    # Always create the plans directory
+    mkdir "$PWD/configuration/environments/$NAMESPACE_ENVIRONMENT/$LOCATION/$DEPLOYMENT_NAME/plans"
 
     TERRAFORM_ENV="$PWD/configuration/environments/$NAMESPACE_ENVIRONMENT/$LOCATION/$DEPLOYMENT_NAME"
     TF_DATA_DIR=$TERRAFORM_ENV/.terraform
@@ -174,6 +178,10 @@ case $DEPLOYMENT_NAME in
     export CLOUDFLARE_API_TOKEN
     IONOS_API_KEY=$(az keyvault secret show --name ionos-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')
     export IONOS_API_KEY
+    ;;
+    *)
+    CLOUDFLARE_API_TOKEN="$(az keyvault secret show --name cloudflare-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
+    export CLOUDFLARE_API_TOKEN
     ;;
 
 esac
@@ -251,7 +259,6 @@ export TF_VAR_location
 export LOCATION
 TF_VAR_namespace="$NAMESPACE"
 export TF_VAR_namespace
-export TF_VAR_tenant_id
 TF_VAR_state_storage_account="$STATE_ACCOUNT"
 export TF_VAR_state_storage_account
 export ARM_SUBSCRIPTION_ID
