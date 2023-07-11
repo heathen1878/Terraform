@@ -20,7 +20,6 @@ output "aad_groups" {
 
 output "cloudflare" {
   value = {
-    zones       = local.cloudflare_protected_zones
     dns_records = local.cloudflare_protected_dns_records
   }
 }
@@ -34,11 +33,46 @@ output "container_registries" {
   value = local.container_registry_output
 }
 
+output "certificate_name" {
+  value = local.certificate_name
+}
+
 output "dns" {
   value = {
-    zones               = local.azure_managed_zones
-    dns_records         = local.azure_dns_records
-    web_app_association = local.zone_and_web_app_association
+    dns_records       = local.azure_dns_records
+    private_dns_zones = local.private_dns_zone_outputs
+    subdomains        = local.azure_dns_subdomains
+  }
+}
+
+output "function" {
+  value = {
+    apps              = local.windows_function_app_output
+    premium_plans     = local.premium_service_plan_output
+    consumption_plans = local.consumption_service_plan_output
+  }
+}
+
+output "key_vault" {
+  value = local.key_vault_output
+}
+
+output "networking" {
+  value = {
+    dns_resolvers                  = local.dns_resolver_output
+    nat_gateways                   = local.nat_gateway_outputs
+    network_watcher                = local.network_watcher_output
+    nsgs                           = local.nsgs
+    nsg_rules                      = local.nsg_rule_outputs
+    nsg_subnet_association         = local.nsg_subnet_association_outputs
+    public_ip_addresses            = local.public_ip_address_outputs
+    route_tables                   = local.route_table_outputs
+    route_table_subnet_association = local.route_table_associations
+    routes                         = local.udr_outputs
+    subnets                        = local.virtual_network_subnets_output
+    virtual_networks               = local.virtual_networks_output
+    virtual_network_gateways       = local.virtual_network_gateway_output
+    virtual_network_peers          = local.virtual_network_peers
   }
 }
 
@@ -46,35 +80,8 @@ output "resource_groups" {
   value = local.resource_groups_outputs
 }
 
-output "network_watcher" {
-  value = local.network_watcher_output
-}
-
-output "virtual_network" {
-  value = local.virtual_networks_output
-}
-
-output "virtual_network_subnets" {
-  value = local.virtual_network_subnets_output
-}
-
-output "subnets_with_nsgs_map" {
-  value = local.subnets_with_nsgs_map
-}
-
-output "nsg_rules_map" {
-  value = local.nsg_rules_map
-}
-
-output "key_vault" {
-  value = local.key_vault_output
-}
-
 output "storage_accounts" {
-  value = {
-    accounts   = local.storage_account_output
-    containers = local.storage_containers_map
-  }
+  value = local.storage_account_output
 }
 
 output "virtual_machines" {
@@ -91,4 +98,3 @@ output "web_apps" {
     windows = local.windows_web_app_output
   }
 }
-

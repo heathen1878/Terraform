@@ -36,14 +36,28 @@ resource "random_id" "acr" {
 
 }
 
-resource "random_id" "storage_account" {
-  for_each = local.storage
+resource "random_id" "windows_function_app" {
+  for_each = local.windows_function_apps
 
   keepers = {
-    key          = each.key
-    environment  = var.environment
-    location     = local.location
-    subscription = data.azurerm_subscription.current.subscription_id
+    key            = each.key
+    environment    = var.environment
+    location       = local.location
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+    subscription   = data.azurerm_subscription.current.subscription_id
+  }
+  byte_length = 12
+}
+
+resource "random_id" "storage_account" {
+  for_each = local.storage_accounts
+
+  keepers = {
+    key            = each.key
+    environment    = var.environment
+    location       = local.location
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+    subscription   = data.azurerm_subscription.current.subscription_id
   }
   byte_length = 12
 
@@ -111,13 +125,88 @@ resource "random_id" "acg" {
 
 }
 
+resource "random_id" "nat_gateway" {
+  for_each = local.nat_gateways
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+
+}
+
+resource "random_id" "network_watcher" {
+  for_each = local.network_watchers
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+}
+
+resource "random_id" "public_ip_address" {
+  for_each = local.public_ip_addresses
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+
+}
+
+resource "random_id" "route_table" {
+  for_each = local.route_tables
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+
+}
+
+resource "random_id" "virtual_network" {
+  for_each = local.virtual_networks
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+}
+
+resource "random_id" "dns_resolver" {
+  for_each = local.dns_resolvers
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+}
+
+resource "random_id" "consumption_service_plans" {
+  for_each = local.consumption_service_plans
+
+  keepers = {
+    key = each.key
+  }
+  byte_length = 16
+}
+
 resource "random_id" "virtual_machine" {
-  for_each = local.virtual_machine
+  for_each = local.virtual_machines
 
   keepers = {
     resource_group = azurecaf_name.resource_group[each.value.resource_group].result
   }
   byte_length = 6
+}
+
+resource "random_id" "premium_service_plans" {
+  for_each = local.premium_service_plans
+
+  keepers = {
+    key = each.key
+  }
+  byte_length = 16
 }
 
 resource "random_id" "service_plans" {
@@ -152,7 +241,7 @@ resource "random_password" "aad_user" {
 }
 
 resource "random_password" "virtual_machine" {
-  for_each = local.virtual_machine
+  for_each = local.virtual_machines
 
   length      = 24
   special     = true
@@ -181,42 +270,81 @@ locals {
       name = replace(lower(acr_value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
+  dns_resolver = {
+    for key, value in random_id.dns_resolver : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  consumption_service_plan = {
+    for key, value in random_id.consumption_service_plans : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  windows_function_app = {
+    for key, value in random_id.windows_function_app : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
   key_vault = {
-    for key_vault_key, key_vault_value in random_id.key_vault : key_vault_key => {
-      name = replace(lower(key_vault_value.id), "/[^0-9a-zA-Z]/", "")
+    for key, value in random_id.key_vault : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
   resource_group = {
-    for resource_group_key, resource_group_value in random_id.subscription_location_namespace_environment_unique_rg : resource_group_key => {
-      name = replace(lower(resource_group_value.id), "/[^0-9a-zA-Z]/", "")
+    for key, value in random_id.subscription_location_namespace_environment_unique_rg : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
-  formatted_virtual_machine = {
-    for virtual_machine_key, virtual_machine_value in random_id.virtual_machine : virtual_machine_key => {
-      name = replace(lower(virtual_machine_value.id), "/[^0-9a-zA-Z]/", "")
+  nat_gateway = {
+    for key, value in random_id.nat_gateway : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
-  formatted_service_plans = {
+  network_watcher = {
+    for key, value in random_id.network_watcher : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  public_ip_address = {
+    for key, value in random_id.public_ip_address : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  route_table = {
+    for key, value in random_id.route_table : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  virtual_network = {
+    for key, value in random_id.virtual_network : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  virtual_machine = {
+    for key, value in random_id.virtual_machine : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  premium_service_plan = {
+    for key, value in random_id.premium_service_plans : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  service_plan = {
     for key, value in random_id.service_plans : key => {
       name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
-  formatted_windows_web_app = {
+  windows_web_app = {
     for windows_web_app_key, windows_web_app_value in random_id.windows_web_app : windows_web_app_key => {
       name = replace(lower(windows_web_app_value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
-  formatted_resource_group_unique = {
-    for resource_group_key, resource_group_value in random_id.resource_group_unique : resource_group_key => {
-      name = replace(lower(resource_group_value.id), "/[^0-9a-zA-Z]/", "")
-    }
-  }
   storage_account = {
-    for storage_account_key, storage_account_value in random_id.storage_account : storage_account_key => {
-      name = replace(lower(storage_account_value.id), "/[^0-9a-zA-Z]/", "")
+    for key, value in random_id.storage_account : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
   subscription_location_namespace_environment_unique = replace(lower(random_id.subscription_location_namespace_environment_unique.id), "/[^0-9a-zA-Z]/", "")
-  subscription_location_unique                       = replace(lower(random_id.subscription_location_unique.id), "/[^0-9a-zA-Z]/", "")
   location                                           = replace(lower(var.location), " ", "")
 }

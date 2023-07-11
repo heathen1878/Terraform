@@ -13,6 +13,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "=3.45.0"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "4.5.0"
+    }
     http = {
       source  = "hashicorp/http"
       version = "3.3.0"

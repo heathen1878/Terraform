@@ -36,11 +36,9 @@ fi
 
 # set parameters
 if [[ "$NAMESPACE" == "global" ]]; then
-    PARAMS="-refresh=true -var="location=$LOCATION" -var="namespace=$NAMESPACE" -var="state_storage_account=$STATE_ACCOUNT" \
--var-file="$TERRAFORM_ENV/env.tfvars" -out="$TERRAFORM_ENV/plans/$planName" -detailed-exitcode"
+    PARAMS="-refresh=true -var-file="$TERRAFORM_ENV/env.tfvars" -out="$TERRAFORM_ENV/plans/$planName" -detailed-exitcode"
 else
-    PARAMS="-refresh=true -var="environment=$ENVIRONMENT" -var="location=$LOCATION" -var="namespace=$NAMESPACE" -var="state_storage_account=$STATE_ACCOUNT" \
--var-file="$TERRAFORM_ENV/env.tfvars" -out="$TERRAFORM_ENV/plans/$planName" -detailed-exitcode"
+    PARAMS="-refresh=true -var-file="$TERRAFORM_ENV/env.tfvars" -out="$TERRAFORM_ENV/plans/$planName" -detailed-exitcode"
 fi
 
 # flow

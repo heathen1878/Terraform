@@ -110,11 +110,15 @@ case $DEPLOYMENT_NAME in
     if ! check_path "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME"; then
         echo -e "$(green)Creating $DEPLOYMENT_NAME in $ARM_TENANT_ID/$LOCATION$(default)"
         mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME"
-        mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME/plans"
     fi
+
+    # Always create the plans directory
+    mkdir "$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME/plans"
 
     TERRAFORM_ENV="$PWD/configuration/environments/$ARM_TENANT_ID/$LOCATION/$DEPLOYMENT_NAME"
     TF_DATA_DIR=$TERRAFORM_ENV/.terraform
+
+    CONTAINER_NAME="$ARM_TENANT_ID-$LOCATION"
     ;;
 
     *)
@@ -133,23 +137,27 @@ case $DEPLOYMENT_NAME in
     if ! check_path "$PWD/configuration/environments/$NAMESPACE_ENVIRONMENT/$LOCATION/$DEPLOYMENT_NAME"; then
         echo -e "$(green)Creating $DEPLOYMENT_NAME in $NAMESPACE_ENVIRONMENT/$LOCATION/$(default)"
         mkdir "$PWD/configuration/environments/$NAMESPACE_ENVIRONMENT/$LOCATION/$DEPLOYMENT_NAME"
-        mkdir "$PWD/configuration/environments/$NAMESPACE_ENVIRONMENT/$LOCATION/$DEPLOYMENT_NAME/plans"
     fi
+
+    # Always create the plans directory
+    mkdir "$PWD/configuration/environments/$NAMESPACE_ENVIRONMENT/$LOCATION/$DEPLOYMENT_NAME/plans"
 
     TERRAFORM_ENV="$PWD/configuration/environments/$NAMESPACE_ENVIRONMENT/$LOCATION/$DEPLOYMENT_NAME"
     TF_DATA_DIR=$TERRAFORM_ENV/.terraform
+
+    CONTAINER_NAME="$NAMESPACE_ENVIRONMENT-$LOCATION"
     ;;
 
 esac
 
 # check for the container within the storage account
-CONTAINER_EXISTS=$(az storage container exists --name "$NAMESPACE_ENVIRONMENT-$LOCATION" --account-name $STORAGE_ACCOUNT --auth-mode login --subscription "$MGMT_SUBSCRIPTION_ID" | jq -rc .exists)
+CONTAINER_EXISTS=$(az storage container exists --name "$CONTAINER_NAME" --account-name $STORAGE_ACCOUNT --auth-mode login --subscription "$MGMT_SUBSCRIPTION_ID" | jq -rc .exists)
 if [ "$CONTAINER_EXISTS" = "false" ]; then
-    az storage container create --auth-mode login --account-name $STORAGE_ACCOUNT --name "$NAMESPACE_ENVIRONMENT-$LOCATION" > /dev/null 2>&1
+    az storage container create --auth-mode login --account-name $STORAGE_ACCOUNT --name "$CONTAINER_NAME" > /dev/null 2>&1
 fi
 
 STATE_ACCOUNT=$STORAGE_ACCOUNT
-STATE_CONTAINER="$NAMESPACE_ENVIRONMENT-$LOCATION"
+STATE_CONTAINER="$CONTAINER_NAME"
 STATE_FILE="$DEPLOYMENT_NAME.tfstate"
 
 # end checks
@@ -160,18 +168,20 @@ output_configuration_name "$NAMESPACE_ENVIRONMENT" "$DEPLOYMENT_NAME" "$LOCATION
 # deployment specific environment variables
 case $DEPLOYMENT_NAME in
 
-    *cloudflare)
+    global*)
     # export cloudflare specific environment variables
+    AZDO_ORG_SERVICE_URL="$(az keyvault secret show --name azdo-service-url --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
+    export AZDO_ORG_SERVICE_URL
+    AZDO_PERSONAL_ACCESS_TOKEN="$(az keyvault secret show --name azdo-pat-token-tf --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
+    export AZDO_PERSONAL_ACCESS_TOKEN
     CLOUDFLARE_API_TOKEN="$(az keyvault secret show --name cloudflare-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
     export CLOUDFLARE_API_TOKEN
     IONOS_API_KEY=$(az keyvault secret show --name ionos-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')
     export IONOS_API_KEY
     ;;
-    *infrastructure)
-    AZDO_ORG_SERVICE_URL="$(az keyvault secret show --name azdo-service-url --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
-    export AZDO_ORG_SERVICE_URL
-    AZDO_PERSONAL_ACCESS_TOKEN="$(az keyvault secret show --name azdo-pat-token-tf --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
-    export AZDO_PERSONAL_ACCESS_TOKEN
+    *)
+    CLOUDFLARE_API_TOKEN="$(az keyvault secret show --name cloudflare-api-token --vault-name $KEY_VAULT --query value --output json 2> /dev/null | sed -e 's/^\"//' -e 's/\"$//')"
+    export CLOUDFLARE_API_TOKEN
     ;;
 
 esac
@@ -192,11 +202,7 @@ bootstrap={
         name="$KEY_VAULT"
     }
 }
-environment = "$ENVIRONMENT"
-location = "$LOCATION"
 management_subscription = "$MGMT_SUBSCRIPTION_ID"
-namespace = "$NAMESPACE"
-tenant_id = "$ARM_TENANT_ID"
 virtual_networks={
     environment = {
       resource_group = "environment"
@@ -204,6 +210,7 @@ virtual_networks={
         "10.0.0.0/16"
       ]
       dns_servers = []
+      peers = []
     }
 }
 EOF
@@ -221,17 +228,16 @@ bootstrap={
         name="$KEY_VAULT"
     }
 }
-location = "$LOCATION"
+
 management_subscription = "$MGMT_SUBSCRIPTION_ID"
-namespace = "$NAMESPACE"
-tenant_id = "$ARM_TENANT_ID"
 virtual_networks={
-    management = {
-        resource_group = "management"
+    global = {
+        resource_group = "global"
       address_space = [
         "10.0.0.0/16"
       ]
       dns_servers = []
+      peers = []
     }
 }
 EOF
@@ -246,15 +252,21 @@ EOF
 fi
 
 # export variables
+TF_VAR_environment="$ENVIRONMENT"
+export TF_VAR_environment
+TF_VAR_location="$LOCATION"
+export TF_VAR_location
+export LOCATION
+TF_VAR_namespace="$NAMESPACE"
+export TF_VAR_namespace
+TF_VAR_state_storage_account="$STATE_ACCOUNT"
+export TF_VAR_state_storage_account
 export ARM_SUBSCRIPTION_ID
 export ARM_ACCESS_KEY
 export DEPLOYMENT_NAME
-export ENVIRONMENT
-export LOCATION
 export KEY_VAULT
 export KEY_VAULT_RG
 export MANAGEMENT_SUBSCRIPTION_ID
-export NAMESPACE
 export NAMESPACE_ENVIRONMENT
 export STATE_ACCOUNT
 export STATE_CONTAINER

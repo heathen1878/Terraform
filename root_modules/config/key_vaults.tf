@@ -2,28 +2,63 @@ locals {
 
   key_vaults = {
     frontend_secrets = {
+      enable_private_endpoint = true
+      iam = {
+        officers = {
+          role_definition_name = "Key Vault Secrets Officer"
+          principal_id         = ""
+        }
+      }
+      network_acls = {
+        bypass = "AzureServices"
+      }
       resource_group = "frontend"
+      tags = {
+        usage = "Secrets"
+      }
     }
     backend_secrets = {
-      resource_group = "backend"
-    }
-    infrastructure_secrets = {
-      resource_group = "infrastructure"
-    }
-    management_secrets = {
-      resource_group = "management"
+      enable_private_endpoint       = true
+      network_acls                  = {}
+      public_network_access_enabled = false
+      resource_group                = "backend"
+      tags = {
+        usage = "Secrets"
+      }
     }
     frontend_certificates = {
+      enable_private_endpoint = true
+      iam = {
+        terraform_officer = {
+          role_definition_name = "Key Vault Certificates Officer"
+          principal_id         = ""
+        }
+        web_app_cert_officer = {
+          role_definition_name = "Key Vault Certificates Officer"
+          principal_id         = data.azuread_service_principal.web_app_service_resource_id.id
+        }
+        web_app_secret_officer = {
+          role_definition_name = "Key Vault Secrets Officer"
+          principal_id         = data.azuread_service_principal.web_app_service_resource_id.id
+
+        }
+      }
+      network_acls = {
+        bypass = "AzureServices"
+      }
       resource_group = "frontend"
+      tags = {
+        usage = "Certificates"
+      }
     }
     backend_certificates = {
-      resource_group = "backend"
-    }
-    infrastructure_certificates = {
-      resource_group = "infrastructure"
-    }
-    management_certificates = {
-      resource_group = "management"
+      enable_private_endpoint       = true
+      network_acls                  = {}
+      public_network_access_enabled = false
+      resource_group                = "backend"
+      tags = {
+        usage = "Certificates"
+      }
     }
   }
 
@@ -33,25 +68,250 @@ locals {
 
   key_vault_output = {
     for key, value in local.key_vaults : key => {
-      name           = azurecaf_name.key_vault[key].result
-      resource_group = lookup(value, "resource_group", "demo")
-      tenant_id      = var.tenant_id
-      network_acls = {
-        bypass                     = lookup(value, "network_acls.bypass", "None")
-        default_action             = lookup(value, "network_acls.default_action", "Deny")
-        ip_rules                   = lookup(value, "network_acls.ip_rules", [])
-        virtual_network_subnet_ids = lookup(value, "network_acls.virtual_network_subnet_ids", [])
-      }
+      name                      = azurecaf_name.key_vault[key].result
+      location                  = local.location
+      resource_group            = lookup(value, "resource_group", "environment")
+      enable_private_endpoint   = lookup(value, "enable_private_endpoint", false)
       enable_rbac_authorization = lookup(value, "enable_rbac_authorization", true)
-      sku_name                  = lookup(value, "sku_name", "standard")
+      iam                       = lookup(value, "iam", {})
+      network_acls = {
+        bypass         = lookup(value.network_acls, "bypass", "None")
+        default_action = lookup(value.network_acls, "default_action", "Deny")
+        ip_rules = lookup(value.network_acls, "ip_rules", [
+          "51.155.223.14",
+          "4.158.0.0/15",
+          "4.234.0.0/16",
+          "4.250.0.0/16",
+          "13.87.64.0/19",
+          "13.87.96.0/20",
+          "13.104.129.128/26",
+          "13.104.145.160/27",
+          "13.104.146.64/26",
+          "13.104.159.0/25",
+          "20.0.0.0/16",
+          "20.26.0.0/16",
+          "20.33.148.0/24",
+          "20.33.168.0/24",
+          "20.38.106.0/23",
+          "20.39.208.0/20",
+          "20.39.224.0/21",
+          "20.47.11.0/24",
+          "20.47.34.0/24",
+          "20.47.68.0/24",
+          "20.47.114.0/24",
+          "20.49.128.0/17",
+          "20.50.96.0/19",
+          "20.58.0.0/18",
+          "20.60.17.0/24",
+          "20.60.166.0/23",
+          "20.68.0.0/18",
+          "20.68.128.0/17",
+          "20.77.0.0/17",
+          "20.77.128.0/18",
+          "20.90.64.0/18",
+          "20.90.128.0/17",
+          "20.95.67.0/24",
+          "20.95.71.0/24",
+          "20.95.74.0/23",
+          "20.95.82.0/23",
+          "20.95.84.0/24",
+          "20.95.99.0/24",
+          "20.95.100.0/23",
+          "20.108.0.0/16",
+          "20.117.64.0/18",
+          "20.117.128.0/17",
+          "20.135.176.0/22",
+          "20.135.180.0/23",
+          "20.150.18.0/25",
+          "20.150.40.0/25",
+          "20.150.41.0/24",
+          "20.150.69.0/24",
+          "20.157.28.0/24",
+          "20.157.112.0/24",
+          "20.157.120.0/24",
+          "20.157.157.0/24",
+          "20.157.182.0/24",
+          "20.157.246.0/24",
+          "20.162.128.0/17",
+          "20.190.143.0/25",
+          "20.190.169.0/24",
+          "20.202.4.0/24",
+          "20.209.6.0/23",
+          "20.209.30.0/23",
+          "20.209.88.0/23",
+          "20.209.128.0/23",
+          "20.209.158.0/23",
+          "20.254.0.0/17",
+          "40.64.144.200/29",
+          "40.64.145.16/28",
+          "40.79.215.0/24",
+          "40.80.0.0/22",
+          "40.81.128.0/19",
+          "40.90.17.32/27",
+          "40.90.17.160/27",
+          "40.90.29.192/26",
+          "40.90.128.112/28",
+          "40.90.128.160/28",
+          "40.90.131.64/27",
+          "40.90.139.64/27",
+          "40.90.141.192/26",
+          "40.90.153.64/27",
+          "40.90.154.0/26",
+          "40.93.67.0/24",
+          "40.101.57.192/26",
+          "40.101.58.0/25",
+          "40.120.32.0/19",
+          "40.120.136.0/22",
+          "40.126.15.0/25",
+          "40.126.41.0/24",
+          "51.11.0.0/18",
+          "51.11.128.0/18",
+          "51.104.0.0/19",
+          "51.104.192.0/18",
+          "51.105.0.0/18",
+          "51.105.64.0/20",
+          "51.132.0.0/18",
+          "51.132.128.0/17",
+          "51.140.0.0/17",
+          "51.140.128.0/18",
+          "51.141.128.32/27",
+          "51.141.129.64/26",
+          "51.141.130.0/25",
+          "51.141.135.0/24",
+          "51.141.192.0/18",
+          "51.142.64.0/18",
+          "51.142.192.0/18",
+          "51.143.128.0/18",
+          "51.143.208.0/20",
+          "51.143.224.0/19",
+          "51.145.0.0/17",
+          "52.101.88.0/23",
+          "52.101.95.0/24",
+          "52.101.96.0/23",
+          "52.102.164.0/24",
+          "52.103.37.0/24",
+          "52.103.165.0/24",
+          "52.108.50.0/23",
+          "52.108.88.0/24",
+          "52.108.99.0/24",
+          "52.108.100.0/23",
+          "52.109.28.0/22",
+          "52.111.242.0/24",
+          "52.112.231.0/24",
+          "52.112.240.0/20",
+          "52.113.128.0/24",
+          "52.113.200.0/22",
+          "52.113.204.0/24",
+          "52.113.224.0/19",
+          "52.114.88.0/22",
+          "52.120.160.0/19",
+          "52.120.240.0/20",
+          "52.123.141.0/24",
+          "52.123.142.0/23",
+          "52.136.21.0/24",
+          "52.151.64.0/18",
+          "52.239.187.0/25",
+          "52.239.231.0/24",
+          "52.245.64.0/22",
+          "52.253.162.0/23",
+          "104.44.89.224/27",
+          "172.165.0.0/16",
+          "172.166.0.0/15",
+          "172.187.128.0/17",
+          "20.33.134.0/24",
+          "20.33.166.0/24",
+          "20.39.160.0/21",
+          "20.40.104.0/21",
+          "20.45.176.0/20",
+          "20.47.56.0/24",
+          "20.47.82.0/23",
+          "20.58.64.0/18",
+          "20.60.164.0/23",
+          "20.68.64.0/18",
+          "20.77.192.0/18",
+          "20.90.0.0/18",
+          "20.95.86.0/24",
+          "20.117.0.0/18",
+          "20.135.64.0/23",
+          "20.150.2.0/23",
+          "20.150.52.0/24",
+          "20.150.110.0/24",
+          "20.157.46.0/24",
+          "20.162.0.0/17",
+          "20.190.144.0/25",
+          "20.190.171.0/24",
+          "20.202.3.0/24",
+          "20.209.132.0/23",
+          "20.209.198.0/23",
+          "20.254.128.0/17",
+          "40.64.144.240/29",
+          "40.64.145.96/28",
+          "40.79.218.0/24",
+          "40.81.112.0/20",
+          "40.87.228.0/22",
+          "40.90.28.192/26",
+          "40.90.29.0/26",
+          "40.90.131.96/27",
+          "40.90.139.96/27",
+          "40.90.157.192/27",
+          "40.93.68.0/24",
+          "40.101.20.0/26",
+          "40.101.115.64/26",
+          "40.126.16.0/25",
+          "40.126.43.0/24",
+          "51.11.96.0/19",
+          "51.104.32.0/19",
+          "51.132.64.0/18",
+          "51.137.128.0/18",
+          "51.140.192.0/18",
+          "51.141.0.0/17",
+          "51.141.128.0/27",
+          "51.141.128.64/26",
+          "51.141.128.128/25",
+          "51.141.129.128/26",
+          "51.141.134.0/24",
+          "51.141.136.0/22",
+          "51.142.128.0/18",
+          "52.101.98.0/23",
+          "52.101.100.0/23",
+          "52.101.102.0/24",
+          "52.102.166.0/24",
+          "52.103.38.0/24",
+          "52.103.166.0/24",
+          "52.108.189.0/24",
+          "52.108.224.0/23",
+          "52.109.32.0/22",
+          "52.111.205.0/24",
+          "52.112.168.0/22",
+          "52.112.212.0/24",
+          "52.112.230.0/24",
+          "52.114.84.0/22",
+          "52.114.92.0/22",
+          "52.123.155.0/24",
+          "52.123.156.0/24",
+          "52.136.20.0/24",
+          "52.142.128.0/18",
+          "52.239.240.0/24",
+          "104.44.90.0/27",
+          "172.186.0.0/16",
+          "172.187.0.0/18"
+        ])
+        virtual_network_subnet_ids = lookup(value.network_acls, "virtual_network_subnet_ids", [])
+      }
+      public_network_access_enabled = lookup(value, "public_network_access_enabled", true)
+      sku_name                      = lookup(value, "sku_name", "standard")
+      soft_delete_retention_days    = lookup(value, "soft_delete_retention_days", 7)
       tags = merge(
-        var.tags,
-        lookup(value, "tags", {
+        {
           environment = var.environment
           namespace   = var.namespace
-          usage       = key
-        })
+          location    = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
+      tenant_id                                   = var.tenant_id
+      virtual_network_subnet_private_endpoint_key = "key_vault"
     }
   }
 

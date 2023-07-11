@@ -1,8 +1,6 @@
-provider "azuread" {
-}
+provider "azuread" {}
 
-provider "azurecaf" {
-}
+provider "azurecaf" {}
 
 provider "azurerm" {
   alias           = "mgmt"
@@ -16,8 +14,8 @@ provider "azurerm" {
   }
 }
 
-provider "random" {
-}
+provider "cloudflare" {}
 
-provider "time" {
-}
+provider "random" {}
+
+provider "time" {}

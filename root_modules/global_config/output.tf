@@ -22,6 +22,10 @@ output "azdo_projects" {
   value = local.azdo_projects_output
 }
 
+output "azdo_repos" {
+  value = local.azdo_project_repositories_output
+}
+
 output "container_groups" {
   value     = local.container_groups_output
   sensitive = true
@@ -31,44 +35,51 @@ output "container_registries" {
   value = local.container_registry_output
 }
 
-output "dns_resolver" {
-  value = local.dns_resolver_output
+output "cloudflare" {
+  value = {
+    account      = data.cloudflare_accounts.account
+    ip_addresses = data.cloudflare_ip_ranges.cloudflare
+    zones        = local.cloudflare_protected_zones
+  }
 }
 
-#output "azure_service_tags" {
-#  value = {
-#    frontdoor_backend = local.azure_frontdoor_backend
-#  }
-#}
+output "domain_names" {
+  value = local.domains
+}
+
+output "dns" {
+  value = {
+    zones = local.azure_managed_zones
+  }
+}
 
 output "key_vaults" {
   value = local.key_vault_output
 }
 
-output "network_watcher" {
-  value = local.network_watcher_output
+output "networking" {
+  value = {
+    dns_resolvers                  = local.dns_resolver_output
+    nat_gateways                   = local.nat_gateway_outputs
+    network_watcher                = local.network_watcher_output
+    nsgs                           = local.nsgs
+    nsg_rules                      = local.nsg_rule_outputs
+    nsg_subnet_association         = local.nsg_subnet_association_outputs
+    public_ip_addresses            = local.public_ip_address_outputs
+    route_tables                   = local.route_table_outputs
+    route_table_subnet_association = local.route_table_associations
+    routes                         = local.udr_outputs
+    subnets                        = local.virtual_network_subnets_output
+    virtual_networks               = local.virtual_networks_output
+    virtual_network_gateways       = local.virtual_network_gateway_output
+    virtual_network_peers          = local.virtual_network_peers
+  }
 }
 
 output "resource_groups" {
   value = local.resource_groups_outputs
 }
 
-output "virtual_network" {
-  value = local.virtual_networks_output
-}
-
-output "virtual_network_gateway" {
-  value = local.virtual_network_gateway_output
-}
-
-output "virtual_network_subnets" {
-  value = local.virtual_network_subnets_output
-}
-
-output "subnets_with_nsgs_map" {
-  value = local.subnets_with_nsgs_output
-}
-
-output "nsg_rules_map" {
-  value = local.nsg_rules_output
+output "storage_accounts" {
+  value = local.storage_account_output
 }

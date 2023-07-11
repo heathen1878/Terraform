@@ -1,6 +1,7 @@
 
-[Home](https://github.com/heathen1878/Terraform/blob/main/README.md)
 # Root Modules
+
+[Home](../README.md)
 
 ## Examples
 
@@ -8,27 +9,28 @@ The configuration root modules create outputs only, these can be used later by o
 
 ### Global configuration
 
-Using the helper [scripts](https://github.com/heathen1878/Terraform/blob/main/Scripts/readme.md)
-```PowerShell
-tfset -environment global -module global_config
+Using the helper [scripts](../scripts/readme.md)
+
+```shell
+tfauth
+
+tfset global global_config
+
 tfinit && tfplan
+
+tfapply
 ```
 
 ### Environment configuration
 
-Using the helper [scripts](https://github.com/heathen1878/Terraform/blob/main/Scripts/readme.md)
-```PowerShell
-tfset -environment dom-learning -module config
+Using the helper [scripts](../scripts/readme.md)
+
+```shell
+tfauth
+
+tfset ne-dev config
+
 tfinit && tfplan
+
+tfapply
 ```
-
-## config examples
-The configuration root modules take input from variables, predefined locals and data resources to provide outputs which can be used by Terraform modules, for example...
-
-[aad config](https://github.com/heathen1878/Terraform/blob/main/root_modules/aad.md)
-
-
-
-## TODO list 
-
-- [ ] Create a helper script for tfapply.

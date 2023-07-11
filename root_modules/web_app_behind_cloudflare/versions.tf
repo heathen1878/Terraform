@@ -9,9 +9,5 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "4.5.0"
     }
-    ionosdeveloper = {
-      source  = "ionos-developer/ionosdeveloper"
-      version = "0.0.1"
-    }
   }
 }

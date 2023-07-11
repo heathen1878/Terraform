@@ -4,11 +4,11 @@ function output_configuration_name() {
 
     if command -v figlet > /dev/null 2>&1; then
 
-        figlet "$1"
+        figlet -t "$1"
         echo "-----------------------------------------------------------------"
-        figlet "$3"
+        figlet -t "$3"
         echo "-----------------------------------------------------------------"
-        figlet "$2"
+        figlet -t "$2"
 
     fi
 

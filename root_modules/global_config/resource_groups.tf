@@ -1,19 +1,25 @@
 locals {
 
   resource_groups = {
-    management = {
+    global = {
+      tags = {
+        Usage = "Global resources"
+      }
     }
   }
 
   resource_groups_outputs = {
     for key, value in local.resource_groups : key => {
       name     = azurecaf_name.resource_group[key].result
+      iam      = lookup(value, "iam", {})
       location = var.location
-      tags = merge(var.tags,
-        lookup(value, "tags", {
-          usage     = key
+      tags = merge(
+        {
           namespace = var.namespace
-        })
+          location  = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
       )
     }
   }

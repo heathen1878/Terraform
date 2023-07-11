@@ -45,7 +45,7 @@ resource "random_id" "acr" {
 }
 
 resource "random_id" "storage_account" {
-  for_each = local.storage
+  for_each = local.storage_accounts
 
   keepers = {
     key        = each.key
@@ -68,6 +68,16 @@ resource "random_id" "acg" {
 
 }
 
+resource "random_id" "nat_gateway" {
+  for_each = local.nat_gateways
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+
+}
+
 resource "random_id" "network_watcher" {
   for_each = local.network_watchers
 
@@ -75,6 +85,26 @@ resource "random_id" "network_watcher" {
     resource_group = azurecaf_name.resource_group[each.value.resource_group].result
   }
   byte_length = 12
+}
+
+resource "random_id" "public_ip_address" {
+  for_each = local.public_ip_addresses
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+
+}
+
+resource "random_id" "route_table" {
+  for_each = local.route_tables
+
+  keepers = {
+    resource_group = azurecaf_name.resource_group[each.value.resource_group].result
+  }
+  byte_length = 12
+
 }
 
 resource "random_id" "virtual_network" {
@@ -113,7 +143,6 @@ resource "random_id" "virtual_machine" {
   byte_length = 6
 }
 ########################################################################
-
 ########################################################################
 # Uniqueness within AAD maximum 64 characters
 resource "random_uuid" "aad_application" {
@@ -180,8 +209,23 @@ locals {
       name = replace(lower(resource_group_value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
+  nat_gateway = {
+    for key, value in random_id.nat_gateway : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
   network_watcher = {
     for key, value in random_id.network_watcher : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  public_ip_address = {
+    for key, value in random_id.public_ip_address : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
+    }
+  }
+  route_table = {
+    for key, value in random_id.route_table : key => {
       name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
@@ -201,8 +245,8 @@ locals {
     }
   }
   storage_account = {
-    for storage_account_key, storage_account_value in random_id.storage_account : storage_account_key => {
-      name = replace(lower(storage_account_value.id), "/[^0-9a-zA-Z]/", "")
+    for key, value in random_id.storage_account : key => {
+      name = replace(lower(value.id), "/[^0-9a-zA-Z]/", "")
     }
   }
   tenant_location_namespace_unique = replace(lower(random_id.tenant_location_namespace_unique.id), "/[^0-9a-zA-Z]/", "")

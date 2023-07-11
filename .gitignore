@@ -40,3 +40,6 @@ override.tf.json
 
 # Exclude environment configuration
 ./configuration/environments/*
+
+# ARM parameters
+**/*.parameters.json

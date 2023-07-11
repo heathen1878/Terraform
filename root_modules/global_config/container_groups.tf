@@ -72,22 +72,29 @@ locals {
   }
 
   container_groups_output = {
-    for acg_key, acg_value in local.container_groups : acg_key => {
-      name           = azurecaf_name.acg[acg_key].result
-      resource_group = acg_value.resource_group
+    for key, value in local.container_groups : key => {
+      name           = azurecaf_name.acg[key].result
+      resource_group = value.resource_group
       containers = {
         for aci_key, aci_value in local.container_instances : aci_key => aci_value
-        if aci_value.acg_key == acg_key
+        if aci_value.acg_key == key
       }
-      dns_name_label                = lookup(acg_value, "dns_name_label", null)
-      dns_name_label_reuse_policy   = lookup(acg_value, "dns_name_label_reuse_policy", null)
-      ip_address_type               = lookup(acg_value, "ip_address_type", "Public")
-      image_registry_credential_key = lookup(acg_value, "image_registry_credential_key", "mcr.microsoft.com")
-      os_type                       = lookup(acg_value, "os_type", "Linux")
-      restart_policy                = lookup(acg_value, "restart_policy", "OnFailure")
-      subnet_id                     = lookup(acg_value, "subnet", null)
-      tags                          = lookup(acg_value, "tags", {})
-      zones                         = lookup(acg_value, "zones", [])
+      dns_name_label                = lookup(value, "dns_name_label", null)
+      dns_name_label_reuse_policy   = lookup(value, "dns_name_label_reuse_policy", null)
+      ip_address_type               = lookup(value, "ip_address_type", "Public")
+      image_registry_credential_key = lookup(value, "image_registry_credential_key", "mcr.microsoft.com")
+      os_type                       = lookup(value, "os_type", "Linux")
+      restart_policy                = lookup(value, "restart_policy", "OnFailure")
+      subnet_id                     = lookup(value, "subnet", null)
+      tags = merge(
+        {
+          namespace = var.namespace
+          location  = var.location
+        },
+        lookup(value, "tags", {}),
+        var.tags
+      )
+      zones = lookup(value, "zones", [])
     }
   }
 

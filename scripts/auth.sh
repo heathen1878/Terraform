@@ -39,6 +39,8 @@ else
 fi
 
 ARM_TENANT_ID=$(az account show | jq -rc '.tenantId')
+TF_VAR_tenant_id="$ARM_TENANT_ID"
+export TF_VAR_tenant_id
 export ARM_TENANT_ID
 
 # Cleanup

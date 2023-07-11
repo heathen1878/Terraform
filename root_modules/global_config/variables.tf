@@ -4,6 +4,34 @@ variable "access_token" {
   type        = string
 }
 
+variable "azdo_projects" {
+  description = "Projects to be created in Azure DevOps"
+  default     = {}
+  type = map(object(
+    {
+      description        = optional(string, "Not defined")
+      dockerhub          = optional(list(string), [])
+      features           = list(string)
+      name               = string
+      version_control    = optional(string, "Git")
+      visibility         = optional(string, "private")
+      work_item_template = optional(string, "Agile")
+    }
+  ))
+}
+
+variable "azdo_project_repositories" {
+  description = "Repositories to be created within a given Project within Azure DevOps"
+  default     = {}
+  type = map(object(
+    {
+      project = string
+      name    = optional(string)
+      branch  = optional(string)
+    }
+  ))
+}
+
 variable "azure_ip_ranges_json_url" {
   type        = string
   default     = ""
@@ -18,6 +46,12 @@ variable "bootstrap" {
       resource_group = string
     }
   ))
+}
+
+variable "cloudflare_account_name" {
+  description = "The name representation of the cloudflare account"
+  default     = ""
+  type        = string
 }
 
 variable "container_groups" {
@@ -37,6 +71,24 @@ variable "container_groups" {
     )
   )
   sensitive = true
+}
+
+variable "dns_zones" {
+  description = "A map of dns zones"
+  default     = {}
+  type = map(object(
+    {
+      name                 = string
+      azure_managed        = bool
+      cloudflare_protected = bool
+      resource_group       = optional(string, "global")
+      tags                 = optional(map(any))
+      jump_start           = optional(bool, false)
+      paused               = optional(bool, false)
+      plan                 = optional(string, "free")
+      type                 = optional(string, "full")
+    }
+  ))
 }
 
 variable "domain_suffix" {
@@ -76,29 +128,11 @@ variable "namespace" {
 
 variable "nsg_rules" {
   description = "A map of rules"
-  default = {
-    #"default" = {
-    #  "default" = {
-    #    access                       = "Deny"
-    #    description                  = "Default rule - Allow SSH access when access = Allowed"
-    #    destination_address_prefix   = "VirtualNetwork"
-    #    destination_address_prefixes = []
-    #    destination_port_range       = "22"
-    #    destination_port_ranges      = []
-    #    direction                    = "Inbound"
-    #    name                         = "Default_SSH_Inbound"
-    #    priority                     = 1000
-    #    protocol                     = "Tcp"
-    #    source_address_prefix        = "*"
-    #    source_address_prefixes      = []
-    #    source_port_range            = "*"
-    #    source_port_ranges           = []
-    #  }
-    #}
-  }
-  type = map( # reference to subnet
-    map(      # rule 
-      object( # rule configuration
+  default     = {}
+  type = map(object(
+    {
+      resource_group = string
+      rules = map(object(
         {
           name                         = string
           priority                     = number
@@ -115,9 +149,10 @@ variable "nsg_rules" {
           destination_address_prefix   = string
           destination_address_prefixes = list(string)
         }
-      )
-    )
-  )
+      ))
+      tags = optional(map(any))
+    }
+  ))
 }
 
 variable "state_storage_account" {
@@ -129,7 +164,12 @@ variable "state_storage_account" {
 variable "tags" {
   description = "Tags required for the resource groups and resources"
   default = {
-    IaC = "Terraform"
+    Application = "Placeholder"
+    Criticality = "Placeholder"
+    Datadog     = ""
+    IaC         = "terraform"
+    Owner       = "Placeholder"
+    Project     = "Placeholder"
   }
   type = map(any)
 }
@@ -148,6 +188,7 @@ variable "virtual_networks" {
         resource_group = string
         address_space  = list(string)
         dns_servers    = list(string)
+        peers          = list(string)
       }
     )
   )
