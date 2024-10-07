@@ -47,33 +47,32 @@ jobs:
           template: azuredeploy.json
           parameters: azuredeploy.parameters.json rbac=[{role_id=acdd72a7-3385-48ef-bd42-f606fba81ae7, principal_id=${{ secrets.ARM_CLIENT_OBJECT_ID }}}] secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }} secrets_user=${{ secrets.ARM_CLIENT_OBJECT_ID }} key_vault_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}] storage_account_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}]
     
-			- name: Add Comment to PR
+      - name: Add Comment to PR
         uses: actions/github-script@v7
         env:
           PLAN: ${{ steps.plan.outputs.stdout }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-						const output = `
-						#### ARM Plan 📖\`${{ steps.plan.outcome }}\`
-
-						<details><summary>Show Plan</summary>
-
-						\`\`\`\n
-						${process.env.PLAN}
-						\`\`\`
-
-						</details>
-
-						Pusher: @${{ github.actor }}
-						Action: ${{ github.event_name }}
-						Workflow: ${{ github.workflow }}
-						`;
-
-						github.rest.issues.createComment({
-								issue_number: context.issue.number,
-								owner: context.repo.owner,
-								repo: context.repo.repo,
-								body: output
-						})
+		const output = `#### ARM Plan 📖\`${{ steps.plan.outcome }}\`
+		
+		<details><summary>Show Plan</summary>
+		
+		\`\`\`\n
+		${process.env.PLAN}
+		\`\`\`
+		
+		</details>
+		
+		Pusher: @${{ github.actor }}
+		Action: ${{ github.event_name }}
+		Workflow: ${{ github.workflow }}
+		`;
+		
+		github.rest.issues.createComment({
+				issue_number: context.issue.number,
+				owner: context.repo.owner,
+				repo: context.repo.repo,
+				body: output
+		})
 					
