@@ -1,0 +1,119 @@
+name: infracost
+
+on:
+  workflow_call:
+    inputs:
+      BASE_BRANCH:
+        description: "The base branch reference"
+        required: true
+        type: string
+      PR_ID:
+        description: "The PR ID"
+        required: true
+        type: string
+      PR_STATUS:
+        description: "The PR Status"
+        required: true
+        type: string
+      PR_URL:
+        description: "The PR Url"
+        required: true
+        type: string
+    secrets:
+      API_KEY:
+        required: true
+  
+env:
+    SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+
+jobs:
+    infracost_checks:
+      name: Infracost Checks
+      if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize')
+      runs-on: ubuntu-latest
+      permissions:
+        contents: read
+        pull-requests: write # Required to post comments
+      steps:
+        - name: Setup Infracost
+          uses: infracost/actions/setup@v3
+          with:
+            api-key: ${{ secrets.API_KEY }}
+  
+        - name: Checkout base branch
+          uses: actions/checkout@v3
+          with:
+            ref: ${{ inputs.base_branch }}
+  
+        - name: Generate Infracost cost estimate baseline
+          run: |
+            infracost configure set currency GBP
+            
+            infracost breakdown --path=. \
+                                --format=json \
+                                --out-file=/tmp/infracost-base.json
+  
+        - name: Checkout PR branch
+          uses: actions/checkout@v4
+  
+        - name: Generate Infracost diff
+          run: |
+            infracost configure set currency GBP
+
+            infracost diff --path=. \
+                            --format=json \
+                            --compare-to=/tmp/infracost-base.json \
+                            --out-file=/tmp/infracost.json
+  
+        - name: Post Infracost comment
+          run: |
+              infracost comment github --path=/tmp/infracost.json \
+                                       --repo=$GITHUB_REPOSITORY \
+                                       --github-token=${{ github.token }} \
+                                       --pull-request=${{ inputs.PR_ID }} \
+                                       --behavior=update
+  
+    infracost-default-branch-update:
+      name: Infracost Default Branch Update
+      if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
+      runs-on: ubuntu-latest
+      steps:
+        - name: Setup Infracost
+          uses: infracost/actions/setup@v3
+          with:
+            api-key: ${{ secrets.API_KEY }}
+  
+        - name: Checkout main/master branch
+          uses: actions/checkout@v4
+  
+        - name: Run Infracost on default branch and update Infracost Cloud
+          run: |
+            infracost configure set currency GBP
+
+            infracost breakdown --path=. \
+                      --show-skipped \
+                      --format=json \
+                      --out-file=infracost.json
+  
+            infracost upload --path=infracost.json || echo "Always pass main branch runs even if there are policy failures"
+  
+    # Update PR status in Infracost Cloud
+    infracost-pull-request-status-update:
+      name: Infracost PR Status Update
+      if: github.event_name == 'pull_request' && github.event.action == 'closed'
+      runs-on: ubuntu-latest
+      steps:
+      - name: Infracost PR Status Update
+        run: |
+          PR_STATUS="MERGED"
+          if [[ ${{ inputs.PR_STATUS }} = false ]]; then PR_STATUS="CLOSED"; fi
+  
+          echo "Updating status of ${{ inputs.PR_URL }} to $PR_STATUS"
+          curl -i \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --header "X-API-Key: $API_KEY" \
+            --data "{ \"query\": \"mutation {updatePullRequestStatus( url: \\\"${{ inputs.PR_URL }}\\\", status: $PR_STATUS )}\" }" \
+            "https://dashboard.api.infracost.io/graphql";
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
