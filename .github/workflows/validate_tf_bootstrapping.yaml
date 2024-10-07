@@ -1,11 +1,12 @@
 name: Validate Terraform Bootstrapping
-'on':
+on:
   pull_request:
     branches:
       - '*'
     paths:
-      - bootstrap_configuration
-  workflow_dispatch: null
+      - bootstrap_configuration/*
+  workflow_dispatch:
+
 jobs:
   cost_infra:
     uses: ./.github/workflows/infracost.yaml
@@ -16,20 +17,25 @@ jobs:
       PR_URL: ${{ github.event.pull_request.html_url }}
     secrets:
       API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+
   plan_bootstrap:
     runs-on: ubuntu-latest
     name: Plan Terraform Bootstrapping
     needs: cost_infra
+
     defaults:
       run:
-        working-directory: bootstrap_configuration
+        working-directory: ./bootstrap_configuration
+
     steps:
       - name: checkout repository
         uses: actions/checkout@v3
+
       - name: auth
         uses: azure/login@v2
         with:
           creds: '{"clientId": "${{ secrets.ARM_CLIENT_ID }}", "clientSecret": "${{ secrets.ARM_CLIENT_SECRET }}", "tenantId": "${{ secrets.ARM_TENANT_ID }}", "subscriptionId": "${{ vars.ARM_SUBSCRIPTION_ID }}"}'
+		
       - name: Plan ARM template
         id: plan
         uses: azure/azure-deploy@v2
@@ -40,14 +46,16 @@ jobs:
           region: ${{ vars.LOCATION }}
           template: azuredeploy.json
           parameters: azuredeploy.parameters.json rbac=[{role_id=acdd72a7-3385-48ef-bd42-f606fba81ae7, principal_id=${{ secrets.ARM_CLIENT_OBJECT_ID }}}] secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }} secrets_user=${{ secrets.ARM_CLIENT_OBJECT_ID }} key_vault_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}] storage_account_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}]
-      - name: Add Comment to PR
+    
+			- name: Add Comment to PR
         uses: actions/github-script@v7
         env:
           PLAN: ${{ steps.plan.outputs.stdout }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-						const output = `#### ARM Plan 📖\`${{ steps.plan.outcome }}\`
+						const output = `
+						#### ARM Plan 📖\`${{ steps.plan.outcome }}\`
 
 						<details><summary>Show Plan</summary>
 
@@ -59,7 +67,8 @@ jobs:
 
 						Pusher: @${{ github.actor }}
 						Action: ${{ github.event_name }}
-						Workflow: ${{ github.workflow }}`;
+						Workflow: ${{ github.workflow }}
+						`;
 
 						github.rest.issues.createComment({
 								issue_number: context.issue.number,
@@ -67,3 +76,4 @@ jobs:
 								repo: context.repo.repo,
 								body: output
 						})
+					
