@@ -34,12 +34,15 @@ jobs:
       - name: auth
         uses: azure/login@v2
         with:
-          creds: '{"clientId": "${{ secrets.ARM_CLIENT_ID }}", "clientSecret": "${{ secrets.ARM_CLIENT_SECRET }}", "tenantId": "${{ secrets.ARM_TENANT_ID }}", "subscriptionId": "${{ vars.ARM_SUBSCRIPTION_ID }}"}'		
-        
-      - name: format json
-        run: |
-          echo "[{role_id=acdd72a7-3385-48ef-bd42-f606fba81ae7, principal_id=${{ vars.ARM_CLIENT_OBJECT_ID }}}]"
+          creds: '{"clientId": "${{ secrets.ARM_CLIENT_ID }}", "clientSecret": "${{ secrets.ARM_CLIENT_SECRET }}", "tenantId": "${{ secrets.ARM_TENANT_ID }}", "subscriptionId": "${{ vars.ARM_SUBSCRIPTION_ID }}"}'
       
+      - name: Build JSON strings
+        id: json
+        run: |
+          rbac=$(jq -n --arg "id" "${{ vars.ARM_CLIENT_OBJECT_ID }}" '[{role_id: "acdd72a7-3385-48ef-bd42-f606fba81ae7", principal_id: $id }]')
+
+          echo "RBAC=$rbac" >> $GITHUB_OUTPUT
+
       - name: Plan ARM template
         id: plan
         uses: azure/arm-deploy@v2
@@ -49,7 +52,7 @@ jobs:
           subscriptionId: ${{ vars.ARM_SUBSCRIPTION_ID }}
           region: ${{ vars.LOCATION }}
           template: ./bootstrap_configuration/azuredeploy.json
-          parameters: ./bootstrap_configuration/azuredeploy.parameters.json rbac="[{"role_id"=acdd72a7-3385-48ef-bd42-f606fba81ae7, "principal_id"=${{ vars.ARM_CLIENT_OBJECT_ID }}}]" secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }} secrets_user=${{ vars.ARM_CLIENT_OBJECT_ID }} key_vault_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}] storage_account_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}]
+          parameters: ./bootstrap_configuration/azuredeploy.parameters.json rbac=${{ steps.json.outputs.RBAC }} secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }} secrets_user=${{ vars.ARM_CLIENT_OBJECT_ID }} key_vault_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}] storage_account_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}]
       
       - name: Output plan
         run: |

@@ -1,0 +1,15 @@
+name: Deploy Terraform Bootstrapping
+
+on:
+    push:
+      branches: master
+      paths:
+        - bootstrap_configuration/*
+    workflow_dispatch:
+
+jobs:
+    dummy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Dummy step
+              run: echo "Dummy step"
