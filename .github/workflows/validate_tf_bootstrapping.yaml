@@ -38,8 +38,8 @@ jobs:
         
       - name: format json
         run: |
-          jq -n --arg rbac "[{'role_id'='acdd72a7-3385-48ef-bd42-f606fba81ae7', 'principal_id'='${{ secrets.ARM_CLIENT_OBJECT_ID }}'}]" --arg secrets_officer "${{ vars.SECRETS_OFFICER_GROUP }}" --arg secrets_user "${{ secrets.ARM_CLIENT_OBJECT_ID }}" --arg key_vault_ip_rules "${{ vars.TRUSTED_IP_ADDRESS_1 }}" --arg storage_account_ip_rules "${{ vars.TRUSTED_IP_ADDRESS_1 }}" '{rbac: $rbac, secrets_officer: $secrets_officer, secrets_user: $secrets_user, key_vault_ip_rules: $key_vault_ip_rules, storage_account_ip_rules: $storage_account_ip_rules}' > ./bootstrap_configuration/azuredeploy.parameters.json
-          cat ./bootstrap_configuration/azuredeploy.parameters.json
+          jq -n --arg rbac "[{'role_id'='acdd72a7-3385-48ef-bd42-f606fba81ae7', 'principal_id'='${{ secrets.ARM_CLIENT_OBJECT_ID }}'}]" --arg secrets_officer "${{ vars.SECRETS_OFFICER_GROUP }}" --arg secrets_user "${{ secrets.ARM_CLIENT_OBJECT_ID }}" --arg key_vault_ip_rules "${{ vars.TRUSTED_IP_ADDRESS_1 }}" --arg storage_account_ip_rules "${{ vars.TRUSTED_IP_ADDRESS_1 }}" '{rbac: $rbac, secrets_officer: $secrets_officer, secrets_user: $secrets_user, key_vault_ip_rules: $key_vault_ip_rules, storage_account_ip_rules: $storage_account_ip_rules}' > azuredeploy.parameters.json
+          cat azuredeploy.parameters.json
       
       # - name: Plan ARM template
       #   id: plan
