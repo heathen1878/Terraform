@@ -36,17 +36,22 @@ jobs:
         with:
           creds: '{"clientId": "${{ secrets.ARM_CLIENT_ID }}", "clientSecret": "${{ secrets.ARM_CLIENT_SECRET }}", "tenantId": "${{ secrets.ARM_TENANT_ID }}", "subscriptionId": "${{ vars.ARM_SUBSCRIPTION_ID }}"}'		
         
-      - name: Plan ARM template
-        id: plan
-        uses: azure/arm-deploy@v2
-        with:
-          additionalArguments: "--what-if"
-          scope: subscription
-          subscriptionId: ${{ vars.ARM_SUBSCRIPTION_ID }}
-          region: ${{ vars.LOCATION }}
-          template: ./bootstrap_configuration/azuredeploy.json
-          parameters: ./bootstrap_configuration/azuredeploy.parameters.json rbac="[{'role_id'='acdd72a7-3385-48ef-bd42-f606fba81ae7', 'principal_id'='${{ secrets.ARM_CLIENT_OBJECT_ID }}'}]" secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }} secrets_user=${{ secrets.ARM_CLIENT_OBJECT_ID }} key_vault_ip_rules="[${{ vars.TRUSTED_IP_ADDRESS_1 }}]" storage_account_ip_rules="[${{ vars.TRUSTED_IP_ADDRESS_1 }}]"
-      
-      - name: Output plan
+      - name: format json
         run: |
-          echo "${{ steps.plan.outputs.plan }}"
+          jq -n --arg rbac "[{'role_id'='acdd72a7-3385-48ef-bd42-f606fba81ae7', 'principal_id'='${{ secrets.ARM_CLIENT_OBJECT_ID }}'}]" --arg secrets_officer "${{ vars.SECRETS_OFFICER_GROUP }}" --arg secrets_user "${{ secrets.ARM_CLIENT_OBJECT_ID }}" --arg key_vault_ip_rules "${{ vars.TRUSTED_IP_ADDRESS_1 }}" --arg storage_account_ip_rules "${{ vars.TRUSTED_IP_ADDRESS_1 }}" '{rbac: $rbac, secrets_officer: $secrets_officer, secrets_user: $secrets_user, key_vault_ip_rules: $key_vault_ip_rules, storage_account_ip_rules: $storage_account_ip_rules}' > ./bootstrap_configuration/azuredeploy.parameters.json
+          cat ./bootstrap_configuration/azuredeploy.parameters.json
+      
+      # - name: Plan ARM template
+      #   id: plan
+      #   uses: azure/arm-deploy@v2
+      #   with:
+      #     additionalArguments: "--what-if"
+      #     scope: subscription
+      #     subscriptionId: ${{ vars.ARM_SUBSCRIPTION_ID }}
+      #     region: ${{ vars.LOCATION }}
+      #     template: ./bootstrap_configuration/azuredeploy.json
+      #     parameters: ./bootstrap_configuration/azuredeploy.parameters.json rbac="[{'role_id'='acdd72a7-3385-48ef-bd42-f606fba81ae7', 'principal_id'='${{ secrets.ARM_CLIENT_OBJECT_ID }}'}]" secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }} secrets_user=${{ secrets.ARM_CLIENT_OBJECT_ID }} key_vault_ip_rules="[${{ vars.TRUSTED_IP_ADDRESS_1 }}]" storage_account_ip_rules="[${{ vars.TRUSTED_IP_ADDRESS_1 }}]"
+      
+      # - name: Output plan
+      #   run: |
+      #     echo "${{ steps.plan.outputs.plan }}"
