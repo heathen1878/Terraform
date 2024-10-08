@@ -742,5 +742,19 @@
                 }
             }
         }
-    ]
+    ],
+    "outputs": {    
+        "resource_group": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Resources/resourceGroups', variables('resource_group_name'))]"
+        },
+        "key_vault": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.KeyVault/vaults', variables('key_vault_name'))]"
+        },
+        "storage_account": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storage_account_name'))]"
+        }
+    }
 }

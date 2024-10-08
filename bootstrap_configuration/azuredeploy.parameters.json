@@ -43,11 +43,6 @@
         "secrets_user_type": {
             "value": "ServicePrincipal"
         },
-        "storage_account_ip_rules": {
-            "value": [
-                "51.155.223.14"
-            ]
-        },
         "workload": {
             "value": "tf"
         }
