@@ -38,12 +38,7 @@ jobs:
         
       - name: format json
         run: |
-          echo "[\
-            {\
-              "role_id"="acdd72a7-3385-48ef-bd42-f606fba81ae7", \
-              "principal_id"=${{ secrets.ARM_CLIENT_OBJECT_ID }} \
-              }\
-            ]"
+          echo "[{"role_id"="acdd72a7-3385-48ef-bd42-f606fba81ae7", "principal_id"=${{ vars.ARM_CLIENT_OBJECT_ID }}}]"
       
       # - name: Plan ARM template
       #   id: plan
