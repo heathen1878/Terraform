@@ -41,7 +41,7 @@ jobs:
         run: |
           
           rbac=$(jq -n --arg "id" "${{ vars.ARM_CLIENT_OBJECT_ID }}" '[{role_id: "acdd72a7-3385-48ef-bd42-f606fba81ae7", principal_id: $id }]')
-          trusted_ip_addresses=$(jq -n --arg "ip" "${{ vars.TRUSTED_IP_ADDRESSES }}" '[value: $ip]')
+          trusted_ip_addresses=$(jq -n --arg "ip" "${{ vars.TRUSTED_IP_ADDRESS_1 }}" '[$ip]')
           echo "RBAC="$rbac"" >> "$GITHUB_OUTPUT"
           echo "TRUSTED_IP_ADDRESSES="$trusted_ip_addresses"" >> "$GITHUB_OUTPUT"
 
