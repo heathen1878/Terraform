@@ -52,7 +52,7 @@ jobs:
           subscriptionId: ${{ vars.ARM_SUBSCRIPTION_ID }}
           region: ${{ vars.LOCATION }}
           template: ./bootstrap_configuration/azuredeploy.json
-          parameters: ./bootstrap_configuration/azuredeploy.parameters.json rbac="${{ steps.json.outputs.RBAC }}" secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }} secrets_user=${{ vars.ARM_CLIENT_OBJECT_ID }} key_vault_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}] storage_account_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}]
+          parameters: ./bootstrap_configuration/azuredeploy.parameters.json secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }} secrets_user=${{ vars.ARM_CLIENT_OBJECT_ID }} key_vault_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}] storage_account_ip_rules=[${{ vars.TRUSTED_IP_ADDRESS_1 }}]
       
       - name: Output plan
         run: |
