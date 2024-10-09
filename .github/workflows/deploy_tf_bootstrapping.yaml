@@ -8,6 +8,7 @@ on:
 
 jobs:
   cost_infra:
+    name: Cost Infrastructure
     uses: ./.github/workflows/infracost.yaml
     with:
       BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
@@ -19,7 +20,7 @@ jobs:
 
   plan_bootstrap:
     runs-on: ubuntu-latest
-    name: Plan Terraform Bootstrapping
+    name: Deploy Terraform Bootstrapping
     needs: cost_infra
 
     defaults:
@@ -35,8 +36,8 @@ jobs:
         with:
           creds: '{"clientId": "${{ secrets.ARM_CLIENT_ID }}", "clientSecret": "${{ secrets.ARM_CLIENT_SECRET }}", "tenantId": "${{ secrets.ARM_TENANT_ID }}", "subscriptionId": "${{ vars.ARM_SUBSCRIPTION_ID }}"}'
                
-      - name: Plan ARM template
-        id: plan
+      - name: Deploy ARM template
+        id: deploy
         uses: azure/arm-deploy@v2
         with:
           scope: subscription
@@ -53,7 +54,7 @@ jobs:
       
       - name: Output plan
         run: |
-          echo "${{ steps.plan.outputs.resource_group }}"
-          echo "${{ steps.plan.outputs.key_vault }}"
-          echo "${{ steps.plan.outputs.storage_account }}"
+          echo "${{ steps.deploy.outputs.resource_group }}"
+          echo "${{ steps.deploy.outputs.key_vault }}"
+          echo "${{ steps.deploy.outputs.storage_account }}"
           
