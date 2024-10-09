@@ -8,6 +8,7 @@ on:
 
 jobs:
   cost_infra:
+    name: Cost Infrastructure
     uses: ./.github/workflows/infracost.yaml
     with:
       BASE_BRANCH: ${{ github.event.pull_request.base.ref }}

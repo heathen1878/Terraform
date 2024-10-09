@@ -9,6 +9,7 @@ on:
 
 jobs:
   cost_infra:
+    name: Cost Infrastructure
     uses: ./.github/workflows/infracost.yaml
     with:
       BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
@@ -52,10 +53,4 @@ jobs:
             rbac="[{\"role_id\": \"acdd72a7-3385-48ef-bd42-f606fba81ae7\", \"principal_id\": \"${{ vars.SUB_READERS }}\"}]"
             key_vault_ip_rules="[${{ vars.TRUSTED_IP_ADDRESSES }}]"
             storage_account_ip_rules="[${{ vars.TRUSTED_IP_ADDRESSES }}]"
-      
-      - name: Output plan
-        run: |
-          echo "${{ steps.plan.outputs.resource_group }}"
-          echo "${{ steps.plan.outputs.key_vault }}"
-          echo "${{ steps.plan.outputs.storage_account }}"
           
