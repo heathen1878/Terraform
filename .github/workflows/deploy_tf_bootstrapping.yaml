@@ -47,7 +47,7 @@ jobs:
             ./bootstrap_configuration/azuredeploy.parameters.json
             secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }}
             secrets_user=${{ vars.ARM_CLIENT_OBJECT_ID }}
-            rbac="[{\"role_id\": \"acdd72a7-3385-48ef-bd42-f606fba81ae7\", \"principal_id\": \"${{ vars.ARM_CLIENT_OBJECT_ID }}\"}]"
+            rbac="[{\"role_id\": \"acdd72a7-3385-48ef-bd42-f606fba81ae7\", \"principal_id\": \"${{ vars.SUB_READERS }}\"}]"
             key_vault_ip_rules="[${{ vars.TRUSTED_IP_ADDRESSES }}]"
             storage_account_ip_rules="[${{ vars.TRUSTED_IP_ADDRESSES }}]"
       
