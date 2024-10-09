@@ -40,7 +40,10 @@ jobs:
         id: json
         run: |
           
-          rbac=JSON.stringify([{role_id: "acdd72a7-3385-48ef-bd42-f606fba81ae7", principal_id: ${{ secrets.ARM_CLIENT_OBJECT_ID }} }])
+          rbac=$( jq -n --arg "id" ${{ vars.ARM_CLIENT_OBJECT_ID }} '{role_id: "acdd72a7-3385-48ef-bd42-f606fba81ae7", principal_id: $id}')
+
+          ${{ JSON.stringify($rbac) }}
+          
           echo $rbac
           
 
