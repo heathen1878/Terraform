@@ -2,29 +2,19 @@
 
 # Bootstrap configuration
 
-The Terraform bootstrapping deploys the following:
-- Management group
+## Validation
 
-By default the management group is named Management Subscriptions and will contains subscriptions defined within azuredeploy.parameters.json e.g. 
+[![Validate Terraform Bootstrapping](https://github.com/heathen1878/Terraform/actions/workflows/validate_tf_bootstrapping.yaml/badge.svg)](https://github.com/heathen1878/Terraform/actions/workflows/validate_tf_bootstrapping.yaml)
 
-```json
-"management_group": {
-    "value": {
-        "name": "Management",
-        "display_name": "Management Subscriptions",
-        "associated_subscriptions": [
-            "subscription_guid",
-            "subscription_guid"
-        ]
-    }
-},
-```
+## Build
 
-- Key Vault
+[![Deploy Terraform Bootstrapping](https://github.com/heathen1878/Terraform/actions/workflows/deploy_tf_bootstrapping.yaml/badge.svg)](https://github.com/heathen1878/Terraform/actions/workflows/deploy_tf_bootstrapping.yaml)
+
+## Key Vault
 
 A key vault to store secrets such as PAT tokens, DevOps urls, subscriptions for environments or specific projects. These are used by [setup.ps1](https://github.com/heathen1878/Terraform/blob/main/Scripts/setup.ps1) to set environment variables for Terraform.
 
-- Storage Account
+## Storage Account
 
 A storage account to hold Terraform state.
 
@@ -55,22 +45,6 @@ Your ARM parameter file should be similar to this:
         },
         "location": {
             "value": "Some location"
-        },
-        "locations": {
-            "value": [
-                "One or more locations...",
-                "...to restrict deployments to"
-            ]
-        },
-        "management_group": {
-            "value": {
-                "name": "Management",
-                "display_name": "Management Subscriptions",
-                "associated_subscriptions": [
-                    "subscription_guid",
-                    "subscription_guid"
-                ]
-            }
         },
         "resource_tags": {
             "value": {
@@ -106,7 +80,8 @@ Your ARM parameter file should be similar to this:
 ...
 ```
 
-## Using PowerShell:
+## Using PowerShell
+
 ```PowerShell
 Connect-AzAccount
 
@@ -116,13 +91,13 @@ New-AzDeployment -Name "Terraform-Bootstrap" `
 -TemplateParameterFile .\bootstrap_configuration\azuredeploy.parameters.json
 ```
 
-## Using Azure DevOps:
+## Using Azure DevOps
 
 To use DevOps you need at least a project and service connection setup - see this [readme](https://github.com/heathen1878/ARM-QuickStarts/blob/master/AzureDevOps/readMe.md).
 
 ```yaml
 ```
 
-# TODO list
+## Using GitHub Actions
 
-- [ ] Create yaml example for deploying bootstrap
+Using the validation [workflow](https://github.com/heathen1878/Terraform/blob/main/.github/workflows/validate_tf_bootstrapping.yaml) and deployment [workflow](https://github.com/heathen1878/Terraform/blob/main/.github/workflows/deploy_tf_bootstrapping.yaml). Create a Branch and Pull Request.
