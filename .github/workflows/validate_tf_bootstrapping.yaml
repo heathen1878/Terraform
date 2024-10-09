@@ -41,7 +41,7 @@ jobs:
         run: |
           rbac_string="[{\"role_id\": \"acdd72a7-3385-48ef-bd42-f606fba81ae7\", \"principal_id\": \"${{ vars.ARM_CLIENT_OBJECT_ID }}\"}]"
 
-          echo "{RBAC=$rbac_string}" >> $GITHUB_OUTPUT
+          echo "RBAC=$rbac_string" >> "$GITHUB_OUTPUT"
                              
       - name: Plan ARM template
         id: plan
@@ -52,7 +52,11 @@ jobs:
           subscriptionId: ${{ vars.ARM_SUBSCRIPTION_ID }}
           region: ${{ vars.LOCATION }}
           template: ./bootstrap_configuration/azuredeploy.json
-          parameters: ./bootstrap_configuration/azuredeploy.parameters.json secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }} secrets_user=${{ vars.ARM_CLIENT_OBJECT_ID }} rbac="${{ steps.json.outputs.RBAC }}"
+          parameters: >
+            ./bootstrap_configuration/azuredeploy.parameters.json
+            secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }}
+            secrets_user=${{ vars.ARM_CLIENT_OBJECT_ID }}
+            rbac="${{ steps.json.outputs.RBAC }}"
       
       - name: Output plan
         run: |
