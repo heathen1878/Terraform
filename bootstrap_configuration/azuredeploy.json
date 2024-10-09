@@ -2,15 +2,18 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "deploy_azure_policy": {
+        "container_name": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "containers to create"
+            }
+        },
+        "deploy_container": {
             "type": "string",
             "defaultValue": "No",
-            "allowedValues": [
-                "Yes",
-                "No"
-            ],
             "metadata": {
-                "description": "Should Azure Policies be deployed?"
+                "description": "Should container be created?"
             }
         },
         "deploy_iam": {
@@ -24,22 +27,17 @@
                 "description": "Should IAM / RBAC be deployed? - if you must ensure the role and principal ids are valid."
             }
         },
-        "deploy_management_groups": {
-            "type": "string",
-            "defaultValue": "No",
-            "allowedValues": [
-                "Yes",
-                "No"
-            ],
-            "metadata": {
-                "desciption": "Should Management Groups be deployed? - if so ensure the parameter management_group has the correct information."
-            }
-        },
         "environment": {
             "type": "string",
             "defaultValue": "Demo",
             "metadata": {
                 "description": "Prod, Dev, Test, PoC, and Demo"
+            }
+        },
+        "key": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource key; differentiates the name"
             }
         },
         "key_vault_ip_rules": {
@@ -55,19 +53,10 @@
                 "description": "The location of the resource group"
             }
         },
-        "locations": {
-            "type": "array",
-            "defaultValue": [],
+        "platform": {
+            "type": "string",
             "metadata": {
-                "description": "list of valid locations"
-            }
-        },
-        "management_group": {
-            "type": "object",
-            "defaultValue": {
-                "name": "Management",
-                "display_name": "Management Subscriptions",
-                "associated_subscriptions": []
+                "description": "The associated platform"
             }
         },
         "resource_tags": {
@@ -126,72 +115,81 @@
                 "desciption": "Array of Key / Values for IP address(es) and associated action"
             }
         },
-        "usage": {
+        "workload": {
             "type": "string",
-            "defaultValue": "ResourceGroupUsage",
             "metadata": {
-                "description": "Used to build the resource group name e.g. identity resources would live in a resource group which contains the word identity, an application might use APP1"
+                "description": "Which workload is this bootstrapping for?"
             }
         }
     },
     "variables": {
-        "resource_group_prefix": "[concat('rg-', uniquestring(toLower(parameters('environment')), toLower(parameters('location')), toLower(subscription().id)))]",
-        "resource_group_name": "[concat(variables('resource_group_prefix'), '-', toLower(parameters('usage')))]",
-        "allowed_locations": "[if(empty(parameters('locations')), createArray(parameters('location')), parameters('locations'))]",
-        "rg_location_policy_id": "/providers/Microsoft.Authorization/policyDefinitions/e765b5de-1225-4ba3-bd56-1ac6695af988",
-        "res_location_policy_id": "/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c",
-        "environment_tag": {
-            "environment": "[parameters('environment')]"
-        },
-        "default_tags": "[union(variables('environment_tag'), parameters('resource_tags'))]"
-    },
-    "resources": [
-        {
-            "condition": "[equals(parameters('deploy_management_groups'), 'Yes')]",
-            "type": "Microsoft.Management/managementGroups",
-            "apiVersion": "2021-04-01",
-            "name": "[parameters('management_group').name]",
-            "scope": "/",
-            "properties": {
-                "displayName": "[parameters('management_group').display_name]"
+        "locations": {
+            "australiacentral": {
+                "short_code": "ac"
+            },
+            "australiacentral2": {
+                "short_code": "ac2"
+            },
+            "australiasoutheast": {
+                "short_code": "as"
+            },
+            "australiaeast": {
+                "short_code": "ae"
+            },
+            "centralus": {
+                "short_code": "cu"
+            },
+            "eastus": {
+                "short_code": "eu"
+            },
+            "eastus2": {
+                "short_code": "eu2"
+            },
+            "germanywestcentral": {
+                "short_code": "gwc"
+            },
+            "northeurope": {
+                "short_code": "ne2"
+            },
+            "southcentralus": {
+                "short_code": "scu"
+            },
+            "uksouth": {
+                "short_code": "us"
+            },
+            "ukwest": {
+                "short_code": "uw"
+            },
+            "westcentralus": {
+                "short_code": "wcu"
+            },
+            "westeurope": {
+                "short_code": "we"
+            },
+            "westus": {
+                "short_code": "wu"
+            },
+            "westus2": {
+                "short_code": "wu2"
+            },
+            "westus3": {
+                "short_code": "wu3"
             }
         },
-        {
-            "condition": "[equals(parameters('deploy_management_groups'), 'Yes')]",
-            "type": "Microsoft.Management/managementGroups/subscriptions",
-            "apiVersion": "2020-05-01",
-            "name": "[concat(parameters('management_group').name, '/', parameters('management_group').associated_subscriptions[copyIndex('subscriptions')])]",
-            "copy": {
-                "name": "subscriptions",
-                "count": "[length(parameters('management_group').associated_subscriptions)]"
-            },
-            "scope": "/",
-            "properties": {}
-        },
+        "subscription_unique": "[uniqueString(toLower(subscription().id), toLower(parameters('location')), toLower(parameters('environment')), toLower(parameters('key')))]",
+        "globally_unique": "[uniqueString(toLower(subscription().tenantId), toLower(subscription().id), toLower(parameters('location')), toLower(parameters('environment')), toLower(parameters('key')))]",
+        "resource_group_name": "[concat('rg-', toLower(parameters('workload')), '-', toLower(parameters('platform')), '-', parameters('environment'), '-', toLower(variables('locations')[parameters('location')].short_code), '-', variables('subscription_unique'))]",
+        "storage_account_name": "[if(greater(length(concat('st', toLower(parameters('workload')), toLower(parameters('platform')), toLower(parameters('environment')), toLower(variables('locations')[parameters('location')].short_code), variables('globally_unique'))), 23), concat('st', toLower(parameters('workload')), toLower(parameters('platform')), parameters('environment'), toLower(variables('locations')[parameters('location')].short_code), substring(variables('globally_unique'), 0,4)), concat('st', toLower(parameters('workload')), toLower(parameters('platform')), toLower(parameters('environment')), toLower(variables('locations')[parameters('location')].short_code), variables('globally_unique')))]",
+        "key_vault_name": "[if(greater(length(concat('kv', toLower(parameters('workload')), toLower(parameters('platform')), toLower(parameters('environment')), toLower(variables('locations')[parameters('location')].short_code), variables('globally_unique'))), 24), concat('kv', toLower(parameters('workload')), toLower(parameters('platform')), toLower(parameters('environment')), toLower(variables('locations')[parameters('location')].short_code), substring(variables('globally_unique'), 0,4)), concat('kv', toLower(parameters('workload')), toLower(parameters('platform')), toLower(parameters('environment')), toLower(variables('locations')[parameters('location')].short_code), variables('globally_unique')))]",
+        "default_tags": "[parameters('resource_tags')]"
+    },
+    "resources": [
         {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2021-04-01",
             "name": "[variables('resource_group_name')]",
             "location": "[parameters('location')]",
             "tags": "[variables('default_tags')]"
-        },
-        {
-            "condition": "[equals(parameters('deploy_azure_policy'), 'Yes')]",
-            "type": "Microsoft.Authorization/policyAssignments",
-            "apiVersion": "2019-09-01",
-            "name": "[guid(variables('rg_location_policy_id'), parameters('location'))]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups', variables('resource_group_name'))]"
-            ],
-            "properties": {
-                "displayName": "[concat('Allowed Locations for Resource Groups: ', replace(replace(replace(string(variables('allowed_locations')), '[\"', ''), '\"]', ''), '\",\"' , '-'))]",
-                "policyDefinitionId": "[variables('rg_location_policy_id')]",
-                "parameters": {
-                    "listOfAllowedLocations": {
-                        "value": "[variables('allowed_locations')]"
-                    }
-                }
-            }
         },
         {
             "condition": "[equals(parameters('deploy_iam'), 'Yes')]",
@@ -214,45 +212,12 @@
                     "resources": [
                         {
                             "type": "Microsoft.Authorization/roleAssignments",
-                            "apiVersion": "2017-09-01",
+                            "apiVersion": "2018-01-01-preview",
                             "name": "[guid(parameters('rbac')[copyIndex('rbac')].principal_id, parameters('rbac')[copyIndex('rbac')].role_id, resourceId('Microsoft.Resources/resourceGroups', variables('resource_group_name')))]",
                             "properties": {
                                 "roleDefinitionId": "[ResourceId('Microsoft.Authorization/roleDefinitions', parameters('rbac')[copyIndex('rbac')].role_id)]",
                                 "principalId": "[parameters('rbac')[copyIndex('rbac')].principal_id]",
                                 "principalType": "Group"
-                            }
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "condition": "[equals(parameters('deploy_azure_policy'), 'Yes')]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
-            "name": "allowed_locations_for_resources",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups', variables('resource_group_name'))]"
-            ],
-            "resourceGroup": "[variables('resource_group_name')]",
-            "properties": {
-                "mode": "incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "resources": [
-                        {
-                            "type": "Microsoft.Authorization/policyAssignments",
-                            "apiVersion": "2019-09-01",
-                            "name": "[guid(variables('res_location_policy_id'), parameters('location'))]",
-                            "properties": {
-                                "displayName": "[concat('Allowed Locations for Azure Resources: ', replace(replace(replace(string(variables('allowed_locations')), '[\"', ''), '\"]', ''), '\",\"' , '-'))]",
-                                "policyDefinitionId": "[variables('res_location_policy_id')]",
-                                "parameters": {
-                                    "listOfAllowedLocations": {
-                                        "value": "[variables('allowed_locations')]"
-                                    }
-                                }
                             }
                         }
                     ]
@@ -273,20 +238,20 @@
                     "scope": "Inner"
                 },
                 "parameters": {
-                    "environment": {
-                        "value": "[parameters('environment')]"
+                    "container_name": {
+                        "value": "[parameters('container_name')]"
+                    },
+                    "deploy_container": {
+                        "value": "[parameters('deploy_container')]"
                     },
                     "location": {
                         "value": "[parameters('location')]"
                     },
-                    "usage": {
-                        "value": "[parameters('usage')]"
-                    },
-                    "deploy_container": {
-                        "value": "No"
+                    "name": {
+                        "value": "[variables('storage_account_name')]"
                     },
                     "resource_tags": {
-                        "value": "[parameters('resource_tags')]"
+                        "value": "[variables('default_tags')]"
                     },
                     "storage_account_ip_rules": {
                         "value": "[parameters('storage_account_ip_rules')]"
@@ -296,24 +261,17 @@
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
                     "parameters": {
-                        "environment": {
-                            "type": "string",
-                            "defaultValue": "Demo",
+                        "account_sas_properties": {
+                            "type": "object",
+                            "defaultValue": {
+                                "signedServices": "b",
+                                "signedPermission": "r",
+                                "signedResourceTypes": "co",
+                                "signedStart": "[dateTimeAdd(utcNow('u'), '-PT1H')]",
+                                "signedExpiry": "[dateTimeAdd(utcNow('u'), 'PT2H')]"
+                            },
                             "metadata": {
-                                "description": "Prod, Dev, Test, PoC, and Demo"
-                            }
-                        },
-                        "location": {
-                            "type": "string",
-                            "metadata": {
-                                "description": "Location for all resources."
-                            }
-                        },
-                        "usage": {
-                            "type": "string",
-                            "defaultValue": "storage",
-                            "metadata": {
-                                "description": "used to generate a random string"
+                                "description": "used to obtain a SAS token for the storage account."
                             }
                         },
                         "allow_blob_public_access": {
@@ -327,22 +285,11 @@
                                 "desciption": "Should the storage account be public - no by default but maybe useful for demoing stuff"
                             }
                         },
-                        "deploy_container": {
-                            "type": "string",
-                            "defaultValue": "No",
-                            "allowedValues": [
-                                "Yes",
-                                "No"
-                            ],
-                            "metadata": {
-                                "description": "Determine whether a container or containers should be deployed"
-                            }
-                        },
                         "container_name": {
                             "type": "array",
                             "defaultValue": [
-                                "Container1",
-                                "Container2"
+                                "container1",
+                                "container2"
                             ]
                         },
                         "container_public_access": {
@@ -357,17 +304,34 @@
                                 "desciption": "Used in conjunction with allowBlobPublicAccess"
                             }
                         },
-                        "account_sas_properties": {
-                            "type": "object",
-                            "defaultValue": {
-                                "signedServices": "b",
-                                "signedPermission": "r",
-                                "signedResourceTypes": "co",
-                                "signedStart": "[dateTimeAdd(utcNow('u'), '-PT1H')]",
-                                "signedExpiry": "[dateTimeAdd(utcNow('u'), 'PT2H')]"
-                            },
+                        "deploy_container": {
+                            "type": "string",
+                            "defaultValue": "No",
+                            "allowedValues": [
+                                "Yes",
+                                "No"
+                            ],
                             "metadata": {
-                                "description": "used to obtain a SAS token for the storage account."
+                                "description": "Determine whether a container or containers should be deployed"
+                            }
+                        },
+                        "location": {
+                            "type": "string",
+                            "metadata": {
+                                "description": "Location for all resources."
+                            }
+                        },
+                        "min_tls_version": {
+                            "type": "string",
+                            "defaultValue": "TLS1_2",
+                            "metadata": {
+                                "description": "minimum TLS version"
+                            }
+                        },
+                        "name": {
+                            "type": "string",
+                            "metadata": {
+                                "description": "Storage account name"
                             }
                         },
                         "resource_tags": {
@@ -388,28 +352,24 @@
                         }
                     },
                     "variables": {
-                        "storage_account_unique_string": "[uniquestring(parameters('environment'), parameters('location'), subscription().id, parameters('usage'))]",
-                        "storage_account_name": "[if(greater(length(concat('st', variables('storage_account_unique_string'))),23), tolower(substring(concat('st', toLower(variables('storage_account_unique_string'))),0,23)), concat('st', tolower(variables('storage_account_unique_string'))))]",
-                        "resource_specific_tags": {
-                            "usage": "Terraform Configuration",
-                            "environment": "[parameters('environment')]"
-                        },
-                        "tags": "[union(variables('resource_specific_tags'), parameters('resource_tags'))]"
+                        "tags": "[parameters('resource_tags')]"
                     },
                     "resources": [
                         {
                             "type": "Microsoft.Storage/storageAccounts",
-                            "name": "[variables('Storage_account_name')]",
+                            "name": "[parameters('name')]",
                             "apiVersion": "2019-04-01",
                             "location": "[parameters('location')]",
                             "tags": "[variables('tags')]",
                             "kind": "StorageV2",
                             "sku": {
-                                "name": "Standard_LRS"
+                                "name": "Standard_ZRS"
                             },
                             "properties": {
                                 "accessTier": "Hot",
                                 "allowBlobPublicAccess": "[parameters('allow_blob_public_access')]",
+                                "containerPublicAccess": "[parameters('container_public_access')]",
+                                "minimumTlsVersion": "[parameters('min_tls_version')]",
                                 "networkAcls": {
                                     "resourceAccessRules": [],
                                     "bypass": "AzureServices",
@@ -432,39 +392,71 @@
                             "condition": "[equals(parameters('deploy_container'), 'Yes')]",
                             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
                             "apiVersion": "2019-06-01",
-                            "name": "[concat(variables('storage_account_name'), '/default/', toLower(parameters('container_name')[copyIndex('Containers')]))]",
+                            "name": "[concat(parameters('name'), '/default/', toLower(parameters('container_name')[copyIndex('Containers')]))]",
                             "dependsOn": [
-                                "[resourceId('Microsoft.Storage/storageAccounts', variables('Storage_account_name'))]"
+                                "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
                             ],
                             "copy": {
                                 "name": "Containers",
                                 "count": "[length(parameters('container_name'))]"
                             },
                             "properties": {
-                                "publicAccess": "[parameters('container_public_access')]"
+                                "immutableStorageWithVersioning": {
+                                    "enabled": false
+                                },
+                                "defaultEncryptionScope": "$account-encryption-key",
+                                "denyEncryptionScopeOverride": false,
+                                "publicAccess": "None"
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Storage/storageAccounts/blobServices",
+                            "apiVersion": "2023-01-01",
+                            "name": "[concat(parameters('name'), '/default')]",
+                            "dependsOn": [
+                                "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+                            ],
+                            "sku": {
+                                "name": "Standard_ZRS",
+                                "tier": "Standard"
+                            },
+                            "properties": {
+                                "cors": {
+                                    "corsRules": []
+                                },
+                                "deleteRetentionPolicy": {
+                                    "allowPermanentDelete": false,
+                                    "enabled": true,
+                                    "days": 30
+                                },
+                                "isVersioningEnabled": true,
+                                "containerDeleteRetentionPolicy": {
+                                    "enabled": true,
+                                    "days": 30
+                                }
                             }
                         }
                     ],
                     "outputs": {
                         "storage_account_name": {
                             "type": "string",
-                            "value": "[variables('storage_account_name')]"
+                            "value": "[parameters('name')]"
                         },
                         "storage_account_id": {
                             "type": "string",
-                            "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storage_account_name'))]"
+                            "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
                         },
                         "artifact_location": {
                             "condition": "[equals(parameters('deploy_container'), 'Yes')]",
                             "type": "array",
                             "copy": {
                                 "count": "[length(parameters('container_name'))]",
-                                "input": "[concat('https://', variables('storage_account_name'), '.blob.core.windows.net/', toLower(parameters('container_name')[copyIndex()]))]"
+                                "input": "[concat('https://', parameters('name'), '.blob.core.windows.net/', toLower(parameters('container_name')[copyIndex()]))]"
                             }
                         },
                         "sas_token": {
                             "type": "string",
-                            "value": "[listAccountSas(variables('storage_account_name'), '2021-04-01', parameters('account_sas_properties')).accountSasToken]"
+                            "value": "[listAccountSas(parameters('name'), '2021-04-01', parameters('account_sas_properties')).accountSasToken]"
                         }
                     }
                 }
@@ -484,17 +476,17 @@
                     "scope": "Inner"
                 },
                 "parameters": {
-                    "environment": {
-                        "value": "[parameters('environment')]"
-                    },
                     "location": {
                         "value": "[parameters('location')]"
                     },
-                    "usage": {
-                        "value": "[parameters('usage')]"
-                    },
                     "key_vault_ip_rules": {
                         "value": "[parameters('key_vault_ip_rules')]"
+                    },
+                    "name": {
+                        "value": "[variables('key_vault_name')]"
+                    },
+                    "resource_tags": {
+                        "value": "[variables('default_tags')]"
                     },
                     "secrets_officer": {
                         "value": "[parameters('secrets_officer')]"
@@ -507,29 +499,12 @@
                     },
                     "secrets_user_type": {
                         "value": "[parameters('secrets_user_type')]"
-                    },
-                    "resource_tags": {
-                        "value": "[parameters('resource_tags')]"
                     }
                 },
                 "template": {
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
                     "parameters": {
-                        "environment": {
-                            "type": "string",
-                            "metadata": {
-                                "description": "Prod, Dev, Test, PoC, and Demo"
-                            },
-                            "defaultValue": "Demo"
-                        },
-                        "usage": {
-                            "type": "string",
-                            "metadata": {
-                                "description": "Application or service e.g. APP1 or ARM"
-                            },
-                            "defaultValue": ""
-                        },
                         "location": {
                             "type": "string",
                             "metadata": {
@@ -616,6 +591,21 @@
                                 "description": "Array of Key / Values for IP address(es) and associated action"
                             }
                         },
+                        "name": {
+                            "type": "string",
+                            "metadata": {
+                                "description": "Key vault name"
+                            }
+                        },
+                        "resource_tags": {
+                            "type": "object",
+                            "defaultValue": {
+                                "usage": "storage"
+                            },
+                            "metadata": {
+                                "description": "Mandatory requirement to denote what the storage account is used for e.g. Compute diagnostics, NSG flow logs etc."
+                            }
+                        },
                         "secrets_officer": {
                             "type": "string",
                             "defaultValue": "",
@@ -643,33 +633,18 @@
                             "metadata": {
                                 "desciption": "The principal type: User, Group or ServicePrinicpal"
                             }
-                        },
-                        "resource_tags": {
-                            "type": "object",
-                            "defaultValue": {
-                                "usage": "storage"
-                            },
-                            "metadata": {
-                                "description": "Mandatory requirement to denote what the storage account is used for e.g. Compute diagnostics, NSG flow logs etc."
-                            }
                         }
                     },
                     "variables": {
-                        "key_vault_unique_string": "[uniqueString(parameters('environment'), parameters('location'), subscription().id, parameters('usage'))]",
-                        "key_vault_name": "[if(greater(length(concat('kv-', variables('key_vault_unique_string'))),24), toLower(substring(concat('kv-', toLower(variables('key_vault_unique_string'))), 0, 24)), concat('kv-', toLower(variables('key_vault_unique_string'))))]",
-                        "resource_specific_tags": {
-                            "usage": "Terraform Configuration",
-                            "environment": "[parameters('environment')]"
-                        },
-                        "tags": "[union(variables('resource_specific_tags'), parameters('resource_tags'))]",
-                        "key_vault_id": "[resourceId('Microsoft.KeyVault/vaults', variables('key_vault_name'))]",
+                        "tags": "[parameters('resource_tags')]",
+                        "key_vault_id": "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]",
                         "key_vault_secrets_user": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefintions/', '4633458b-17de-408a-b874-0445c86b69e6')]",
-                        "key_vault_secrets_officer": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefintions/', 'a4417e6f-fecd-4de8-b567-7b0420556985')]"
+                        "key_vault_secrets_officer": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefintions/', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7')]"
                     },
                     "resources": [
                         {
                             "apiVersion": "2019-09-01",
-                            "name": "[variables('key_vault_name')]",
+                            "name": "[parameters('name')]",
                             "location": "[parameters('location')]",
                             "type": "Microsoft.KeyVault/vaults",
                             "tags": "[variables('tags')]",
@@ -705,7 +680,7 @@
                         {
                             "condition": "[equals(parameters('enable_diagnostic_logging'), 'Yes')]",
                             "type": "Microsoft.KeyVault/vaults/providers/diagnosticSettings",
-                            "name": "[concat(variables('key_vault_name'), '/Microsoft.Insights/service')]",
+                            "name": "[concat(parameters('name'), '/Microsoft.Insights/service')]",
                             "apiVersion": "2016-09-01",
                             "location": "[parameters('location')]",
                             "dependsOn": [
@@ -730,7 +705,7 @@
                         {
                             "type": "Microsoft.KeyVault/vaults/providers/roleAssignments",
                             "apiVersion": "2020-04-01-preview",
-                            "name": "[concat(variables('key_vault_name'), '/Microsoft.Authorization/', guid(uniqueString(concat(toUpper(parameters('secrets_user')), variables('key_vault_name')))))]",
+                            "name": "[concat(parameters('name'), '/Microsoft.Authorization/', guid(uniqueString(concat(toUpper(parameters('secrets_user')), parameters('name')))))]",
                             "dependsOn": [
                                 "[variables('key_vault_id')]"
                             ],
@@ -743,7 +718,7 @@
                         {
                             "type": "Microsoft.KeyVault/vaults/providers/roleAssignments",
                             "apiVersion": "2020-04-01-preview",
-                            "name": "[concat(variables('key_vault_name'), '/Microsoft.Authorization/', guid(uniqueString(concat(toUpper(parameters('secrets_officer')), variables('key_vault_name')))))]",
+                            "name": "[concat(parameters('name'), '/Microsoft.Authorization/', guid(uniqueString(concat(toUpper(parameters('secrets_officer')), parameters('name')))))]",
                             "dependsOn": [
                                 "[variables('key_vault_id')]"
                             ],
@@ -761,7 +736,7 @@
                         },
                         "key_vault_name": {
                             "type": "string",
-                            "value": "[variables('key_vault_name')]"
+                            "value": "[parameters('name')]"
                         }
                     }
                 }
@@ -769,13 +744,17 @@
         }
     ],
     "outputs": {
-        "storage_account_id": {
+        "resource_group": {
             "type": "string",
-            "value": "[reference('create_storage').outputs.storage_account_id.value]"
+            "value": "[resourceId('Microsoft.Resources/resourceGroups', variables('resource_group_name'))]"
         },
-        "key_vault_id": {
+        "key_vault": {
             "type": "string",
-            "value": "[reference('create_key_vault').outputs.key_vault_id.value]"
+            "value": "[resourceId('Microsoft.KeyVault/vaults', variables('key_vault_name'))]"
+        },
+        "storage_account": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storage_account_name'))]"
         }
     }
 }

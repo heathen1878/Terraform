@@ -1,0 +1,50 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "container_name": {
+            "value": [
+                "tenant"
+            ]
+        },
+        "deploy_container": {
+            "value": "Yes"
+        },
+        "deploy_iam": {
+            "value": "Yes"
+        },
+        "environment": {
+            "value": "gbl"
+        },
+        "key": {
+            "value": "bootstrap"
+        },
+        "location": {
+            "value": "uksouth"
+        },
+        "platform": {
+            "value": "gbl"
+        },
+        "resource_tags": {
+            "value": {
+                "Confidentiality": "Restricted",
+                "Contact": "Dom C",
+                "Description": "Contains a storage account for Terraform state, and a Key Vault for bootstrapping secrets",
+                "Environment": "Global",
+                "IaC": "ARM",
+                "Location": "UK South",
+                "Project": "Project Learning Terraform",
+                "Usage": "Terraform bootstrapping"
+            }
+        },
+        "secrets_officer_type": {
+            "value": "Group"
+        },
+        "secrets_user_type": {
+            "value": "ServicePrincipal"
+        },
+        "workload": {
+            "value": "tf"
+        }
+    }
+}

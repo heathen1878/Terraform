@@ -1,0 +1,59 @@
+name: Deploy Terraform Bootstrapping
+on:
+    push:
+      branches: master
+      paths:
+        - bootstrap_configuration/*
+    workflow_dispatch:
+
+jobs:
+  cost_infra:
+    uses: ./.github/workflows/infracost.yaml
+    with:
+      BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+      PR_ID: ${{ github.event.pull_request.number }}
+      PR_STATUS: ${{ github.event.pull_request.merged }}
+      PR_URL: ${{ github.event.pull_request.html_url }}
+    secrets:
+      API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+
+  plan_bootstrap:
+    runs-on: ubuntu-latest
+    name: Plan Terraform Bootstrapping
+    needs: cost_infra
+
+    defaults:
+      run:
+        working-directory: ./bootstrap_configuration
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: auth
+        uses: azure/login@v2
+        with:
+          creds: '{"clientId": "${{ secrets.ARM_CLIENT_ID }}", "clientSecret": "${{ secrets.ARM_CLIENT_SECRET }}", "tenantId": "${{ secrets.ARM_TENANT_ID }}", "subscriptionId": "${{ vars.ARM_SUBSCRIPTION_ID }}"}'
+               
+      - name: Plan ARM template
+        id: plan
+        uses: azure/arm-deploy@v2
+        with:
+          scope: subscription
+          subscriptionId: ${{ vars.ARM_SUBSCRIPTION_ID }}
+          region: ${{ vars.LOCATION }}
+          template: ./bootstrap_configuration/azuredeploy.json
+          parameters: >
+            ./bootstrap_configuration/azuredeploy.parameters.json
+            secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }}
+            secrets_user=${{ vars.ARM_CLIENT_OBJECT_ID }}
+            rbac="[{\"role_id\": \"acdd72a7-3385-48ef-bd42-f606fba81ae7\", \"principal_id\": \"${{ vars.ARM_CLIENT_OBJECT_ID }}\"}]"
+            key_vault_ip_rules="[${{ vars.TRUSTED_IP_ADDRESSES }}]"
+            storage_account_ip_rules="[${{ vars.TRUSTED_IP_ADDRESSES }}]"
+      
+      - name: Output plan
+        run: |
+          echo "${{ steps.plan.outputs.resource_group }}"
+          echo "${{ steps.plan.outputs.key_vault }}"
+          echo "${{ steps.plan.outputs.storage_account }}"
+          
