@@ -14,7 +14,7 @@
             "value": "Yes"
         },
         "environment": {
-            "value": "gbl"
+            "value": "prd"
         },
         "key": {
             "value": "bootstrap"
