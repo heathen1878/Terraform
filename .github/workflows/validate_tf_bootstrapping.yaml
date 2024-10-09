@@ -56,7 +56,7 @@ jobs:
             ./bootstrap_configuration/azuredeploy.parameters.json
             secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }}
             secrets_user=${{ vars.ARM_CLIENT_OBJECT_ID }}
-            rbac="${{ steps.json.outputs.RBAC }}"
+            rbac="[{\"role_id\": \"acdd72a7-3385-48ef-bd42-f606fba81ae7\", \"principal_id\": \"${{ vars.ARM_CLIENT_OBJECT_ID }}\"}]"
       
       - name: Output plan
         run: |
