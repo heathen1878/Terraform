@@ -39,14 +39,7 @@ jobs:
       - name: Build JSON strings
         id: json
         run: |
-          
-          rbac=$(jq -n --arg "id" "${{ vars.ARM_CLIENT_OBJECT_ID }}" '[{role_id: "acdd72a7-3385-48ef-bd42-f606fba81ae7", principal_id: $id }]')
-
-          echo "$rbac"
-
           rbac_string="[{\"role_id\": \"acdd72a7-3385-48ef-bd42-f606fba81ae7\", \"principal_id\": \"${{ vars.ARM_CLIENT_OBJECT_ID }}\"}]"
-
-          echo $rbac_string
 
           echo "{RBAC=$rbac_string}" >> $GITHUB_OUTPUT
                              
@@ -59,7 +52,7 @@ jobs:
           subscriptionId: ${{ vars.ARM_SUBSCRIPTION_ID }}
           region: ${{ vars.LOCATION }}
           template: ./bootstrap_configuration/azuredeploy.json
-          parameters: ./bootstrap_configuration/azuredeploy.parameters.json secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }} secrets_user=${{ vars.ARM_CLIENT_OBJECT_ID }} rbac=${{ steps.json.outputs.RBAC }}
+          parameters: ./bootstrap_configuration/azuredeploy.parameters.json secrets_officer=${{ vars.SECRETS_OFFICER_GROUP }} secrets_user=${{ vars.ARM_CLIENT_OBJECT_ID }} rbac="${{ steps.json.outputs.RBAC }}"
       
       - name: Output plan
         run: |
