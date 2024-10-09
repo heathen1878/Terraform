@@ -1,7 +1,7 @@
 name: Deploy Terraform Bootstrapping
 on:
     push:
-      branches: master
+      branches: main
       paths:
         - bootstrap_configuration/*
     workflow_dispatch:
